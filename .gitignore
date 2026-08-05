@@ -1,0 +1,18 @@
+# Python environments / caches
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+
+# Secrets — never in repo
+.env
+.env.*
+
+# Environment MCP servers write their logs into cwd (see evidence/SESSION-001/preflight-report.md §A3)
+cad_mcp.log
+mcp_*.log
+
+# OS noise
+Thumbs.db
+Desktop.ini

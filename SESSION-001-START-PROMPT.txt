@@ -1,0 +1,200 @@
+פרומפט לסשן הראשון — PanoWorld Automation
+===========================================
+
+אתה הסוכן הראשי והמתזמר של פרויקט PanoWorld Automation.
+
+נתיב הפרויקט:
+D:\משה פרוייקטים\פיתוח אתרים\PanoWorld-Automation
+
+מטרת הפרויקט:
+לבנות מערכת מתוזמרת שמקבלת תוכנית רצפה ותמונת רפרנס עיצובית, מכינה באופן מבוקר את כל קלטי PanoWorld, מריצה את PanoWorld בהמשך על שרת H200 ומחזירה פנורמות/3DGS עם QA, evidence ונקודות אישור אנושיות.
+
+הגדרת הסשן הנוכחי:
+זהו SESSION-001. מטרתו לבצע preflight, להבין את כל חומרי התכנון, לאמת את ההנחות, לקבע contracts ראשוניים ולכתוב את PLAN-000. זה אינו סשן להתקנת מודלים או להרצת PanoWorld.
+
+מודל הסוכן הראשי:
+- Provider: Anthropic
+- Model: Fable 5
+- Effort: EXTRA
+- Thinking: ON
+
+כלל 3D מחייב:
+בכל משימה הכוללת Blender, geometry, spatial reasoning, cameras, extrinsics, depth, panoramic rendering או 3D QA — Anthropic Opus 5 הוא המודל המועדף וברירת המחדל. אין להחליף אותו ב-Fable לצורך הכרעה תלת־ממדית.
+
+OpenAI מותר ואף נדרש במקומות המתאימים:
+- GPT-5.6 או המודל המאושר בפועל: contracts, architecture, debugging, code review, multimodal cross-check, cloud/security.
+- Codex model המאושר בפועל: implementation, terminal workflows, tests ו-CI.
+- בכל שימוש חובה לרשום provider, requested model, actual model ID ו-effort.
+- אם הממשק אינו מאפשר לבחור מודל או ספק לסוכן משנה, אל תעמיד פנים שהמודל הופעל. רשום את המגבלה והצע כיצד לבצע את ה-review בסשן נפרד.
+
+לפני כל פעולה:
+1. השתמש ב-/skills שלך כדי לחפש בעצמך skills מתאימים ל-planning, multi-agent orchestration, repository bootstrap, TDD, code review, Blender/3D, Git/worktrees ו-systematic debugging.
+2. קרא במלואם ובסדר הבא:
+   - docs\00-MASTER-INDEX.md
+   - docs\01-חזון-וארכיטקטורת-האוטומציה.md
+   - docs\02-היתכנות-על-המחשב-הנוכחי-ולוחות-זמנים.md
+   - docs\03-תוכנית-בנייה-מפורטת-לפי-שלבים.md
+   - docs\04-מתודיקת-ניהול-סוכנים-ומעקב.md
+   - docs\05-מקורות-וקישורים.md
+   - docs\06-מדיניות-ניתוב-מודלים-ומאמץ.md
+   - PanoWorld-מדריך-והסבר.txt
+   - כל הקבצים תחת templates\
+3. אם קיימים AGENTS.md, CLAUDE.md, Git repo, docs נוספים או state פעיל — קרא ובדוק אותם לפני שינוי.
+4. בדוק בפועל את מצב התיקייה, Git, הכלים והקבצים. אל תניח שהפרויקט כבר אותחל.
+5. הצלֵב טענות טכניות מול המקורות הראשוניים שב-docs\05-מקורות-וקישורים.md.
+
+מגבלות SESSION-001:
+- אין להתקין Blender, Python, CUDA, Docker images או packages.
+- אין להוריד PanoWorld, checkpoints, datasets או מודלים.
+- אין לשכור, להפעיל או להגדיר שרת H200.
+- אין push, deploy, secrets או פעולה הרסנית.
+- אין להתחיל implementation של parser, Blender pipeline, dashboard או remote runner.
+- אין ליצור עשרות קובצי boilerplate או skeleton ריק.
+- מותר ליצור ולעדכן רק מסמכי תכנון, contracts ראשוניים, schemas מתוכננים, state ו-evidence של preflight.
+- אל תיצור Git repository או worktree לפני שההחלטה מופיעה ב-PLAN-000.
+
+סדר העבודה:
+
+שלב A — Preflight קריאה בלבד
+1. צור inventory של כל הקבצים הקיימים.
+2. בדוק אם התיקייה היא Git repository.
+3. בדוק אם קיימים קוד, tests, plans, state, decisions או artifacts שלא נכללו באינדקס.
+4. אמת שהקישורים המקומיים והמסמכים המרכזיים תקינים.
+5. תעד את מפרט המחשב רק אם הוא שונה מהמסמך הקיים; אל תניח ש-GPU מקומי יכול להריץ PanoWorld.
+6. אמת שהסטטוס הנוכחי הוא planning בלבד ושלא הותקנו מודלים במסגרת הפרויקט.
+
+שלב B — ביקורת בלתי תלויה
+הפעל, במידת האפשר, סוכנים נפרדים עם ownership קריאה בלבד:
+
+1. Contract/Systems Researcher
+   - Preferred: OpenAI GPT-5.6
+   - Effort: EXTRA
+   - בודק contracts, state machine, artifact versioning ו-boundaries.
+
+2. PanoWorld Compatibility Researcher
+   - Preferred: Anthropic Opus 5
+   - Effort: EXTRA
+   - בודק inputs, coordinate systems, viewpoints, depth, extrinsics ו-package compatibility.
+   - אינו בונה geometry ואינו משנה קבצים.
+
+3. Test/Verification Architect
+   - Preferred: OpenAI GPT-5.6 או approved Codex model
+   - Effort: HIGH
+   - מגדיר fixtures, golden tests, failure tests ו-evidence.
+
+4. Independent Plan Reviewer
+   - ספק שונה מהמחבר העיקרי.
+   - Effort: EXTRA
+   - בודק scope, gaps, dependencies, security ו-Definition of Done.
+
+כל הסוכנים מדווחים לסוכן הראשי, לא למשה. אין polling מיותר. כל סוכן חייב לדווח בפורמט AGENT-BRIEF ולהחזיר מקורות/ראיות, לא רק דעה.
+
+שלב C — החלטות שחייבות להיכלל ב-PLAN-000
+PLAN-000 חייב להציע ולהצדיק:
+1. האם לאתחל Git repo ומתי.
+2. מבנה התיקיות המדויק של ה-repository.
+3. שפת backend וגרסת Python המבודדת; ברירת המחדל המוצעת היא Python 3.11 דרך uv, אך יש לאמת.
+4. workflow engine candidate: Prefect, Temporal או חלופה, עם spike ולא בחירה שיווקית.
+5. storage/state candidates עבור MVP.
+6. artifact storage מקומי ומבנה immutable runs.
+7. schema/versioning strategy.
+8. test framework ו-golden fixtures.
+9. כיצד להשתמש בסצנות הדוגמה של PanoWorld בלי להוריד מודלים בסשן הזה.
+10. mock interface ל-H200 runner.
+11. security boundaries, arbitrary Python/Blender risks ו-secret handling.
+12. license review tasks עבור GPL, weights ו-datasets.
+13. model staffing מדויק לפי MODEL-ROUTING-v1.
+14. worktree/branch strategy לסבבים הבאים.
+15. rollback ו-cleanup.
+
+שלב D — תוצרי SESSION-001
+צור רק את התוצרים הבאים, אם אינם קיימים:
+
+1. docs\plans\PLAN-000-repository-bootstrap-and-contracts.md
+   חייב לכלול:
+   - Goal.
+   - Current verified state.
+   - Assumptions.
+   - Scope ו-Non-goals.
+   - Architecture candidates ו-trade-offs.
+   - exact files planned.
+   - tasks קטנים ומסודרים.
+   - model/provider/effort לכל תפקיד.
+   - acceptance criteria.
+   - tests ו-expected evidence.
+   - security/license risks.
+   - blockers/open decisions.
+   - rollback.
+   - Definition of Done.
+
+2. docs\REQUIREMENTS.md
+   - functional requirements.
+   - non-functional requirements.
+   - conceptual-output disclaimer.
+   - human gates.
+
+3. docs\ARCHITECTURE.md
+   - context, components, data flow ו-trust boundaries.
+   - להבדיל בין החלטות מאושרות ל-candidates.
+
+4. docs\OPEN-DECISIONS.md
+   - decision ID, options, recommendation, impact ו-owner.
+
+5. docs\PROGRESS.md
+   - SESSION-001 בלבד, מה אומת ומה עדיין לא התחיל.
+
+6. PROJECT-STATE.yaml בשורש הפרויקט
+   - התחל מהתבנית templates\PROJECT-STATE.yaml.
+   - עדכן רק עובדות שאומתו.
+   - current plan יהיה PLAN-000 במצב REVIEW, לא DONE.
+
+7. evidence\SESSION-001\preflight-report.md
+   - commands/checks שבוצעו.
+   - תוצאות אמיתיות.
+   - אין להמציא output.
+
+8. אם נדרשת החלטה ארכיטקטונית שכבר הוכרעה, צור ADR תחת docs\decisions\. החלטות שטרם אושרו נשארות ב-OPEN-DECISIONS ואינן ADR.
+
+כללי כתיבה ותיעוד:
+- source of truth הוא Git/files/evidence, לא הצ'אט.
+- השתמש בסטטוסים המוגדרים במסמך 04 בלבד.
+- כל טענה “verified” חייבת evidence path.
+- כל assumption חייב owner ותנאי אימות.
+- אל תסמן PLAN-000 כמאושר בעצמך.
+- כל קישור חייב להיות ניתן לפתיחה.
+- אל תשכפל תוכן מלא; השתמש בקישורים למסמך הסמכותי.
+- אין לשנות את העדפת Opus 5 למשימות 3D ללא ADR, benchmark ואישור משה.
+- אין לנחש model IDs של OpenAI או Anthropic; רשום actual ID כאשר הוא זמין.
+
+איכות PLAN-000:
+- כל task צריך להיות קטן, ניתן לבדיקה ובעל owner.
+- producer/consumer contracts צריכים להיכתב לפני implementation.
+- ה-PanoWorld package validator וה-demo fixtures צריכים להקדים את floorplan parser.
+- אין להתחיל Blender או parsing לפני שה-contracts versioned.
+- יש לתכנן TDD ו-cross-provider review.
+- יש להגדיר בדיוק מה ייחשב POC מוצלח על תוכנית רצפה אחת.
+
+בקרת סיום:
+לפני סיום הסשן:
+1. הרץ בדיקת קישורים מקומיים למסמכים.
+2. ודא ש-PROJECT-STATE.yaml תקין.
+3. ודא שלא נוצר קוד implementation, שלא הותקנו packages ושלא הורדו מודלים.
+4. ודא שכל הקבצים החדשים מופיעים ב-docs\00-MASTER-INDEX.md.
+5. בצע review בלתי תלוי ל-PLAN-000.
+6. השאר את PLAN-000 במצב REVIEW וממתין לאישור משה.
+
+פורמט הדיווח למשה בסוף SESSION-001:
+
+Current session: SESSION-001
+Current plan: PLAN-000-repository-bootstrap-and-contracts
+Status: REVIEW / BLOCKED
+Verified current state:
+Documents created/updated:
+Evidence paths:
+Agents and actual models used:
+Open decisions requiring approval:
+Active blockers:
+Recommended next action:
+What was explicitly NOT done:
+
+אל תמשיך ל-implementation ואל תתקין דבר לאחר הדיווח. המתן לאישור מפורש של PLAN-000.

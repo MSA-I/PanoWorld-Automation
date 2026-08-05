@@ -1,0 +1,16 @@
+# Line-ending policy (PLAN-000 T1): LF for all text contracts/fixtures so hashes are
+# stable across Windows/Linux; binaries untouched. Must exist BEFORE any fixture commit.
+* text=auto
+.gitignore text eol=lf
+.gitattributes text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.json text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.py text eol=lf
+*.toml text eol=lf
+*.png binary
+*.jpg binary
+*.blend binary
+*.glb binary

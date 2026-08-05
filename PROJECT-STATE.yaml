@@ -1,0 +1,144 @@
+project:
+  id: panoworld-automation
+  phase: planning
+  overall_status: PLANNING_COMPLETE
+  implementation_started: false
+  updated_at: "2026-08-05"
+  updated_by_session: SESSION-001
+
+model_policy:
+  id: MODEL-ROUTING-v1
+  path: docs/06-מדיניות-ניתוב-מודלים-ומאמץ.md
+  3d_primary: "Anthropic Opus 5"
+  orchestration_primary: "Anthropic Fable 5"
+  code_primary: "OpenAI approved Codex/GPT-5.6"
+  cross_provider_review_required_for_critical_artifacts: true
+  interface_limitation: >-
+    Claude Code subagents are Anthropic-only and inherit session effort;
+    OpenAI roles ran on documented fallbacks (see evidence/SESSION-001/preflight-report.md).
+    Real cross-provider review is open decision D-009.
+
+current_plan:
+  id: PLAN-000-repository-bootstrap-and-contracts
+  title: Repository bootstrap and contracts
+  status: REVIEW
+  owner: orchestrator
+  path: docs/plans/PLAN-000-repository-bootstrap-and-contracts.md
+  branch: null        # git repo not yet initialized (D-001, pending PLAN-000 approval)
+  worktree: null
+
+milestones:
+  - id: M0
+    title: contracts_and_baseline
+    status: PLANNED
+    evidence:
+      - docs/plans/PLAN-000-repository-bootstrap-and-contracts.md
+  - id: M1
+    title: local_floorplan_to_panoworld_package_poc
+    status: NOT_STARTED
+    evidence: []
+  - id: M2
+    title: local_h200_ready_mvp
+    status: NOT_STARTED
+    evidence: []
+  - id: M3
+    title: h200_integration
+    status: NOT_STARTED
+    evidence: []
+  - id: M4
+    title: production_hardening
+    status: NOT_STARTED
+    evidence: []
+
+agents:
+  - name: orchestrator
+    role: Lead Orchestrator
+    plan_id: PLAN-000
+    provider: anthropic
+    requested_model: "Fable 5"
+    actual_model_id: "claude-opus-5[1m]"
+    normalized_effort: EXTRA
+    provider_effort: session-inherited
+    fallback: "yes - interface runs session on Opus 5; documented fallback per MODEL-ROUTING-v1"
+    reviewer_model: "pending D-009 (OpenAI) / Fable 5 internal"
+    status: IN_PROGRESS
+  - name: contract-researcher
+    role: Contract/Systems Researcher (read-only)
+    plan_id: PLAN-000
+    provider: anthropic
+    requested_model: "OpenAI GPT-5.6"
+    actual_model_id: "claude-fable-5 (harness label: fable)"
+    normalized_effort: EXTRA
+    provider_effort: session-inherited
+    fallback: "yes - OpenAI unavailable in interface; first documented fallback"
+    reviewer_model: N/A
+    status: REVIEW
+  - name: panoworld-compat
+    role: PanoWorld Compatibility Researcher (read-only)
+    plan_id: PLAN-000
+    provider: anthropic
+    requested_model: "Opus 5"
+    actual_model_id: "claude-opus-5[1m]"
+    normalized_effort: EXTRA
+    provider_effort: session-inherited
+    fallback: "no"
+    reviewer_model: N/A
+    status: REVIEW
+  - name: test-architect
+    role: Test/Verification Architect (read-only)
+    plan_id: PLAN-000
+    provider: anthropic
+    requested_model: "OpenAI Codex/GPT-5.6"
+    actual_model_id: "claude-sonnet-5 (harness label: sonnet)"
+    normalized_effort: HIGH
+    provider_effort: session-inherited
+    fallback: "yes - OpenAI unavailable in interface; first documented fallback"
+    reviewer_model: N/A
+    status: REVIEW
+  - name: plan-reviewer
+    role: Independent Plan Reviewer (read-only)
+    plan_id: PLAN-000
+    provider: anthropic
+    requested_model: "different provider than author (OpenAI)"
+    actual_model_id: "claude-fable-5 (harness label: fable)"
+    normalized_effort: EXTRA
+    provider_effort: session-inherited
+    fallback: "partial - different model than author (Opus 5) but same provider; cross-provider open as D-009"
+    reviewer_model: N/A
+    status: REVIEW
+    verdict: "NEEDS_REWORK - 1 critical + 4 major; all findings applied by orchestrator same session; plan back to REVIEW for Moshe"
+
+blockers: []
+
+open_decisions:
+  - D-001 git repository init (proposed to close with PLAN-000 approval)
+  - D-002 workflow engine
+  - D-003 storage/state for MVP
+  - D-004 floorplan parser baseline
+  - D-005 source panorama provider
+  - D-006 H200 cloud provider
+  - D-007 dashboard stack
+  - D-008 schema versioning (proposed to close with PLAN-000 approval)
+  - D-009 cross-provider review execution
+  - D-010 license verification / fixture vendoring (proposed to close with PLAN-000 approval)
+
+recent_runs: []
+
+evidence:
+  session_001:
+    - evidence/SESSION-001/preflight-report.md
+    - evidence/SESSION-001/agent-reports/contract-researcher.md
+    - evidence/SESSION-001/agent-reports/panoworld-compat.md
+    - evidence/SESSION-001/agent-reports/test-architect.md
+    - evidence/SESSION-001/agent-reports/plan-reviewer.md
+
+next_actions:
+  - moshe_review_and_approve_PLAN_000
+  - decide_D009_cross_provider_review
+  - execute_PLAN_000_tasks_T1_T12_after_approval
+
+human_gates:
+  plan_000_approval: pending
+  geometry_approval: pending
+  source_panorama_approval: pending
+  final_output_approval: pending

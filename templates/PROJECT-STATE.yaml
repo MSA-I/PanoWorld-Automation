@@ -1,0 +1,62 @@
+project:
+  id: panoworld-automation
+  phase: planning
+  overall_status: PLANNING_COMPLETE
+  implementation_started: false
+  updated_at: "2026-08-05"
+
+model_policy:
+  id: MODEL-ROUTING-v1
+  path: docs/06-מדיניות-ניתוב-מודלים-ומאמץ.md
+  3d_primary: "Anthropic Opus 5"
+  orchestration_primary: "Anthropic Fable 5"
+  code_primary: "OpenAI approved Codex/GPT-5.6"
+  cross_provider_review_required_for_critical_artifacts: true
+
+current_plan:
+  id: null
+  title: null
+  status: NOT_STARTED
+  owner: null
+  branch: null
+  worktree: null
+
+milestones:
+  - id: M0
+    title: contracts_and_baseline
+    status: PLANNED
+    evidence: []
+  - id: M1
+    title: local_floorplan_to_panoworld_package_poc
+    status: NOT_STARTED
+    evidence: []
+  - id: M2
+    title: local_h200_ready_mvp
+    status: NOT_STARTED
+    evidence: []
+  - id: M3
+    title: h200_integration
+    status: NOT_STARTED
+    evidence: []
+  - id: M4
+    title: production_hardening
+    status: NOT_STARTED
+    evidence: []
+
+agents: []
+# Each active agent entry must include:
+# name, role, plan_id, provider, requested_model, actual_model_id,
+# normalized_effort, provider_effort, fallback, reviewer_model and status.
+blockers: []
+open_decisions: []
+recent_runs: []
+
+next_actions:
+  - write_PLAN_000_repository_bootstrap_and_contracts
+  - approve_technology_spikes
+  - select_clean_floorplan_fixture
+
+human_gates:
+  geometry_approval: pending
+  source_panorama_approval: pending
+  final_output_approval: pending
