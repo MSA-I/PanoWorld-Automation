@@ -21,16 +21,16 @@ model_policy:
 current_plan:
   id: PLAN-000-repository-bootstrap-and-contracts
   title: Repository bootstrap and contracts
-  status: MERGED   # approved by Moshe 2026-08-05; executed, verified (109/109 tests), merged to main; final DONE pending Moshe ack of the run report
+  status: DONE   # approved 2026-08-05, executed + merged (4ff4a41), closed 2026-08-06 per Moshe's closure instruction; documented deviation: red-phase TDD log not preserved (acceptance.md)
   owner: orchestrator
   path: docs/plans/PLAN-000-repository-bootstrap-and-contracts.md
-  branch: plan/PLAN-000
+  branch: plan/PLAN-000   # merged into main; branch retained locally
   worktree: null
 
 milestones:
   - id: M0
     title: contracts_and_baseline
-    status: MERGED
+    status: DONE
     evidence:
       - evidence/PLAN-000/acceptance.md
       - evidence/PLAN-000/test-results/junit.xml
@@ -55,7 +55,7 @@ milestones:
 
 agents:
   - name: orchestrator
-    role: Lead Orchestrator
+    role: Lead Orchestrator (planning + execution of PLAN-000)
     plan_id: PLAN-000
     provider: anthropic
     requested_model: "Fable 5"
@@ -63,8 +63,8 @@ agents:
     normalized_effort: EXTRA
     provider_effort: session-inherited
     fallback: "yes - interface runs session on Opus 5; documented fallback per MODEL-ROUTING-v1"
-    reviewer_model: "pending D-009 (OpenAI) / Fable 5 internal"
-    status: IN_PROGRESS
+    reviewer_model: "fable (plan review) + sonnet (code review); cross-provider waived once per Moshe (D-009 open)"
+    status: DONE
   - name: contract-researcher
     role: Contract/Systems Researcher (read-only)
     plan_id: PLAN-000
@@ -75,7 +75,7 @@ agents:
     provider_effort: session-inherited
     fallback: "yes - OpenAI unavailable in interface; first documented fallback"
     reviewer_model: N/A
-    status: REVIEW
+    status: DONE  # report delivered and archived: evidence/SESSION-001/agent-reports/contract-researcher.md
   - name: panoworld-compat
     role: PanoWorld Compatibility Researcher (read-only)
     plan_id: PLAN-000
@@ -86,7 +86,7 @@ agents:
     provider_effort: session-inherited
     fallback: "no"
     reviewer_model: N/A
-    status: REVIEW
+    status: DONE  # report archived: evidence/SESSION-001/agent-reports/panoworld-compat.md
   - name: test-architect
     role: Test/Verification Architect (read-only)
     plan_id: PLAN-000
@@ -97,7 +97,7 @@ agents:
     provider_effort: session-inherited
     fallback: "yes - OpenAI unavailable in interface; first documented fallback"
     reviewer_model: N/A
-    status: REVIEW
+    status: DONE  # report archived: evidence/SESSION-001/agent-reports/test-architect.md
   - name: plan-reviewer
     role: Independent Plan Reviewer (read-only)
     plan_id: PLAN-000
@@ -108,24 +108,64 @@ agents:
     provider_effort: session-inherited
     fallback: "partial - different model than author (Opus 5) but same provider; cross-provider open as D-009"
     reviewer_model: N/A
-    status: REVIEW
-    verdict: "NEEDS_REWORK - 1 critical + 4 major; all findings applied by orchestrator same session; plan back to REVIEW for Moshe"
+    status: DONE
+    verdict: "NEEDS_REWORK (1 critical + 4 major) - all findings applied same session before Moshe's approval"
+  - name: contracts-reviewer
+    role: Contracts Reviewer for PLAN-000 execution (read-only)
+    plan_id: PLAN-000
+    provider: anthropic
+    requested_model: "Fable 5 (per staffing: System Architect output reviewed by Fable)"
+    actual_model_id: "claude-fable-5 (harness label: fable)"
+    normalized_effort: EXTRA
+    provider_effort: session-inherited
+    fallback: "no"
+    reviewer_model: N/A
+    status: DONE
+    verdict: "NEEDS_REWORK (3 major, 0 critical) - all majors + practical minors applied; residual: machine-readable blocker schema (deferred)"
+  - name: code-reviewer
+    role: Code/Tests Reviewer for PLAN-000 execution (read-only)
+    plan_id: PLAN-000
+    provider: anthropic
+    requested_model: "Sonnet 5 (per staffing: Implementer output reviewed by Sonnet)"
+    actual_model_id: "claude-sonnet-5 (harness label: sonnet)"
+    normalized_effort: HIGH
+    provider_effort: session-inherited
+    fallback: "no"
+    reviewer_model: N/A
+    status: DONE
+    verdict: "APPROVE_WITH_MINOR_FIXES - both findings applied with tests"
 
 blockers: []
 
+resolved_decisions:
+  - "D-001 -> ADR-0001 git bootstrap in current root (accepted with PLAN-000 approval, 2026-08-05)"
+  - "D-008 -> ADR-0002 schema versioning: envelope + semver + bundle (accepted 2026-08-05)"
+  - "D-010 (vendoring part) -> ADR-0003 golden-fixture vendoring under Apache-2.0 (accepted 2026-08-05)"
+
 open_decisions:
-  - D-001 git repository init (proposed to close with PLAN-000 approval)
   - D-002 workflow engine
   - D-003 storage/state for MVP
   - D-004 floorplan parser baseline
   - D-005 source panorama provider
   - D-006 H200 cloud provider
   - D-007 dashboard stack
-  - D-008 schema versioning (proposed to close with PLAN-000 approval)
-  - D-009 cross-provider review execution
-  - D-010 license verification / fixture vendoring (proposed to close with PLAN-000 approval)
+  - D-009 cross-provider review infrastructure (one-time waiver used for PLAN-000)
+  - D-010 (remaining) full license matrix before commercial use
+  - D-011 style_spec reference cardinality
 
-recent_runs: []
+recent_runs:
+  - id: RUN-20260805-204413-testsuite
+    kind: local test suite (tools/run_checks.py)
+    result: "109 tests, 0 failures/errors/skipped, exit 0"
+    evidence: evidence/PLAN-000/test-results/
+  - id: RUN-20260805-fixture-roundtrip
+    kind: git roundtrip byte-identity check (AC7)
+    result: "17/17 fixture files byte-identical"
+    evidence: evidence/PLAN-000/fixture-roundtrip.log
+  - id: RUN-20260806-postmerge-sanity
+    kind: pytest on main after merge
+    result: "109 passed, exit 0 (chat-session output; no separate evidence file)"
+    evidence: null
 
 evidence:
   session_001:
@@ -136,9 +176,9 @@ evidence:
     - evidence/SESSION-001/agent-reports/plan-reviewer.md
 
 next_actions:
-  - moshe_ack_PLAN_000_final_report
   - decide_PLAN_001_scope_intake_or_packager
   - write_PLAN_001
+  - fix_run_checks_evidence_wipe_behavior_in_PLAN_001
 
 human_gates:
   plan_000_approval: "approved 2026-08-05 (Moshe; internal reviews accepted as documented one-time exception, D-009 remains open)"

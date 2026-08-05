@@ -1,6 +1,6 @@
 # ARCHITECTURE — PanoWorld Automation
 
-- Status: `REVIEW` (נוצר ב-SESSION-001; ממתין לאישור משה יחד עם PLAN-000)
+- Status: `VERIFIED` — אושר יחד עם PLAN-000 ‏(משה, ‏2026-08-05). ‏PLAN-000 בוצע ומוזג: החוזים ‏(C9 חלקית — ‏validator בלבד), ‏schemas ו-state machine קיימים בפועל ב-main.
 - מסמכים סמכותיים: [01-חזון-וארכיטקטורת-האוטומציה.md](01-חזון-וארכיטקטורת-האוטומציה.md) ‏(pipeline, סוכנים, state machine), [03-תוכנית-בנייה-מפורטת-לפי-שלבים.md](03-תוכנית-בנייה-מפורטת-לפי-שלבים.md) ‏(שלבים ו-gates), [06-מדיניות-ניתוב-מודלים-ומאמץ.md](06-מדיניות-ניתוב-מודלים-ומאמץ.md) ‏(model routing).
 - כללי סימון: **[מאושר]** = הוחלט במסמכי התכנון וקיבל את אישור משה במסגרתם. **[Candidate]** = מועמד הדורש spike/ADR/אישור. אין לממש Candidate בלי החלטה ב-OPEN-DECISIONS → ADR.
 
@@ -81,12 +81,18 @@ inputs → project_manifest.json → floorplan_parse.json → scene_geometry.jso
 6. ‏PanoWorld inference בענן בלבד; הכנה מקומית (מסמך 02).
 7. סדר מימוש: Contracts → Intake → Packager מוקדם → Parsing → Geometry → ... (מסמך 03).
 
+### הוכרעו ב-PLAN-000 (ראו docs/decisions/)
+- ‏D-001 → ‏**ADR-0001**: ‏Git בשורש הנוכחי, ‏branch לכל PLAN, נתיבים פנימיים ASCII. **מיושם.**
+- ‏D-008 → ‏**ADR-0002**: ‏envelope + ‏semver פר-schema + ‏bundle version. **מיושם** ‏(schemas/ + ‏compute_content_hash).
+- חלק מ-D-010 → ‏**ADR-0003**: ‏vendoring תת-סט scene0000 כ-golden fixture. **מיושם.**
+
 ### Candidates פתוחים (ראו [OPEN-DECISIONS.md](OPEN-DECISIONS.md))
-- ‏D-001: מועד אתחול Git repo ומבנהו.
 - ‏D-002: ‏workflow engine ‏(Prefect/Temporal/מינימלי).
 - ‏D-003: ‏storage/state ל-MVP ‏(SQLite/Postgres, ‏queue).
 - ‏D-004: ‏floorplan parser baseline.
 - ‏D-005: ‏source panorama provider.
 - ‏D-006: ספק ענן H200.
 - ‏D-007: ‏dashboard stack.
-- ‏D-008: אסטרטגיית schema versioning (הצעה ב-PLAN-000).
+- ‏D-009: תשתית cross-provider review.
+- ‏D-010 (יתרה): ‏license matrix מלא לפני שימוש מסחרי.
+- ‏D-011: קרדינליות style references.

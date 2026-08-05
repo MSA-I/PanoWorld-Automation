@@ -42,8 +42,9 @@ uv run python -m pwa.validator.cli tests/golden/panoworld_demo_subset --json
 ```
 
 ## Test evidence
-- `evidence/PLAN-000/test-results/` ‏(junit.xml, summary.md, command.log, coverage.xml, red-phase.log)
+- `evidence/PLAN-000/test-results/` ‏(junit.xml, summary.md, command.log, coverage.xml)
 - `evidence/PLAN-000/fixture-roundtrip.log`, ‏`evidence/PLAN-000/acceptance.md`
+- הערה: ‏red-phase.log ‏(ראיית ה-TDD האדום) לא נשתמר — ראו acceptance.md §TDD; ‏consumer: אל תסתמך עליו.
 
 ## Known limitations
 1. ‏CLI ללא entry point ‏(`pwa-validate`) — מגבלת הנתיב העברי; ‏`python -m` בלבד.
@@ -73,4 +74,4 @@ uv run python -m pwa.validator.cli tests/golden/panoworld_demo_subset --json
 ## Approval
 - Producer status: VERIFIED ‏(כל ACs עם evidence)
 - Reviewer status: ‏contracts NEEDS_REWORK → ‏rework יושם; ‏code APPROVE_WITH_MINOR_FIXES → יושם
-- Orchestrator status: ‏MERGED ל-main; ‏DONE סופי ממתין לאישור דוח הסיום ע"י משה
+- Orchestrator status: **DONE** — נסגר בהנחיית משה ‏(2026-08-06); ‏merge ‏`4ff4a41` ב-main המקומי (לא בוצע push)

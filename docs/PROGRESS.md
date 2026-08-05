@@ -1,8 +1,12 @@
 # PROGRESS — PanoWorld Automation
 
+## SESSION-001 — סגירת PLAN-000 — ‏2026-08-06
+
+בהנחיית משה בוצעה סגירה מסודרת: סטטוס **`DONE`**; ‏D-001/D-008/D-010(vendoring) נסגרו כ-ADR-0001..0003; סטטוסי סוכנים ו-recent_runs עודכנו ב-PROJECT-STATE; ‏REQUIREMENTS/ARCHITECTURE → ‏VERIFIED. **תיקון ראיות:** ההפניה ל-`red-phase.log` הוסרה/תוקנה — הקובץ נמחק ע"י ה-wipe של `run_checks.py` לפני שנשמר ב-git; טענת ה-TDD-האדום מסווגת כ-process-level ללא קובץ ראיה ‏(acceptance §TDD), והלקח נרשם ל-PLAN-001.
+
 ## SESSION-001 (המשך) — ביצוע PLAN-000 — ‏2026-08-05/06
 
-משה אישר את PLAN-000 ("מאשר") והביצוע הושלם באותו סשן. סטטוס: **MERGED** ל-main; ‏DONE סופי ממתין לאישור דוח הסיום.
+משה אישר את PLAN-000 ("מאשר") והביצוע הושלם באותו סשן.
 
 ### מה בוצע (הכל עם evidence)
 - ‏T1: ‏git init ‏(main + ‏plan/PLAN-000), ‏.gitignore/.gitattributes ‏(LF לפני fixtures). ‏ADR-0001..0003 נכתבו.

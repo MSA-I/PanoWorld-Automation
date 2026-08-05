@@ -1,7 +1,7 @@
 # PLAN-000 — Repository Bootstrap and Contracts
 
 - Plan ID: `PLAN-000-repository-bootstrap-and-contracts`
-- Status: **`REVIEW`** — ממתין לאישור מפורש של משה. אסור לבצע את המשימות שבתוכנית לפני האישור.
+- Status: **`DONE`** — אושר ע"י משה ‏(2026-08-05), בוצע במלואו, מוזג ל-main המקומי ‏(merge ‏`4ff4a41`) ונסגר ‏(2026-08-06). ‏Acceptance: ‏[evidence/PLAN-000/acceptance.md](../../evidence/PLAN-000/acceptance.md); ‏Handoff: ‏[HANDOFF-PLAN-000-to-PLAN-001-001](../handoffs/HANDOFF-PLAN-000-to-PLAN-001-001.md). חריגה מתועדת: ראיית ה-TDD האדום לא נשתמרה ‏(acceptance §TDD).
 - Session created: SESSION-001, ‏2026-08-05
 - Author (Orchestrator): Anthropic — requested `Fable 5 EXTRA`, actual `claude-opus-5[1m]` ‏(Opus 5, ‏fallback מתועד — ראו [preflight](../../evidence/SESSION-001/preflight-report.md))
 - Policy: ‏[MODEL-ROUTING-v1](../06-מדיניות-ניתוב-מודלים-ומאמץ.md)
@@ -228,5 +228,7 @@ PanoWorld-Automation/
 |---|---|---|
 | ביקורת בלתי תלויה (פנימית) | ‏plan-reviewer — ‏Anthropic Fable 5 ‏(מודל שונה מהמחבר Opus 5; ספק זהה — מגבלת ממשק, ‏D-009) | ‏**NEEDS_REWORK**: ‏1 CRITICAL, ‏4 MAJOR, ‏6 MINOR, ‏6 missed risks — ‏[הדוח המלא](../../evidence/SESSION-001/agent-reports/plan-reviewer.md) |
 | ‏rework | Orchestrator, באותו סשן | **כל הממצאים יושמו**: ‏C-1 ‏(fixture = סגירת map0 המלאה ‏0000+0001+0008+0011 + ‏scene-only mode + ‏style סינתטי ב-Layer A); ‏M-1 ‏(remote_job ב-T5 + ‏AC4); ‏M-2 ‏(§6 הושלם: ‏uv.lock, ‏READMEs, ‏NOTICE+LICENSE, ‏metadata, ‏run_checks.py; ‏contracts/README.md ל-T4); ‏M-3 ‏(TDD מחייב ב-T7–T9); ‏M-4 ‏(סמנטיקת WARN/conflict הוכרעה ב-T8); ‏m-1..m-6 ‏(טווח גודל, סדר T6/T11, ‏GPL, בדיקת מבנה בקוד, מזהה קנוני PLAN-000, ‏LICENSE upstream); ‏missed risks 1–6 ‏(מקרה 12 ל-NTFS, נרמול נתיבים ב-snapshot, ‏VRAM=WARN, ‏T2 network/rollback, ‏AC7 מסונן, ‏SHA בזמן ריצה) |
-| ‏cross-provider review ‏(OpenAI) | — | **לא בוצע** — לא זמין בממשק; פתוח כ-D-009 להכרעת משה |
-| אישור משה | — | **ממתין** — התוכנית ב-`REVIEW` |
+| ‏cross-provider review ‏(OpenAI) | — | לא בוצע — לא זמין בממשק; משה קיבל את הביקורת הפנימית כחריגה חד-פעמית ל-PLAN-000; ‏D-009 נותר פתוח כשאלת תשתית |
+| אישור משה לתוכנית | משה | **אושר** — ‏2026-08-05 ‏("מאשר") |
+| ביצוע | Orchestrator ‏(`claude-opus-5[1m]`) + ‏reviewers ‏Fable/Sonnet | ‏T1–T12 הושלמו; ‏109/109 בדיקות; ממצאי שני ה-reviews יושמו; ‏merge ‏`4ff4a41` |
+| סגירה | משה ‏(הנחיית closure ‏2026-08-06) | **DONE** — ‏acceptance מעודכן, כולל תיקון ראיית ה-red-phase שלא נשתמרה |

@@ -1,20 +1,20 @@
 # OPEN DECISIONS — PanoWorld Automation
 
-- Status: פעיל. נוצר ב-SESSION-001.
-- כלל: החלטה כאן היא **פתוחה**. כשמשה מאשר — היא הופכת ל-ADR תחת `docs/decisions/` ונמחקת/מסומנת כאן כ-RESOLVED. אין לממש על בסיס המלצה בלבד.
+- Status: פעיל. נוצר ב-SESSION-001; עודכן בסגירת PLAN-000 ‏(2026-08-06).
+- כלל: החלטה כאן היא **פתוחה**. כשמשה מאשר — היא הופכת ל-ADR תחת `docs/decisions/` ומסומנת כאן כ-RESOLVED. אין לממש על בסיס המלצה בלבד.
 - Owner ברירת מחדל להכרעה: משה. ‏Owner להכנת החומר: כמצוין.
 
 ---
 
-## D-001 — אתחול Git repository: מתי ואיך
+## החלטות שנסגרו
 
-- **Options:**
-  - A. אתחול מיד עם אישור PLAN-000, בשורש הפרויקט הנוכחי, עם `.gitignore` המחריג runs כבדים, artifacts ו-`cad_mcp.log`.
-  - B. דחייה עד תחילת כתיבת קוד (PLAN-001).
-  - C. ‏repo נפרד בנתיב ASCII קצר (למשל `D:\dev\panoworld-automation`) והשארת מסמכי התכנון כאן.
-- **Recommendation:** A — ‏Git הוא source of truth לפי מסמך 04, וכל דחייה משאירה את מסמכי התכנון בלי versioning. סיכון הנתיב העברי מטופל בכך שקוד ונתיבים פנימיים יהיו ASCII (ראו PLAN-000 §Risks). אם יתגלה כלי שנשבר על הנתיב — מעבר מבוקר ל-C יתועד כ-ADR.
-- **Impact:** בסיס לכל ה-traceability; חוסם merge/branch strategy.
-- **Owner (הכנה):** Orchestrator. **הכרעה:** משה באישור PLAN-000.
+| ID | הוכרע | ADR | הערה |
+|---|---|---|---|
+| ‏D-001 ‏Git bootstrap | ‏Option A — שורש נוכחי, מיידי | [ADR-0001](decisions/ADR-0001-git-repository-bootstrap.md) | מיושם ‏(main פעיל). מוקש הנתיב העברי התממש חלקית ‏(editable ‏.pth) וטופל ב-`package=false` — ה-fallback ל-junction ‏ASCII נשאר זמין |
+| ‏D-008 ‏Schema versioning | ‏Option A — ‏envelope+semver+bundle | [ADR-0002](decisions/ADR-0002-schema-versioning-strategy.md) | מיושם, כולל הגדרת ‏content_hash קנונית |
+| ‏D-010 ‏(חלק ה-vendoring בלבד) | ‏vendoring תת-סט ‏scene0000 מותר | [ADR-0003](decisions/ADR-0003-golden-fixture-vendoring.md) | מיושם עם NOTICE+LICENSE; **יתרת D-010 (license matrix מסחרי) נותרה פתוחה — ראו בהמשך** |
+
+---
 
 ## D-002 — Workflow engine
 
@@ -58,18 +58,11 @@
 - **Impact:** נוחות פיקוח מול עלות פיתוח מוקדמת.
 - **Owner (הכנה):** ‏Developer ‏(OpenAI Codex). **הכרעה:** משה בשלב 11.
 
-## D-008 — אסטרטגיית schema versioning
-
-- **Options:** ‏A. שדה `schema_version` ‏(semver) בכל artifact + ‏`schemas/<name>/<version>.json` בריפו + ‏CHANGELOG לכל schema. ‏B. גרסה בשם הקובץ בלבד. ‏C. registry מרכזי.
-- **Recommendation:** A — מוצעת בפירוט ב-PLAN-000 §Contracts; פשוטה, ‏diffable ב-Git, ואינה דורשת תשתית.
-- **Impact:** כל producer/consumer בפרויקט.
-- **Owner (הכנה):** Orchestrator ‏(הצעה ב-PLAN-000). **הכרעה:** משה באישור PLAN-000.
-
 ## D-009 — ביצוע cross-provider review בפועל
 
 - **הקשר:** ‏MODEL-ROUTING-v1 דורש review של OpenAI על תוצרי Anthropic קריטיים. הממשק הנוכחי (Claude Code) מאפשר סוכני משנה של Anthropic בלבד — אומת ב-SESSION-001 ‏([evidence](../evidence/SESSION-001/preflight-report.md)).
-- **Options:** ‏A. סשן review נפרד בכלי OpenAI ‏(Codex CLI/ChatGPT) על קבצי ה-PLAN, עם דוח שנשמר ב-`docs/reviews/`. ‏B. ויתור זמני על cross-provider ל-PLAN-000 בלבד, עם review פנימי על מודל שונה (בוצע). ‏C. חיבור OpenAI כ-MCP/CLI לסביבה.
-- **Recommendation:** A עבור PLAN-000 לפני אישורו הסופי אם משה רוצה לעמוד במדיניות במלואה; אחרת B מתועד כחריגה חד-פעמית. ‏C ייבחן כשיפור תשתית.
+- **עדכון 2026-08-06:** עבור PLAN-000 משה בחר בפועל ב-B — אישר את התוכנית עם הביקורת הפנימית ‏(מודלים שונים, אותו ספק) כ**חריגה חד-פעמית מתועדת**. נותר פתוח: פתרון תשתיתי קבוע ‏(A או C) ל-PLANs הבאים, בפרט לפני artifacts קריטיים של geometry/H200.
+- **Options:** ‏A. סשן review נפרד בכלי OpenAI ‏(Codex CLI/ChatGPT) עם דוח שנשמר ב-`docs/reviews/`. ‏C. חיבור OpenAI כ-MCP/CLI לסביבה.
 - **Impact:** עמידה במדיניות; איכות ביקורת.
 - **Owner (הכנה):** Orchestrator. **הכרעה:** משה.
 
@@ -81,10 +74,10 @@
 - **Impact:** ‏schema evolution של style_spec; ‏UX של קלט.
 - **Owner (הכנה):** ‏Vision/Style Analyst. **הכרעה:** משה בשלב 6.
 
-## D-010 — אימות רישוי PanoWorld ‏(Apache-2.0 מול MIT)
+## D-010 (יתרה) — ‏license matrix מלא לפני שימוש מסחרי
 
-- **הקשר:** מסמך 05 מדווח אי-התאמה בין רישיון ה-GitHub ‏(Apache-2.0) לכרטיס המודל ב-HF ‏(MIT), ונדרשת בדיקה לפני שימוש מסחרי. גם ל-Qwen-Image-Edit ול-control models רישיונות נפרדים.
-- **Options:** ‏A. license matrix מלא כ-task בשלב 12. ‏B. בדיקה מוקדמת כבר ב-PLAN-001 אם יש כוונה מסחרית קרובה.
+- **הקשר:** חלק ה-vendoring נסגר ‏(ADR-0003). נותר: אי-ההתאמה GitHub ‏Apache-2.0 מול ‏HF model card ‏MIT ‏(אומתה שוב ע"י panoworld-compat), ‏dataset ‏`license: other`, ורישיונות Qwen/control models — נדרש matrix מלא לפני שימוש מסחרי.
+- **Options:** ‏A. license matrix מלא כ-task בשלב 12. ‏B. בדיקה מוקדמת אם יש כוונה מסחרית קרובה.
 - **Recommendation:** A אם השימוש הקרוב מחקרי/פנימי; משה יצהיר על ייעוד התוצרים.
 - **Impact:** חוקיות שימוש והפצה.
 - **Owner (הכנה):** ‏Security/License Reviewer. **הכרעה:** משה.

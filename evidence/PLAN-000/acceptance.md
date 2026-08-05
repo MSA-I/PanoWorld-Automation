@@ -1,6 +1,9 @@
 # PLAN-000 — Acceptance record
 
-- Date: 2026-08-05
+- **Closure: ‏DONE, ‏2026-08-06** — בהנחיית משה, לאחר אימות שכל תנאי ה-DoD
+  מתקיימים עם ראיות קיימות; חריגה יחידה מתועדת: ראיית ה-TDD האדום לא נשתמרה
+  (§TDD להלן). ‏D-001/D-008/חלק ה-vendoring של D-010 נסגרו כ-ADR-0001..0003.
+- Date (execution): 2026-08-05
 - Branch: `plan/PLAN-000` (merged to `main` at end of session)
 - Executed by: Orchestrator — requested per staffing OpenAI Codex/GPT-5.6 for
   mechanical tasks; actual `claude-opus-5[1m]` for all tasks (documented
@@ -23,8 +26,18 @@
 
 ## TDD
 
-- RED: ‏test-results/red-phase.log ‏(בדיקות נכתבו מול contracts/error_codes.md לפני מימוש; כשלי NotImplementedError).
-- GREEN: הרצות מלאות ב-test-results/ ‏(הרצה מתחדשת; ‏junit.xml נוכחי = הריצה האחרונה).
+- **תיקון ראיות (2026-08-06):** קובץ `red-phase.log` צוטט כאן וב-HANDOFF אך **לא
+  נשתמר** — ‏`tools/run_checks.py` מרוקן את `test-results/` לפני כל ריצה, והלוג
+  נמחק בריצה הירוקה הראשונה לפני שבוצע commit ‏(אין לו היסטוריית git). הטענה
+  "בדיקות נכתבו לפני המימוש" נכונה תהליכית (ה-stub ב-`package_validator.py`
+  נכתב עם docstring ‏"RED-phase stub" והוחלף — נראה ב-diff ‏3b354c5, וסיכום
+  הכשלים צוטט בשיחת הסשן), אך **אין לה קובץ ראיה שמור** — נרשמת כטענה
+  process-level בלבד, לא "verified". הודעת ה-commit ‏3b354c5 המפנה ללוג —
+  שגויה בדיעבד ואינה ניתנת לתיקון (היסטוריה immutable).
+- לקח ל-PLAN-001: ‏run_checks חייב לכתוב לתיקיית ריצה ייחודית (timestamped)
+  או להחריג קבצים שאינם תוצריו — אין למחוק ראיות קודמות. ‏(תיקון קוד לא בוצע
+  כעת — מחוץ להיקף הסגירה.)
+- GREEN: הרצות מלאות ב-test-results/ ‏(junit.xml, ‏summary.md — ‏109/109; קיים ושמור).
 
 ## Review record
 
