@@ -73,6 +73,14 @@
 - **Impact:** עמידה במדיניות; איכות ביקורת.
 - **Owner (הכנה):** Orchestrator. **הכרעה:** משה.
 
+## D-011 — קרדינליות style references ב-style_spec
+
+- **הקשר:** ‏doc 01 מציע "מספר תמונות סגנון לחדרים מסוגים שונים"; שאלת ה-cardinality נותרה פתוחה (contract-researcher OQ-6). ‏schema v1 של style_spec ‏(PLAN-000) קיבע במשתמע: **סגנון גלובלי אחד, ללא provenance של תמונת המקור ב-payload** ‏(contracts-reviewer MINOR-10).
+- **Options:** ‏A. להשאיר גלובלי ל-POC; הרחבה ל-per-room כ-MINOR אדיטיבי ‏(שדה `room_overrides`) כשיהיה צורך. ‏B. להרחיב כבר עכשיו.
+- **Recommendation:** A — אין consumer ל-per-room עדיין.
+- **Impact:** ‏schema evolution של style_spec; ‏UX של קלט.
+- **Owner (הכנה):** ‏Vision/Style Analyst. **הכרעה:** משה בשלב 6.
+
 ## D-010 — אימות רישוי PanoWorld ‏(Apache-2.0 מול MIT)
 
 - **הקשר:** מסמך 05 מדווח אי-התאמה בין רישיון ה-GitHub ‏(Apache-2.0) לכרטיס המודל ב-HF ‏(MIT), ונדרשת בדיקה לפני שימוש מסחרי. גם ל-Qwen-Image-Edit ול-control models רישיונות נפרדים.

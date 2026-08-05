@@ -1,0 +1,25 @@
+NOTICE — vendored golden fixture (PLAN-000 T11, ADR-0003)
+=========================================================
+
+The directory tests/golden/panoworld_demo_subset/ contains an unmodified subset
+of the example data of the PanoWorld project:
+
+    Source:  https://github.com/jjrCN/PanoWorld
+    Path:    examples/full_pipeline_demo_datas/scene0000
+    Commit:  55fa2245dc01ad0b2cdff9c651b6767db672a702 (pinned; upstream has no
+             release tags)
+    Files:   map_panoworld0.json + viewpoints 0000/0001/0008/0011
+             (extrinsics.txt, place_image.png, place_depth.png,
+             place_depth_scale.txt each) — 17 files, ~8.3 MB.
+    Per-file sha256 hashes: see panoworld_demo_subset/fixture-metadata.json.
+
+License: the PanoWorld GitHub repository is licensed under the Apache License
+2.0 — a full copy is included as tests/golden/LICENSE-panoworld-upstream
+(fetched from the same pinned commit). This fixture is used solely for
+compatibility testing of our package validator.
+
+Known upstream license inconsistency, tracked as project decision D-010: the
+Hugging Face model card declares MIT and the HF dataset declares license
+"other". Neither applies to these files (which come from the Apache-2.0 GitHub
+repo), and no model weights or dataset files are vendored here. A full license
+matrix is scheduled for the hardening stage.

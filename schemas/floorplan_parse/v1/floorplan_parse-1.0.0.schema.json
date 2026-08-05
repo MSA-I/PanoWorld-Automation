@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.0.0.schema.json",
+  "title": "floorplan_parse",
+  "$defs": {
+    "point2": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+  },
+  "allOf": [
+    { "$ref": "https://panoworld-automation.local/schemas/envelope/v1/envelope-1.0.0.schema.json" },
+    {
+      "properties": {
+        "schema_id": { "const": "floorplan_parse" },
+        "schema_version": { "const": "1.0.0" },
+        "payload": {
+          "type": "object",
+          "required": ["units", "rooms", "walls", "openings"],
+          "properties": {
+            "units": { "const": "m" },
+            "scale_m_per_px": { "type": ["number", "null"], "exclusiveMinimum": 0 },
+            "rooms": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "polygon", "confidence"],
+                "properties": {
+                  "id": { "type": "string", "minLength": 1 },
+                  "name": { "type": "string" },
+                  "polygon": {
+                    "type": "array",
+                    "minItems": 3,
+                    "items": { "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.0.0.schema.json#/$defs/point2" }
+                  },
+                  "confidence": { "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.0.0.schema.json#/$defs/confidence" }
+                },
+                "additionalProperties": false
+              }
+            },
+            "walls": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "start", "end", "confidence"],
+                "properties": {
+                  "id": { "type": "string", "minLength": 1 },
+                  "start": { "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.0.0.schema.json#/$defs/point2" },
+                  "end": { "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.0.0.schema.json#/$defs/point2" },
+                  "thickness_m": { "type": "number", "exclusiveMinimum": 0 },
+                  "confidence": { "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.0.0.schema.json#/$defs/confidence" }
+                },
+                "additionalProperties": false
+              }
+            },
+            "openings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "type", "wall_id", "center", "width_m", "confidence"],
+                "properties": {
+                  "id": { "type": "string", "minLength": 1 },
+                  "type": { "enum": ["door", "window"] },
+                  "wall_id": { "type": "string", "minLength": 1 },
+                  "center": { "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.0.0.schema.json#/$defs/point2" },
+                  "width_m": { "type": "number", "exclusiveMinimum": 0 },
+                  "confidence": { "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.0.0.schema.json#/$defs/confidence" }
+                },
+                "additionalProperties": false
+              }
+            },
+            "texts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["text"],
+                "properties": {
+                  "text": { "type": "string" },
+                  "bbox": { "type": "array", "items": { "type": "number" }, "minItems": 4, "maxItems": 4 },
+                  "confidence": { "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.0.0.schema.json#/$defs/confidence" }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  ]
+}

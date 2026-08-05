@@ -1,0 +1,30 @@
+[project]
+name = "panoworld-automation"
+version = "0.1.0"
+description = "Contracts, package validator and fixtures for the PanoWorld automation pipeline (PLAN-000)"
+requires-python = "==3.11.*"
+dependencies = [
+    "jsonschema>=4.21",
+    "pillow>=10.0",
+    "numpy>=1.26",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+]
+
+# ponytail: package=false because an editable install writes the Hebrew repo
+# path into a .pth file, which Python's site module decodes with the ANSI
+# codepage (cp1255) and crashes on startup. No install -> no .pth -> no crash.
+# CLI therefore runs as `uv run python -m pwa.validator.cli` instead of the
+# planned `pwa-validate` entry point (documented deviation, PLAN-000 T2/T8).
+# Revisit only if the repo moves to an ASCII path (ADR-0001 fallback).
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+pythonpath = ["src", "."]

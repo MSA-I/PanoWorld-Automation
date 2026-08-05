@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoworld-automation.local/schemas/remote_job/v1/remote_job-1.0.0.schema.json",
+  "title": "remote_job",
+  "$comment": "Contract for the H200 runner interface (PLAN-000 C10). Safety-by-contract per contract-researcher critical finding 3: server-side TTL, hard cost ceiling, heartbeat and verified termination are REQUIRED fields. Cloud credentials live only in the deterministic runner service - never in an LLM agent context (see contracts/README.md).",
+  "allOf": [
+    { "$ref": "https://panoworld-automation.local/schemas/envelope/v1/envelope-1.0.0.schema.json" },
+    {
+      "required": ["run_id"],
+      "properties": {
+        "schema_id": { "const": "remote_job" },
+        "schema_version": { "const": "1.0.0" },
+        "run_id": { "type": "string", "minLength": 1 },
+        "payload": {
+          "type": "object",
+          "required": ["job_id", "package_hash", "provider", "instance_type", "ttl_minutes", "max_cost_usd", "heartbeat_interval_s", "status", "terminate_verified"],
+          "properties": {
+            "job_id": { "type": "string", "minLength": 1 },
+            "package_hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+            "provider": { "type": "string", "minLength": 1 },
+            "instance_type": { "type": "string", "minLength": 1 },
+            "ttl_minutes": { "type": "integer", "minimum": 1, "maximum": 1440, "$comment": "Server-side auto-stop TTL; a finally-block is NOT a guarantee." },
+            "max_cost_usd": { "type": "number", "exclusiveMinimum": 0 },
+            "heartbeat_interval_s": { "type": "integer", "minimum": 10 },
+            "status": { "enum": ["created", "uploading", "smoke_test", "running", "downloading", "terminated", "failed"] },
+            "terminate_verified": { "type": "boolean", "$comment": "True only after the provider API confirmed the instance is gone." },
+            "cost_usd": { "type": "number", "minimum": 0 },
+            "telemetry": { "type": "object" }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  ]
+}

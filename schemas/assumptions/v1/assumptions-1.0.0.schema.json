@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoworld-automation.local/schemas/assumptions/v1/assumptions-1.0.0.schema.json",
+  "title": "assumptions",
+  "$comment": "Append-only, one artifact PER STAGE (contract-researcher finding 8): each stage owns its own assumptions file; a read-only merged view is presentation-layer only.",
+  "allOf": [
+    { "$ref": "https://panoworld-automation.local/schemas/envelope/v1/envelope-1.0.0.schema.json" },
+    {
+      "properties": {
+        "schema_id": { "const": "assumptions" },
+        "schema_version": { "const": "1.0.0" },
+        "payload": {
+          "type": "object",
+          "required": ["stage", "entries"],
+          "properties": {
+            "stage": { "type": "string", "minLength": 1 },
+            "entries": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["key", "value", "reason", "source", "requires_human_ack"],
+                "properties": {
+                  "key": { "type": "string", "minLength": 1 },
+                  "value": { "type": "string" },
+                  "reason": { "type": "string", "minLength": 1 },
+                  "source": { "enum": ["default", "inference", "user"] },
+                  "requires_human_ack": { "type": "boolean" }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  ]
+}

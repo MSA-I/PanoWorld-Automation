@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoworld-automation.local/schemas/style_spec/v1/style_spec-1.0.0.schema.json",
+  "title": "style_spec",
+  "allOf": [
+    { "$ref": "https://panoworld-automation.local/schemas/envelope/v1/envelope-1.0.0.schema.json" },
+    {
+      "properties": {
+        "schema_id": { "const": "style_spec" },
+        "schema_version": { "const": "1.0.0" },
+        "payload": {
+          "type": "object",
+          "required": ["palette", "materials", "lighting"],
+          "properties": {
+            "palette": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": ["hex"],
+                "properties": {
+                  "hex": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+                  "role": { "type": "string" }
+                },
+                "additionalProperties": false
+              }
+            },
+            "materials": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["surface", "material", "confidence"],
+                "properties": {
+                  "surface": { "type": "string", "minLength": 1 },
+                  "material": { "type": "string", "minLength": 1 },
+                  "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+                },
+                "additionalProperties": false
+              }
+            },
+            "lighting": {
+              "type": "object",
+              "required": ["temperature", "intensity"],
+              "properties": {
+                "temperature": { "enum": ["warm", "neutral", "cool"] },
+                "intensity": { "enum": ["dim", "medium", "bright"] }
+              },
+              "additionalProperties": false
+            },
+            "density": { "enum": ["minimal", "medium", "dense"] },
+            "negative_constraints": { "type": "array", "items": { "type": "string" } },
+            "not_inferable": { "type": "array", "items": { "type": "string" }, "$comment": "Decisions that cannot be derived from a single reference image (doc 01, Style Agent)." }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  ]
+}

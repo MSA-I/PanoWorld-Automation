@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoworld-automation.local/schemas/panoworld_manifest/v1/panoworld_manifest-1.0.0.schema.json",
+  "title": "panoworld_manifest",
+  "$comment": "OUR manifest is the source of truth; the native map_panoworld*.json files and the viewpoints/ tree are DERIVED from it (contract-researcher finding 13). Map entries are an ordered ARRAY because JSON-object key order is load-bearing for PanoWorld (start node = first key; verified in panoworld-compat #5) - the generator must write map JSON preserving this order, never sort_keys.",
+  "allOf": [
+    { "$ref": "https://panoworld-automation.local/schemas/envelope/v1/envelope-1.0.0.schema.json" },
+    {
+      "properties": {
+        "schema_id": { "const": "panoworld_manifest" },
+        "schema_version": { "const": "1.0.0" },
+        "payload": {
+          "type": "object",
+          "required": ["scene_dir", "maps", "viewpoints", "start"],
+          "properties": {
+            "scene_dir": { "type": "string", "minLength": 1 },
+            "maps": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": ["file", "entries"],
+                "properties": {
+                  "file": { "type": "string", "pattern": "^map[A-Za-z0-9_]*\\.json$" },
+                  "entries": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "object",
+                      "required": ["key", "values"],
+                      "properties": {
+                        "key": { "type": "string", "minLength": 1 },
+                        "values": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+                      },
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "viewpoints": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": ["id", "files"],
+                "properties": {
+                  "id": { "type": "string", "minLength": 1 },
+                  "files": {
+                    "type": "object",
+                    "required": ["place_image", "place_depth", "place_depth_scale", "extrinsics"],
+                    "properties": {
+                      "place_image": { "type": "string" },
+                      "place_depth": { "type": "string" },
+                      "place_depth_scale": { "type": "string" },
+                      "extrinsics": { "type": "string" }
+                    },
+                    "additionalProperties": false
+                  },
+                  "has_style_pano": { "type": "boolean" }
+                },
+                "additionalProperties": false
+              }
+            },
+            "start": {
+              "type": "object",
+              "required": ["panoworld_start_image", "pano_image_name"],
+              "properties": {
+                "panoworld_start_image": { "type": "string", "minLength": 1 },
+                "pano_image_name": { "type": "string", "minLength": 1 }
+              },
+              "additionalProperties": false
+            },
+            "package_hash": { "type": ["string", "null"], "pattern": "^sha256:[0-9a-f]{64}$" }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoworld-automation.local/schemas/retry_request/v1/retry_request-1.0.0.schema.json",
+  "title": "retry_request",
+  "$comment": "Every retry changes exactly ONE parameter and carries a reason code (doc 01 safety principles; contract-researcher finding 12).",
+  "allOf": [
+    { "$ref": "https://panoworld-automation.local/schemas/envelope/v1/envelope-1.0.0.schema.json" },
+    {
+      "properties": {
+        "schema_id": { "const": "retry_request" },
+        "schema_version": { "const": "1.0.0" },
+        "payload": {
+          "type": "object",
+          "required": ["target_state", "reason_code", "changed_parameter", "attempt", "max_attempts"],
+          "properties": {
+            "target_state": { "type": "string", "pattern": "^RUN:[A-Z_]+$", "$comment": "Namespaced per the state-value serialization rule (schemas/README.md); the orchestrator additionally verifies membership in contracts/state_machine.yaml." },
+            "reason_code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
+            "changed_parameter": {
+              "type": "object",
+              "required": ["name", "old_value", "new_value"],
+              "properties": {
+                "name": { "type": "string", "minLength": 1 },
+                "old_value": { "type": "string" },
+                "new_value": { "type": "string" }
+              },
+              "additionalProperties": false
+            },
+            "attempt": { "type": "integer", "minimum": 1 },
+            "max_attempts": { "type": "integer", "minimum": 1 }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoworld-automation.local/schemas/run_manifest/v1/run_manifest-1.0.0.schema.json",
+  "title": "run_manifest",
+  "allOf": [
+    { "$ref": "https://panoworld-automation.local/schemas/envelope/v1/envelope-1.0.0.schema.json" },
+    {
+      "required": ["run_id"],
+      "properties": {
+        "schema_id": { "const": "run_manifest" },
+        "schema_version": { "const": "1.0.0" },
+        "run_id": { "type": "string", "minLength": 1 },
+        "payload": {
+          "type": "object",
+          "required": ["package_hash", "models", "config", "timings", "contracts_bundle_version"],
+          "properties": {
+            "package_hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+            "models": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": ["name", "source", "hash_or_version"],
+                "properties": {
+                  "name": { "type": "string", "minLength": 1 },
+                  "source": { "type": "string", "minLength": 1 },
+                  "hash_or_version": { "type": "string", "minLength": 1 }
+                },
+                "additionalProperties": false
+              }
+            },
+            "config": {
+              "type": "object",
+              "required": ["config_hash"],
+              "properties": {
+                "config_hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+                "seed": { "type": ["integer", "null"] },
+                "resolution": {
+                  "type": "object",
+                  "required": ["width", "height"],
+                  "properties": {
+                    "width": { "type": "integer", "minimum": 2 },
+                    "height": { "type": "integer", "minimum": 2 }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            },
+            "timings": {
+              "type": "object",
+              "required": ["started_at", "finished_at"],
+              "properties": {
+                "started_at": { "type": "string", "format": "date-time" },
+                "finished_at": { "type": "string", "format": "date-time" }
+              },
+              "additionalProperties": false
+            },
+            "cost": {
+              "type": "object",
+              "properties": {
+                "gpu_minutes": { "type": "number", "minimum": 0 },
+                "usd": { "type": "number", "minimum": 0 }
+              },
+              "additionalProperties": false
+            },
+            "env_capture": { "type": ["string", "null"], "$comment": "Relative path to env.json captured for the run (contract-researcher finding 14)." },
+            "contracts_bundle_version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  ]
+}
