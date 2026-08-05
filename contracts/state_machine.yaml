@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0.0",
+  "namespace": "RUN",
+  "note1": "Pipeline RUN states for a single generation run. This is a DISTINCT vocabulary from the PLAN work-statuses of docs/04 (NOT_STARTED..CANCELLED) - contract-researcher finding 7. A document may never mix the two.",
+  "note2": "This file is JSON-syntax, which is a valid YAML subset - it keeps the planned .yaml name while staying parseable by the locked dependency set (json stdlib). See contracts/README.md.",
+  "note3": "Closes contract-researcher findings 1, 6, 18, 20: full fail edges, BLOCKED reachable from any state, G5 split into G5a/G5b, explicit gate mapping.",
+
+  "states": [
+    "NEW", "INGESTED", "INPUT_VALIDATED", "FLOORPLAN_PARSED",
+    "GEOMETRY_BUILT", "GEOMETRY_REVIEW", "GEOMETRY_APPROVED",
+    "CAMERAS_PLANNED", "CONTROL_ASSETS_RENDERED",
+    "STYLE_SPEC_READY", "STYLE_SPEC_APPROVED",
+    "SOURCE_PANO_READY", "SOURCE_PANO_APPROVED",
+    "PANOWORLD_PACKAGE_READY", "H200_SMOKE_PASSED",
+    "FULL_GENERATION_COMPLETE", "QA_REVIEW",
+    "APPROVED", "REWORK", "BLOCKED", "CANCELLED"
+  ],
+  "terminal_states": ["APPROVED", "CANCELLED"],
+
+  "gates": {
+    "G0": { "name": "input",           "human": false, "evidence": ["input_quality_report"] },
+    "G1": { "name": "parse",           "human": false, "evidence": ["floorplan_parse", "overlay_svg"] },
+    "G2": { "name": "geometry",        "human": true,  "evidence": ["scene_geometry", "approval_record"] },
+    "G3": { "name": "camera",          "human": false, "evidence": ["camera_plan"] },
+    "G4": { "name": "render",          "human": false, "evidence": ["control_asset_validation"] },
+    "G5a": { "name": "style_spec",     "human": true,  "evidence": ["style_spec", "approval_record"] },
+    "G5b": { "name": "source_pano",    "human": true,  "evidence": ["approval_record"] },
+    "G6": { "name": "package",         "human": false, "evidence": ["panoworld_manifest", "package_validator_report"] },
+    "G7": { "name": "h200_smoke",      "human": false, "evidence": ["remote_job"] },
+    "G8": { "name": "full_run",        "human": false, "evidence": ["run_manifest"] },
+    "G9": { "name": "final_qa",        "human": true,  "evidence": ["qa_report", "approval_record"] }
+  },
+
+  "transitions": [
+    { "from": "NEW",                     "to": "INGESTED",                 "gate": null,  "required_artifacts": ["project_manifest"],            "on_fail": "BLOCKED" },
+    { "from": "INGESTED",                "to": "INPUT_VALIDATED",          "gate": "G0",  "required_artifacts": ["input_quality_report"],        "on_fail": "BLOCKED" },
+    { "from": "INPUT_VALIDATED",         "to": "FLOORPLAN_PARSED",         "gate": "G1",  "required_artifacts": ["floorplan_parse", "assumptions"], "on_fail": "REWORK" },
+    { "from": "FLOORPLAN_PARSED",        "to": "GEOMETRY_BUILT",           "gate": null,  "required_artifacts": ["scene_geometry"],              "on_fail": "REWORK" },
+    { "from": "GEOMETRY_BUILT",          "to": "GEOMETRY_REVIEW",          "gate": null,  "required_artifacts": [],                              "on_fail": "REWORK" },
+    { "from": "GEOMETRY_REVIEW",         "to": "GEOMETRY_APPROVED",        "gate": "G2",  "required_artifacts": ["approval_record"],             "on_fail": "REWORK" },
+    { "from": "GEOMETRY_APPROVED",       "to": "CAMERAS_PLANNED",          "gate": "G3",  "required_artifacts": ["camera_plan"],                 "on_fail": "REWORK" },
+    { "from": "CAMERAS_PLANNED",         "to": "CONTROL_ASSETS_RENDERED",  "gate": "G4",  "required_artifacts": [],                              "on_fail": "REWORK" },
+    { "from": "CONTROL_ASSETS_RENDERED", "to": "STYLE_SPEC_READY",         "gate": null,  "required_artifacts": ["style_spec"],                  "on_fail": "REWORK" },
+    { "from": "STYLE_SPEC_READY",        "to": "STYLE_SPEC_APPROVED",      "gate": "G5a", "required_artifacts": ["approval_record"],             "on_fail": "REWORK" },
+    { "from": "STYLE_SPEC_APPROVED",     "to": "SOURCE_PANO_READY",        "gate": null,  "required_artifacts": [],                              "on_fail": "REWORK" },
+    { "from": "SOURCE_PANO_READY",       "to": "SOURCE_PANO_APPROVED",     "gate": "G5b", "required_artifacts": ["approval_record"],             "on_fail": "REWORK" },
+    { "from": "SOURCE_PANO_APPROVED",    "to": "PANOWORLD_PACKAGE_READY",  "gate": "G6",  "required_artifacts": ["panoworld_manifest"],          "on_fail": "REWORK" },
+    { "from": "PANOWORLD_PACKAGE_READY", "to": "H200_SMOKE_PASSED",        "gate": "G7",  "required_artifacts": ["remote_job"],                  "on_fail": "REWORK" },
+    { "from": "H200_SMOKE_PASSED",       "to": "FULL_GENERATION_COMPLETE", "gate": "G8",  "required_artifacts": ["run_manifest"],                "on_fail": "REWORK" },
+    { "from": "FULL_GENERATION_COMPLETE","to": "QA_REVIEW",                "gate": null,  "required_artifacts": ["qa_report"],                   "on_fail": "REWORK" },
+    { "from": "QA_REVIEW",               "to": "APPROVED",                 "gate": "G9",  "required_artifacts": ["approval_record"],             "on_fail": "REWORK" }
+  ],
+
+  "rework_policy": {
+    "note": "REWORK is not a resting state without data: entering it REQUIRES a retry_request artifact whose target_state names an explicit earlier state, chosen by reason_code. One parameter changes per retry; budget enforced via retry_request.max_attempts; exceeding it escalates to BLOCKED with human owner.",
+    "default_targets_by_reason_prefix": {
+      "PARSE_": "INPUT_VALIDATED",
+      "GEOMETRY_": "FLOORPLAN_PARSED",
+      "CAMERA_": "GEOMETRY_APPROVED",
+      "RENDER_": "CAMERAS_PLANNED",
+      "STYLE_": "CONTROL_ASSETS_RENDERED",
+      "PANO_": "STYLE_SPEC_APPROVED",
+      "PACKAGE_": "SOURCE_PANO_APPROVED",
+      "SMOKE_": "PANOWORLD_PACKAGE_READY",
+      "RUN_": "H200_SMOKE_PASSED",
+      "QA_": "FULL_GENERATION_COMPLETE"
+    }
+  },
+
+  "blocked_policy": {
+    "reachable_from": "any non-terminal state",
+    "requires": "a blocker record (docs/04 format) with owner, exit criteria and the state it was entered from",
+    "resume_to": "the state recorded at entry, once exit criteria are met"
+  },
+
+  "cancelled_policy": {
+    "reachable_from": "any non-terminal state",
+    "requires": "an approval_record or documented human decision"
+  },
+
+  "invariants": [
+    "No transition without: required artifacts present, schema-valid, and evidence path recorded.",
+    "Human gates (G2, G5a, G5b, G9) require an approval_record bound to the exact content_hash approved.",
+    "APPROVED and CANCELLED are terminal; REWORK and BLOCKED always carry a machine-readable exit path."
+  ]
+}

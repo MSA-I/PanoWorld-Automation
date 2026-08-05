@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoworld-automation.local/schemas/envelope/v1/envelope-1.0.0.schema.json",
+  "title": "Artifact envelope",
+  "description": "Common wrapper for every pipeline artifact: identity, provenance chain, integrity hash, status and machine-readable errors. Type-specific content lives in `payload`.",
+  "type": "object",
+  "required": ["schema_id", "schema_version", "artifact_id", "project_id", "created_at", "producer", "content_hash", "status", "payload"],
+  "properties": {
+    "schema_id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+    "schema_version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "artifact_id": { "type": "string", "minLength": 1 },
+    "project_id": { "type": "string", "minLength": 1 },
+    "run_id": { "type": ["string", "null"] },
+    "created_at": { "type": "string", "format": "date-time" },
+    "producer": {
+      "type": "object",
+      "required": ["agent", "provider", "model"],
+      "properties": {
+        "agent": { "type": "string", "minLength": 1 },
+        "provider": { "type": "string", "minLength": 1 },
+        "model": { "type": "string", "minLength": 1 },
+        "effort": { "enum": ["MEDIUM", "HIGH", "EXTRA", "MAX", "N/A"] }
+      },
+      "additionalProperties": false
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["artifact_id", "content_hash"],
+        "properties": {
+          "artifact_id": { "type": "string", "minLength": 1 },
+          "content_hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "content_hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "status": { "enum": ["complete", "partial", "failed"] },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "message"],
+        "properties": {
+          "code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
+          "message": { "type": "string" },
+          "path": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "payload": { "type": "object" }
+  },
+  "additionalProperties": false,
+  "$comment": "status=partial or failed REQUIRES a non-empty errors array; enforced below.",
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "enum": ["partial", "failed"] } } },
+      "then": { "required": ["errors"], "properties": { "errors": { "minItems": 1 } } }
+    }
+  ]
+}

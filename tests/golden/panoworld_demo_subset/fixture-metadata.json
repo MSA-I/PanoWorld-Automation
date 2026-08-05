@@ -1,0 +1,135 @@
+{
+  "source_repo": "https://github.com/jjrCN/PanoWorld",
+  "scene": "examples/full_pipeline_demo_datas/scene0000",
+  "commit_sha": "55fa2245dc01ad0b2cdff9c651b6767db672a702",
+  "fetched_at": "2026-08-05T20:40:02+00:00",
+  "license_note": "Upstream repo is Apache-2.0; see tests/golden/NOTICE and LICENSE-panoworld-upstream (ADR-0003).",
+  "files": {
+    "map_panoworld0.json": {
+      "sha256": "sha256:fbbd36b5815fafdb6f0d4dbb9851ffe05d08c2c7209fe4b95ad1c833b4dd6487",
+      "bytes": 70
+    },
+    "viewpoints/0000/extrinsics.txt": {
+      "sha256": "sha256:bb968b56fd9039325a9fb66a11749ea5ed15b57b5b13f7154ce45e783aee203c",
+      "bytes": 216
+    },
+    "viewpoints/0000/place_image.png": {
+      "sha256": "sha256:786b2e13700f7d24cc2ab0a176b962cbdb63df932919c8230667c8a6aaddce3b",
+      "bytes": 1589406
+    },
+    "viewpoints/0000/place_depth.png": {
+      "sha256": "sha256:627e5d35eddb5f37c57aaefcb02de11f47d0d4af26072cf6ef8056525fa9a69e",
+      "bytes": 364968
+    },
+    "viewpoints/0000/place_depth_scale.txt": {
+      "sha256": "sha256:3f48915ba90965f8a2e62c1264a768522b89153e8e4b91d64e7cb21ccfad7892",
+      "bytes": 5
+    },
+    "viewpoints/0001/extrinsics.txt": {
+      "sha256": "sha256:7ea25cca2049c9857d8e71915b7fe2efe02b915c6911fd5e718914c6fa2f3b08",
+      "bytes": 217
+    },
+    "viewpoints/0001/place_image.png": {
+      "sha256": "sha256:33284b45fb035d96a9d9e0eaf83d2a6bf050d0d8d1a50c01e5e4f161f3c2ca2b",
+      "bytes": 1678835
+    },
+    "viewpoints/0001/place_depth.png": {
+      "sha256": "sha256:db62292ab4e51d28ea8ab280074841a95c7e91b42b441e9c22a450566940ccf0",
+      "bytes": 402389
+    },
+    "viewpoints/0001/place_depth_scale.txt": {
+      "sha256": "sha256:bab81b36c87ed2ff6c93f5a45e3f6ac8361cbd743474f0f2f9438e4a9486be97",
+      "bytes": 5
+    },
+    "viewpoints/0008/extrinsics.txt": {
+      "sha256": "sha256:ba8871dbb5a0d765dfcd85d5ac22527ee76ce7fc0e750151fa4970090febf223",
+      "bytes": 217
+    },
+    "viewpoints/0008/place_image.png": {
+      "sha256": "sha256:b19eb1b88b7b8b969496c1748486541b46aee26cc86086d7bcd30e62a8174888",
+      "bytes": 1668228
+    },
+    "viewpoints/0008/place_depth.png": {
+      "sha256": "sha256:ad673bf994a22bde5818f3fd71fbf4d28948e610a141eb581427f4b1b8f37de6",
+      "bytes": 430144
+    },
+    "viewpoints/0008/place_depth_scale.txt": {
+      "sha256": "sha256:ed4740266b8ade0429e17f2bc0b14200d817c0d9d58bd10af94bd7390e9c4151",
+      "bytes": 5
+    },
+    "viewpoints/0011/extrinsics.txt": {
+      "sha256": "sha256:031b53fd4ea0a7d54ea45fde63507621851baefca3efc2ca9676f0645b255e1b",
+      "bytes": 216
+    },
+    "viewpoints/0011/place_image.png": {
+      "sha256": "sha256:a591f0bf3936ed4c461255d0963a6a9ad471732287b38337bba4521c36f85bf3",
+      "bytes": 1729431
+    },
+    "viewpoints/0011/place_depth.png": {
+      "sha256": "sha256:ee232c378c1c6d9c93fe75a929e3324cec2b0243f8850c011d089336eb7a1c7c",
+      "bytes": 438415
+    },
+    "viewpoints/0011/place_depth_scale.txt": {
+      "sha256": "sha256:629a4a7143889df2b2f4e00d305d1517e3bc9f339719b8d23e8d0b6a334a766d",
+      "bytes": 5
+    }
+  },
+  "image_headers": {
+    "viewpoints/0000/place_image.png": {
+      "mode": "RGB",
+      "size": [
+        2048,
+        1024
+      ]
+    },
+    "viewpoints/0000/place_depth.png": {
+      "mode": "I;16",
+      "size": [
+        2048,
+        1024
+      ]
+    },
+    "viewpoints/0001/place_image.png": {
+      "mode": "RGB",
+      "size": [
+        2048,
+        1024
+      ]
+    },
+    "viewpoints/0001/place_depth.png": {
+      "mode": "I;16",
+      "size": [
+        2048,
+        1024
+      ]
+    },
+    "viewpoints/0008/place_image.png": {
+      "mode": "RGB",
+      "size": [
+        2048,
+        1024
+      ]
+    },
+    "viewpoints/0008/place_depth.png": {
+      "mode": "I;16",
+      "size": [
+        2048,
+        1024
+      ]
+    },
+    "viewpoints/0011/place_image.png": {
+      "mode": "RGB",
+      "size": [
+        2048,
+        1024
+      ]
+    },
+    "viewpoints/0011/place_depth.png": {
+      "mode": "I;16",
+      "size": [
+        2048,
+        1024
+      ]
+    }
+  }
+}

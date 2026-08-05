@@ -1,0 +1,105 @@
+# PLAN-000 test evidence summary
+
+- Run at: 2026-08-05T20:44:13+00:00
+- Command: `pytest -v --junitxml=D:\משה פרוייקטים\פיתוח אתרים\PanoWorld-Automation\evidence\PLAN-000\test-results\junit.xml --cov=src/pwa --cov-report=xml:D:\משה פרוייקטים\פיתוח אתרים\PanoWorld-Automation\evidence\PLAN-000\test-results\coverage.xml` (via .venv python)
+- Exit code: **0**
+
+- Tests: 95 | Failures: 0 | Errors: 0 | Skipped: 0 | Time: 2.064s
+
+| Test | Result |
+|---|---|
+| `tests.golden.test_validator_golden.test_layer_a_green_with_config` | PASS |
+| `tests.golden.test_validator_golden.test_layer_a_missing_start_image` | PASS |
+| `tests.golden.test_validator_golden.test_layer_a_pano_name_collision` | PASS |
+| `tests.golden.test_validator_golden.test_layer_a_viewpoint_budget_exceeded` | PASS |
+| `tests.golden.test_validator_golden.test_layer_b_fixture_present` | PASS |
+| `tests.golden.test_validator_golden.test_layer_b_demo_subset_validates_green` | PASS |
+| `tests.golden.test_validator_golden.test_layer_b_report_snapshot` | PASS |
+| `tests.integration.test_validator_failures.test_case_01_missing_extrinsics` | PASS |
+| `tests.integration.test_validator_failures.test_case_02_matrix_3x4` | PASS |
+| `tests.integration.test_validator_failures.test_case_03_singular_matrix` | PASS |
+| `tests.integration.test_validator_failures.test_case_04_unparseable_matrix` | PASS |
+| `tests.integration.test_validator_failures.test_case_05_depth_dimension_mismatch` | PASS |
+| `tests.integration.test_validator_failures.test_case_06_map_references_unknown_viewpoint` | PASS |
+| `tests.integration.test_validator_failures.test_case_07_unmapped_viewpoint_is_warning_not_error` | PASS |
+| `tests.integration.test_validator_failures.test_case_08_wrong_image_mode` | PASS |
+| `tests.integration.test_validator_failures.test_case_09_zero_depth_scale` | PASS |
+| `tests.integration.test_validator_failures.test_case_10_nan_depth_scale` | PASS |
+| `tests.integration.test_validator_failures.test_case_11_missing_depth_scale` | PASS |
+| `tests.integration.test_validator_failures.test_case_12_windows_hostile_filename` | PASS |
+| `tests.integration.test_validator_failures.test_case_13_empty_place_image` | PASS |
+| `tests.integration.test_validator_failures.test_case_14_malformed_map_json` | PASS |
+| `tests.integration.test_validator_failures.test_case_15_duplicate_key_within_one_map` | PASS |
+| `tests.integration.test_validator_failures.test_same_key_across_different_maps_is_legitimate` | PASS |
+| `tests.unit.test_extrinsics_checks.test_standard_matrix_is_clean` | PASS |
+| `tests.unit.test_extrinsics_checks.test_wrong_shape` | PASS |
+| `tests.unit.test_extrinsics_checks.test_singular_matrix` | PASS |
+| `tests.unit.test_extrinsics_checks.test_bad_last_row` | PASS |
+| `tests.unit.test_extrinsics_checks.test_non_orthonormal_rotation` | PASS |
+| `tests.unit.test_extrinsics_checks.test_reflection_not_right_handed` | PASS |
+| `tests.unit.test_extrinsics_checks.test_y_up_world_warns_nonstandard_convention` | PASS |
+| `tests.unit.test_extrinsics_checks.test_camera_height_outlier_warn` | PASS |
+| `tests.unit.test_extrinsics_checks.test_windows_hostile_filenames_rejected[NUL]` | PASS |
+| `tests.unit.test_extrinsics_checks.test_windows_hostile_filenames_rejected[con]` | PASS |
+| `tests.unit.test_extrinsics_checks.test_windows_hostile_filenames_rejected[COM1.txt]` | PASS |
+| `tests.unit.test_extrinsics_checks.test_windows_hostile_filenames_rejected[aux.png]` | PASS |
+| `tests.unit.test_extrinsics_checks.test_windows_hostile_filenames_rejected[name.]` | PASS |
+| `tests.unit.test_extrinsics_checks.test_windows_hostile_filenames_rejected[name ]` | PASS |
+| `tests.unit.test_extrinsics_checks.test_normal_filenames_accepted[place_image.png]` | PASS |
+| `tests.unit.test_extrinsics_checks.test_normal_filenames_accepted[extrinsics.txt]` | PASS |
+| `tests.unit.test_extrinsics_checks.test_normal_filenames_accepted[0000]` | PASS |
+| `tests.unit.test_extrinsics_checks.test_normal_filenames_accepted[map_panoworld0.json]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_all_13_artifact_schemas_present` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_every_schema_file_is_valid_draft_2020_12` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_valid_example_passes[approval_record]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_valid_example_passes[assumptions]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_valid_example_passes[camera_plan]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_valid_example_passes[floorplan_parse]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_valid_example_passes[input_quality_report]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_valid_example_passes[panoworld_manifest]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_valid_example_passes[project_manifest]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_valid_example_passes[qa_report]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_valid_example_passes[remote_job]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_valid_example_passes[retry_request]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_valid_example_passes[run_manifest]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_valid_example_passes[scene_geometry]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_valid_example_passes[style_spec]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_invalid_example_fails[approval_record]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_invalid_example_fails[assumptions]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_invalid_example_fails[camera_plan]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_invalid_example_fails[floorplan_parse]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_invalid_example_fails[input_quality_report]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_invalid_example_fails[panoworld_manifest]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_invalid_example_fails[project_manifest]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_invalid_example_fails[qa_report]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_invalid_example_fails[remote_job]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_invalid_example_fails[retry_request]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_invalid_example_fails[run_manifest]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_invalid_example_fails[scene_geometry]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_invalid_example_fails[style_spec]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_roundtrip_preserves_validity_and_content[approval_record]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_roundtrip_preserves_validity_and_content[assumptions]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_roundtrip_preserves_validity_and_content[camera_plan]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_roundtrip_preserves_validity_and_content[floorplan_parse]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_roundtrip_preserves_validity_and_content[input_quality_report]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_roundtrip_preserves_validity_and_content[panoworld_manifest]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_roundtrip_preserves_validity_and_content[project_manifest]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_roundtrip_preserves_validity_and_content[qa_report]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_roundtrip_preserves_validity_and_content[remote_job]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_roundtrip_preserves_validity_and_content[retry_request]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_roundtrip_preserves_validity_and_content[run_manifest]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_roundtrip_preserves_validity_and_content[scene_geometry]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_roundtrip_preserves_validity_and_content[style_spec]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_envelope_rejects_bad_status` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_envelope_partial_requires_errors` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_envelope_rejects_bad_hash_format` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_map_ordering_representation_is_an_array` | PASS |
+| `tests.unit.test_state_machine.test_all_gate_ids_defined_including_g5_split` | PASS |
+| `tests.unit.test_state_machine.test_human_gates_are_exactly_the_three_plus_split` | PASS |
+| `tests.unit.test_state_machine.test_transitions_reference_only_known_states_and_gates` | PASS |
+| `tests.unit.test_state_machine.test_every_nonterminal_state_has_an_exit` | PASS |
+| `tests.unit.test_state_machine.test_every_state_is_reachable` | PASS |
+| `tests.unit.test_state_machine.test_every_gate_is_used_by_some_transition` | PASS |
+| `tests.unit.test_state_machine.test_rework_targets_are_known_states` | PASS |
+| `tests.unit.test_state_machine.test_terminal_states_have_no_exit` | PASS |
+| `tests.unit.test_state_machine.test_human_gate_transitions_require_approval_record` | PASS |

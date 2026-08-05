@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoworld-automation.local/schemas/qa_report/v1/qa_report-1.0.0.schema.json",
+  "title": "qa_report",
+  "allOf": [
+    { "$ref": "https://panoworld-automation.local/schemas/envelope/v1/envelope-1.0.0.schema.json" },
+    {
+      "properties": {
+        "schema_id": { "const": "qa_report" },
+        "schema_version": { "const": "1.0.0" },
+        "payload": {
+          "type": "object",
+          "required": ["scores", "decision"],
+          "properties": {
+            "scores": {
+              "type": "object",
+              "required": ["geometry", "style", "cross_view_consistency"],
+              "properties": {
+                "geometry": { "type": "number", "minimum": 0, "maximum": 1 },
+                "style": { "type": "number", "minimum": 0, "maximum": 1 },
+                "cross_view_consistency": { "type": "number", "minimum": 0, "maximum": 1 }
+              },
+              "additionalProperties": false
+            },
+            "checks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["name", "result"],
+                "properties": {
+                  "name": { "type": "string", "minLength": 1 },
+                  "result": { "enum": ["pass", "warn", "fail"] },
+                  "details": { "type": "string" }
+                },
+                "additionalProperties": false
+              }
+            },
+            "decision": { "enum": ["APPROVED", "REWORK", "BLOCKED"] },
+            "reason_codes": { "type": "array", "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" } }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  ]
+}

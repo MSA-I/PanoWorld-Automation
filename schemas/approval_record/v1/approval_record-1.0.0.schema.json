@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoworld-automation.local/schemas/approval_record/v1/approval_record-1.0.0.schema.json",
+  "title": "approval_record",
+  "$comment": "Machine-readable record of a human gate decision, bound to the exact content hash that was approved (contract-researcher finding 5). G5 is split into G5a (style spec) and G5b (source panorama) per finding 6.",
+  "allOf": [
+    { "$ref": "https://panoworld-automation.local/schemas/envelope/v1/envelope-1.0.0.schema.json" },
+    {
+      "properties": {
+        "schema_id": { "const": "approval_record" },
+        "schema_version": { "const": "1.0.0" },
+        "payload": {
+          "type": "object",
+          "required": ["gate_id", "approver", "decision", "target_content_hash", "decided_at"],
+          "properties": {
+            "gate_id": { "enum": ["G0", "G1", "G2", "G3", "G4", "G5a", "G5b", "G6", "G7", "G8", "G9"] },
+            "approver": { "type": "string", "minLength": 1 },
+            "decision": { "enum": ["approved", "rejected"] },
+            "target_content_hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+            "decided_at": { "type": "string", "format": "date-time" },
+            "comments": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  ]
+}

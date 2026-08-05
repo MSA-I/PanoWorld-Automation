@@ -1,0 +1,11 @@
+{
+  "scene": "panoworld_demo_subset",
+  "mode": "scene-only",
+  "errors": [],
+  "warnings": [],
+  "summary": {
+    "maps": 1,
+    "viewpoints_mapped": 4,
+    "viewpoints_on_disk": 4
+  }
+}

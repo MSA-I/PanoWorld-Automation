@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoworld-automation.local/schemas/camera_plan/v1/camera_plan-1.0.0.schema.json",
+  "title": "camera_plan",
+  "$comment": "Includes explicit resolution and view-count budget fields (contract-researcher finding 9: 12 views @2048x1024 OOM on H200). The width==2*height relation and budget-vs-VRAM cross-check are enforced by the deterministic validator, not expressible in JSON Schema.",
+  "allOf": [
+    { "$ref": "https://panoworld-automation.local/schemas/envelope/v1/envelope-1.0.0.schema.json" },
+    {
+      "properties": {
+        "schema_id": { "const": "camera_plan" },
+        "schema_version": { "const": "1.0.0" },
+        "payload": {
+          "type": "object",
+          "required": ["resolution", "viewpoints", "edges", "start_viewpoint", "max_views_per_lrm_batch"],
+          "properties": {
+            "resolution": {
+              "type": "object",
+              "required": ["width", "height"],
+              "properties": {
+                "width": { "type": "integer", "minimum": 2, "multipleOf": 2 },
+                "height": { "type": "integer", "minimum": 2, "multipleOf": 2 }
+              },
+              "additionalProperties": false
+            },
+            "camera_height_m": { "type": "number", "exclusiveMinimum": 0, "default": 1.35 },
+            "viewpoints": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": ["id", "position"],
+                "properties": {
+                  "id": { "type": "string", "minLength": 1 },
+                  "position": { "type": "array", "items": { "type": "number" }, "minItems": 3, "maxItems": 3 },
+                  "yaw_deg": { "type": "number" },
+                  "room_id": { "type": "string" }
+                },
+                "additionalProperties": false
+              }
+            },
+            "edges": {
+              "type": "array",
+              "items": { "type": "array", "items": { "type": "string", "minLength": 1 }, "minItems": 2, "maxItems": 2 }
+            },
+            "start_viewpoint": { "type": "string", "minLength": 1 },
+            "max_views_per_lrm_batch": { "type": "integer", "minimum": 1, "default": 8, "$comment": "Mirrors PanoWorld config data.viewpoint_max_view (verified default 8)." }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  ]
+}
