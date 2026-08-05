@@ -1,6 +1,25 @@
 # PROGRESS — PanoWorld Automation
 
-## SESSION-001 — ‏2026-08-05
+## SESSION-001 (המשך) — ביצוע PLAN-000 — ‏2026-08-05/06
+
+משה אישר את PLAN-000 ("מאשר") והביצוע הושלם באותו סשן. סטטוס: **MERGED** ל-main; ‏DONE סופי ממתין לאישור דוח הסיום.
+
+### מה בוצע (הכל עם evidence)
+- ‏T1: ‏git init ‏(main + ‏plan/PLAN-000), ‏.gitignore/.gitattributes ‏(LF לפני fixtures). ‏ADR-0001..0003 נכתבו.
+- ‏T2: ‏uv + ‏Python 3.11.15 + ‏5 תלויות. סטייה מתועדת: ‏`package=false` ‏(editable ‏.pth קורס על הנתיב העברי ב-cp1255); ‏CLI = ‏`python -m pwa.validator.cli`.
+- ‏T3–T5: ‏envelope + ‏13 schemas ‏(draft 2020-12, semver, ‏content_hash קנוני מוגדר); ‏state machine מלא ‏(fail edges, ‏G5a/G5b, ‏`RUN:` serialization, ‏raw_evidence); ‏error codes נעולים.
+- ‏T6: ‏golden fixture — סגירת map0 המלאה ‏(0000/0001/0008/0011), ‏SHA ‏`55fa2245`, ‏8.3MB; **הנחה A2 אומתה כעובדה** ‏(place_depth = ‏I;16 ‏16-bit, ‏2048x1024).
+- ‏T7–T9 ‏(TDD אדום→ירוק): ‏validator מלא + ‏tiny-scene + **109 בדיקות ירוקות** ‏(15 מקרי failure + ‏golden A/B + ‏snapshot + ‏roundtrip + ‏state machine).
+- ‏T10–T11: ‏evidence harness; ‏NOTICE + ‏LICENSE upstream; ‏17/17 קבצים ביט-זהים ב-git roundtrip.
+- ‏Reviews: ‏contracts ‏(Fable) NEEDS_REWORK → **כל הממצאים יושמו**; ‏code ‏(Sonnet) APPROVE_WITH_MINOR_FIXES → יושם. פירוט: ‏[acceptance.md](../evidence/PLAN-000/acceptance.md).
+- ממצא אמפירי: ה-fixture האמיתי תפס היוריסטיקה שגויה ‏(DEPTH_SCALE_SATURATED) — כוילה לפלטו >1%.
+
+### הפעולה הבאה
+משה מאשר את דוח הסיום → כתיבת PLAN-001 ‏(הכרעה: Intake תחילה או Packager תחילה לפי doc 03).
+
+---
+
+## SESSION-001 (תכנון) — ‏2026-08-05
 
 - Current plan: ‏[PLAN-000-repository-bootstrap-and-contracts](plans/PLAN-000-repository-bootstrap-and-contracts.md) — סטטוס **`REVIEW`**, ממתין לאישור משה.
 - Orchestrator model: requested ‏Fable 5 EXTRA → actual ‏`claude-opus-5[1m]` ‏(fallback מתועד; ‏[preflight](../evidence/SESSION-001/preflight-report.md)).

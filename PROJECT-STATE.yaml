@@ -1,10 +1,10 @@
 project:
   id: panoworld-automation
-  phase: planning
-  overall_status: PLANNING_COMPLETE
-  implementation_started: false
-  updated_at: "2026-08-05"
-  updated_by_session: SESSION-001
+  phase: implementation
+  overall_status: M0_CONTRACTS_MERGED
+  implementation_started: true
+  updated_at: "2026-08-06"
+  updated_by_session: SESSION-001  # same session: plan approved by Moshe, then executed
 
 model_policy:
   id: MODEL-ROUTING-v1
@@ -21,18 +21,21 @@ model_policy:
 current_plan:
   id: PLAN-000-repository-bootstrap-and-contracts
   title: Repository bootstrap and contracts
-  status: REVIEW
+  status: MERGED   # approved by Moshe 2026-08-05; executed, verified (109/109 tests), merged to main; final DONE pending Moshe ack of the run report
   owner: orchestrator
   path: docs/plans/PLAN-000-repository-bootstrap-and-contracts.md
-  branch: null        # git repo not yet initialized (D-001, pending PLAN-000 approval)
+  branch: plan/PLAN-000
   worktree: null
 
 milestones:
   - id: M0
     title: contracts_and_baseline
-    status: PLANNED
+    status: MERGED
     evidence:
-      - docs/plans/PLAN-000-repository-bootstrap-and-contracts.md
+      - evidence/PLAN-000/acceptance.md
+      - evidence/PLAN-000/test-results/junit.xml
+      - evidence/PLAN-000/reviews/contracts-reviewer.md
+      - evidence/PLAN-000/reviews/code-reviewer.md
   - id: M1
     title: local_floorplan_to_panoworld_package_poc
     status: NOT_STARTED
@@ -133,12 +136,12 @@ evidence:
     - evidence/SESSION-001/agent-reports/plan-reviewer.md
 
 next_actions:
-  - moshe_review_and_approve_PLAN_000
-  - decide_D009_cross_provider_review
-  - execute_PLAN_000_tasks_T1_T12_after_approval
+  - moshe_ack_PLAN_000_final_report
+  - decide_PLAN_001_scope_intake_or_packager
+  - write_PLAN_001
 
 human_gates:
-  plan_000_approval: pending
+  plan_000_approval: "approved 2026-08-05 (Moshe; internal reviews accepted as documented one-time exception, D-009 remains open)"
   geometry_approval: pending
   source_panorama_approval: pending
   final_output_approval: pending

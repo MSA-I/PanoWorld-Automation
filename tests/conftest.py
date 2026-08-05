@@ -18,7 +18,7 @@ def make_envelope(schema_id: str, payload: dict, **overrides) -> dict:
         "schema_version": "1.0.0",
         "artifact_id": f"{schema_id}-example-001",
         "project_id": "demo-project",
-        "run_id": None,
+        "run_id": "RUN-20260805-120000-demo1",
         "created_at": "2026-08-05T12:00:00Z",
         "producer": {
             "agent": "test-agent",

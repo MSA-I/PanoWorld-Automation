@@ -6,9 +6,11 @@
   "allOf": [
     { "$ref": "https://panoworld-automation.local/schemas/envelope/v1/envelope-1.0.0.schema.json" },
     {
+      "required": ["run_id"],
       "properties": {
         "schema_id": { "const": "remote_job" },
         "schema_version": { "const": "1.0.0" },
+        "run_id": { "type": "string", "minLength": 1 },
         "payload": {
           "type": "object",
           "required": ["job_id", "package_hash", "provider", "instance_type", "ttl_minutes", "max_cost_usd", "heartbeat_interval_s", "status", "terminate_verified"],

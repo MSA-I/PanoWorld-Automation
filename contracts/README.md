@@ -34,6 +34,22 @@ with the locked dependency set (no PyYAML). Structure is enforced by
 not). Downstream consumers (dashboard, QA) must match on codes, never on message text.
 Additions are append-only; changing a code's meaning or severity requires an ADR.
 
+## Vocabulary separation (binding)
+
+Pipeline RUN states and PLAN work-statuses (docs/04) are disjoint vocabularies.
+Outside `contracts/state_machine.yaml`, run states are ALWAYS serialized as
+`RUN:<STATE>` (see schemas/README.md). `qa_report.decision` deliberately uses
+distinct tokens (`approve`/`rework`/`block`) so no bare collision exists.
+
+## Map filename convention (deliberate narrowing)
+
+Upstream PanoWorld locates maps via a data-list txt — the filename is arbitrary
+and only the `viewpoints/` sibling is a hard requirement. OUR packages narrow
+this: generated map files match `map*.json` in the scene root, and the validator
+(`NO_MAP_FILE`) enforces the narrowed convention. Foreign scenes that name maps
+differently are out of scope for scene-only validation (they still work in
+PanoWorld itself); revisit only if we ever ingest third-party scenes.
+
 ## Map JSON ordering
 
 PanoWorld's start node is the FIRST key of the map JSON in insertion order (verified

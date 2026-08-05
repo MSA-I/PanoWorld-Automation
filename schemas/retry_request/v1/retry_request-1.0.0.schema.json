@@ -13,7 +13,7 @@
           "type": "object",
           "required": ["target_state", "reason_code", "changed_parameter", "attempt", "max_attempts"],
           "properties": {
-            "target_state": { "type": "string", "minLength": 1 },
+            "target_state": { "type": "string", "pattern": "^RUN:[A-Z_]+$", "$comment": "Namespaced per the state-value serialization rule (schemas/README.md); the orchestrator additionally verifies membership in contracts/state_machine.yaml." },
             "reason_code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
             "changed_parameter": {
               "type": "object",

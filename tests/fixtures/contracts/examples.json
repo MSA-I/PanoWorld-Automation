@@ -160,7 +160,7 @@
     "valid": {
       "scores": { "geometry": 0.9, "style": 0.8, "cross_view_consistency": 0.85 },
       "checks": [ { "name": "doorway_consistency", "result": "pass" } ],
-      "decision": "APPROVED",
+      "decision": "approve",
       "reason_codes": []
     },
     "invalid": {
@@ -187,7 +187,7 @@
   },
   "retry_request": {
     "valid": {
-      "target_state": "CAMERAS_PLANNED",
+      "target_state": "RUN:CAMERAS_PLANNED",
       "reason_code": "RENDER_DEPTH_EMPTY",
       "changed_parameter": { "name": "resolution_height", "old_value": "1024", "new_value": "512" },
       "attempt": 1,

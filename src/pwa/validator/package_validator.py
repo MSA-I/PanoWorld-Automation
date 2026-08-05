@@ -35,12 +35,14 @@ REQUIRED_FILES = (
 # Codes that report but never fail validation (contracts/error_codes.md).
 WARN_CODES = frozenset({
     "VIEWPOINT_NOT_IN_MAP",
+    "DUPLICATE_VIEWPOINT_IN_MAP",
     "NONSTANDARD_WORLD_CONVENTION",
     "CAMERA_HEIGHT_OUTLIER",
     "CAMERA_POSITION_OUTLIER",
     "VIEWPOINTS_TOO_CLOSE",
     "ODD_DIMENSIONS",
     "DEPTH_RANGE_IMPLAUSIBLE",
+    "DEPTH_SCALE_SATURATED",
     "VRAM_BUDGET_WARNING",
 })
 
@@ -226,6 +228,13 @@ class PackageValidator:
             for key, values in entries:
                 referenced.append(key)
                 referenced.extend(values)
+            seen: set[str] = set()
+            for name in referenced:
+                if name in seen:
+                    self._add(findings, "DUPLICATE_VIEWPOINT_IN_MAP", mf.name,
+                              f"viewpoint {name!r} appears more than once in this map's "
+                              "traversal and would be generated twice")
+                seen.add(name)
             for name in referenced:
                 if name not in on_disk:
                     self._add(findings, "MAP_REFERENCES_UNKNOWN_VIEWPOINT", mf.name,
@@ -279,7 +288,10 @@ class PackageValidator:
                     with Image.open(present["place_image.png"]) as im:
                         img_mode, img_size = im.mode, im.size
                 except Exception as exc:
-                    self._add(findings, "IMAGE_UNREADABLE", f"{rel}/place_image.png", str(exc))
+                    # message deliberately excludes str(exc): PIL embeds the
+                    # absolute path, which would break snapshot stability.
+                    self._add(findings, "IMAGE_UNREADABLE", f"{rel}/place_image.png",
+                              f"cannot open image ({type(exc).__name__})")
                 else:
                     if img_mode != "RGB":
                         self._add(findings, "INVALID_IMAGE_MODE", f"{rel}/place_image.png",
@@ -295,7 +307,8 @@ class PackageValidator:
                         depth_mode, depth_size = im.mode, im.size
                         depth_arr = np.array(im, dtype=np.float64)
                 except Exception as exc:
-                    self._add(findings, "IMAGE_UNREADABLE", f"{rel}/place_depth.png", str(exc))
+                    self._add(findings, "IMAGE_UNREADABLE", f"{rel}/place_depth.png",
+                              f"cannot open image ({type(exc).__name__})")
                 else:
                     if depth_mode not in DEPTH_MODES:
                         self._add(findings, "INVALID_IMAGE_MODE", f"{rel}/place_depth.png",
@@ -314,12 +327,18 @@ class PackageValidator:
 
             # depth scale (depth_m = pixel / scale; upstream raises on <= 0)
             if "place_depth_scale.txt" in present:
-                raw = present["place_depth_scale.txt"].read_text(encoding="utf-8").strip()
                 try:
-                    scale_val = float(raw)
+                    raw = present["place_depth_scale.txt"].read_text(encoding="utf-8").strip()
+                except (UnicodeDecodeError, OSError):
+                    raw = None
+                    self._add(findings, "INVALID_DEPTH_SCALE",
+                              f"{rel}/place_depth_scale.txt",
+                              "file is not readable UTF-8 text")
+                try:
+                    scale_val = float(raw) if raw is not None else math.nan
                 except ValueError:
                     scale_val = math.nan
-                if not math.isfinite(scale_val) or scale_val <= 0:
+                if raw is not None and (not math.isfinite(scale_val) or scale_val <= 0):
                     self._add(findings, "INVALID_DEPTH_SCALE",
                               f"{rel}/place_depth_scale.txt",
                               f"must be a finite positive number, got {raw!r}")
@@ -333,6 +352,16 @@ class PackageValidator:
                                       f"{rel}/place_depth_scale.txt",
                                       f"max={max_m:.2f}m median={median_m:.2f}m "
                                       "outside plausible indoor range")
+                        # Clipping = a PLATEAU at the 16-bit ceiling. Upstream
+                        # legitimately normalizes so the single farthest pixel
+                        # equals 65535 (verified on scene0000), so we only warn
+                        # when >1% of valid pixels sit at the ceiling.
+                        saturated_frac = float((valid >= 65535.0).mean())
+                        if saturated_frac > 0.01:
+                            self._add(findings, "DEPTH_SCALE_SATURATED",
+                                      f"{rel}/place_depth.png",
+                                      f"{saturated_frac:.1%} of depth pixels plateau at "
+                                      "65535 - the scale likely clips the true max range")
 
         # Cross-viewpoint sanity.
         for a, b in combinations(sorted(positions), 2):

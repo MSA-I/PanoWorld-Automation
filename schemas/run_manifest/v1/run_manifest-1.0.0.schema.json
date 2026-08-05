@@ -5,9 +5,11 @@
   "allOf": [
     { "$ref": "https://panoworld-automation.local/schemas/envelope/v1/envelope-1.0.0.schema.json" },
     {
+      "required": ["run_id"],
       "properties": {
         "schema_id": { "const": "run_manifest" },
         "schema_version": { "const": "1.0.0" },
+        "run_id": { "type": "string", "minLength": 1 },
         "payload": {
           "type": "object",
           "required": ["package_hash", "models", "config", "timings", "contracts_bundle_version"],

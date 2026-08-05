@@ -70,3 +70,38 @@ def test_human_gate_transitions_require_approval_record():
     for t in TRANSITIONS:
         if t["gate"] in {"G2", "G5a", "G5b", "G9"}:
             assert "approval_record" in t["required_artifacts"], t
+
+
+# --- Review-driven additions (contracts-reviewer MAJOR-2, MAJOR-3, MINOR-4) ---
+
+def test_policy_states_never_appear_in_transition_rows():
+    for t in TRANSITIONS:
+        assert t["from"] not in POLICY_STATES, t
+        assert t["to"] not in POLICY_STATES, t
+
+
+def test_happy_path_is_deterministic_single_exit_per_state():
+    froms = [t["from"] for t in TRANSITIONS]
+    assert len(froms) == len(set(froms)), "a state with two outgoing rows is ambiguous"
+
+
+def test_serialization_rule_declared():
+    assert "RUN:<STATE>" in SM["serialization_rule"]
+
+
+def test_all_artifact_and_evidence_names_have_a_contract_or_declaration():
+    """MAJOR-3: every required_artifact / gate-evidence name must be either one
+    of the schema'd artifacts or an explicitly declared raw-evidence entry."""
+    from pwa.contracts import load_all_schemas
+
+    schema_ids = set(load_all_schemas()) - {"envelope"}
+    raw = set(SM["raw_evidence"]) - {"note"}
+    allowed = schema_ids | raw
+    for t in TRANSITIONS:
+        for name in t["required_artifacts"]:
+            assert name in allowed, f"undeclared artifact {name!r} in transition {t['from']}"
+        if t["gate"]:
+            assert t["required_artifacts"], f"gated transition {t['from']}->{t['to']} with no artifact"
+    for gate_id, spec in GATES.items():
+        for name in spec["evidence"]:
+            assert name in allowed, f"undeclared evidence {name!r} in gate {gate_id}"

@@ -142,3 +142,63 @@ def test_same_key_across_different_maps_is_legitimate(tiny_scene):
     report = run(tiny_scene)
     assert "DUPLICATE_MAP_KEY" not in error_codes(report)
     assert report.ok()
+
+
+# --- Review-driven additions (contracts-reviewer MINOR-8, code-reviewer 1-2) --
+
+def test_depth_scale_invalid_utf8_bytes_reported_not_crash(tiny_scene):
+    """code-reviewer finding 1: non-UTF-8 bytes must yield INVALID_DEPTH_SCALE,
+    never an uncaught UnicodeDecodeError."""
+    (tiny_scene / "viewpoints" / "0000" / "place_depth_scale.txt").write_bytes(b"\x9e\xff\x81")
+    assert "INVALID_DEPTH_SCALE" in error_codes(run(tiny_scene))
+
+
+def test_unreadable_image_clean_message_no_path_leak(tiny_scene):
+    """code-reviewer finding 2: IMAGE_UNREADABLE fires and its message must not
+    embed the absolute (machine-specific) path PIL puts in its exceptions."""
+    (tiny_scene / "viewpoints" / "0000" / "place_image.png").write_bytes(b"this is not a png")
+    report = run(tiny_scene)
+    assert "IMAGE_UNREADABLE" in error_codes(report)
+    serialized = json.dumps(report.to_dict())
+    assert str(tiny_scene) not in serialized
+    assert ":\\" not in serialized
+
+
+def test_duplicate_viewpoint_within_one_map_warns(tiny_scene):
+    """contracts-reviewer MINOR-8a: a node repeated in one map's traversal would
+    be generated twice — warn, not error."""
+    (tiny_scene / "map_panoworld0.json").write_text(
+        json.dumps({"0000": ["0001", "0001"]}), encoding="ascii"
+    )
+    report = run(tiny_scene)
+    assert "DUPLICATE_VIEWPOINT_IN_MAP" in warning_codes(report)
+    assert report.ok()
+
+
+def test_depth_scale_saturated_plateau_warns(tiny_scene):
+    """contracts-reviewer MINOR-8b: a PLATEAU (>1%) at 65535 suggests clipping."""
+    vp = tiny_scene / "viewpoints" / "0000"
+    depth = Image.new("I;16", (32, 16))
+    data = [1000] * (32 * 16)
+    for i in range(20):  # ~3.9% of 512 pixels at the ceiling
+        data[i] = 65535
+    depth.putdata(data)
+    depth.save(vp / "place_depth.png")
+    (vp / "place_depth_scale.txt").write_text("5000\n", encoding="ascii")
+    report = run(tiny_scene)
+    assert "DEPTH_SCALE_SATURATED" in warning_codes(report)
+    assert report.ok()
+
+
+def test_single_max_pixel_at_65535_is_legitimate(tiny_scene):
+    """Upstream normalization puts the single farthest pixel exactly at 65535
+    (verified on real scene0000) — must NOT warn."""
+    vp = tiny_scene / "viewpoints" / "0000"
+    depth = Image.new("I;16", (32, 16))
+    data = [1000] * (32 * 16)
+    data[0] = 65535
+    depth.putdata(data)
+    depth.save(vp / "place_depth.png")
+    (vp / "place_depth_scale.txt").write_text("5000\n", encoding="ascii")
+    report = run(tiny_scene)
+    assert "DEPTH_SCALE_SATURATED" not in warning_codes(report)

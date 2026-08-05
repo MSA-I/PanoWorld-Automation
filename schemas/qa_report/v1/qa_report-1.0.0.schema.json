@@ -5,9 +5,11 @@
   "allOf": [
     { "$ref": "https://panoworld-automation.local/schemas/envelope/v1/envelope-1.0.0.schema.json" },
     {
+      "required": ["run_id"],
       "properties": {
         "schema_id": { "const": "qa_report" },
         "schema_version": { "const": "1.0.0" },
+        "run_id": { "type": "string", "minLength": 1 },
         "payload": {
           "type": "object",
           "required": ["scores", "decision"],
@@ -35,7 +37,7 @@
                 "additionalProperties": false
               }
             },
-            "decision": { "enum": ["APPROVED", "REWORK", "BLOCKED"] },
+            "decision": { "enum": ["approve", "rework", "block"], "$comment": "Deliberately distinct tokens from both the RUN states and the PLAN statuses (vocabulary-separation rule; reviewer MAJOR-2). Maps 1:1 to the conceptual APPROVED/REWORK/BLOCKED decision of doc 01." },
             "reason_codes": { "type": "array", "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" } }
           },
           "additionalProperties": false

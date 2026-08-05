@@ -11,6 +11,7 @@ cases (test-architect §3, as amended by plan-reviewer M-4 and missed-risk 1).
 | `NO_MAP_FILE` | error | No `map*.json` found in the scene root | — |
 | `MAP_JSON_INVALID` | error | Map file is not valid JSON, or root is not an object of string→array-of-strings | 14 |
 | `DUPLICATE_MAP_KEY` | error | The same key appears twice **within one** map file (intra-map only; the same key in *different* map files is legitimate, as in upstream scene0000) | 15 |
+| `DUPLICATE_VIEWPOINT_IN_MAP` | warn | The same viewpoint appears more than once in one map's traversal (as key and/or value) — it would be generated twice (panoworld-compat implication) | — |
 | `EMPTY_MAP_VALUES` | error | The first (start) key of a map has an empty values array | — |
 | `MAP_REFERENCES_UNKNOWN_VIEWPOINT` | error | A map key or value has no matching `viewpoints/<name>/` directory | 6 |
 | `VIEWPOINT_NOT_IN_MAP` | warn | A viewpoint directory exists on disk but is referenced by no map (upstream demo legitimately has such spares: 0019/0021) | 7 |
@@ -35,6 +36,7 @@ cases (test-architect §3, as amended by plan-reviewer M-4 and missed-risk 1).
 | `DEPTH_MOSTLY_INVALID` | error | More than 50% of depth pixels are 0 (invalid/no-hit), including all-zero | — |
 | `INVALID_DEPTH_SCALE` | error | `place_depth_scale.txt` is non-numeric, NaN/inf, zero or negative (upstream raises on ≤0; depth_m = pixel ÷ scale) | 9, 10 |
 | `DEPTH_RANGE_IMPLAUSIBLE` | warn | max(depth)/scale outside (0.05, 50) m or median outside (0.1, 30) m — cheapest guard against the divide/multiply inversion | — |
+| `DEPTH_SCALE_SATURATED` | warn | More than 1% of valid depth pixels plateau at 65535 — the scale likely clips the true max range. (A single pixel at 65535 is legitimate: upstream normalizes so the farthest pixel hits the ceiling — verified on scene0000) | — |
 | `START_IMAGE_MISSING` | error (config mode) | The start viewpoint (first key of a map) lacks the configured `panoworld_start_image` file | — |
 | `PANO_NAME_COLLISION` | error (config mode) | Configured `pano_image_name` collides with an existing input file (inference writes outputs back into viewpoint dirs) | — |
 | `VIEWPOINT_BUDGET_EXCEEDED` | error (config mode) | A map's total traversal node count exceeds `max_views` (mirrors verified `viewpoint_max_view`, default 8) | — |

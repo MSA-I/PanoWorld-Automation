@@ -1,10 +1,10 @@
 # PLAN-000 test evidence summary
 
-- Run at: 2026-08-05T20:44:13+00:00
+- Run at: 2026-08-05T20:58:05+00:00
 - Command: `pytest -v --junitxml=D:\משה פרוייקטים\פיתוח אתרים\PanoWorld-Automation\evidence\PLAN-000\test-results\junit.xml --cov=src/pwa --cov-report=xml:D:\משה פרוייקטים\פיתוח אתרים\PanoWorld-Automation\evidence\PLAN-000\test-results\coverage.xml` (via .venv python)
 - Exit code: **0**
 
-- Tests: 95 | Failures: 0 | Errors: 0 | Skipped: 0 | Time: 2.064s
+- Tests: 109 | Failures: 0 | Errors: 0 | Skipped: 0 | Time: 2.504s
 
 | Test | Result |
 |---|---|
@@ -31,6 +31,11 @@
 | `tests.integration.test_validator_failures.test_case_14_malformed_map_json` | PASS |
 | `tests.integration.test_validator_failures.test_case_15_duplicate_key_within_one_map` | PASS |
 | `tests.integration.test_validator_failures.test_same_key_across_different_maps_is_legitimate` | PASS |
+| `tests.integration.test_validator_failures.test_depth_scale_invalid_utf8_bytes_reported_not_crash` | PASS |
+| `tests.integration.test_validator_failures.test_unreadable_image_clean_message_no_path_leak` | PASS |
+| `tests.integration.test_validator_failures.test_duplicate_viewpoint_within_one_map_warns` | PASS |
+| `tests.integration.test_validator_failures.test_depth_scale_saturated_plateau_warns` | PASS |
+| `tests.integration.test_validator_failures.test_single_max_pixel_at_65535_is_legitimate` | PASS |
 | `tests.unit.test_extrinsics_checks.test_standard_matrix_is_clean` | PASS |
 | `tests.unit.test_extrinsics_checks.test_wrong_shape` | PASS |
 | `tests.unit.test_extrinsics_checks.test_singular_matrix` | PASS |
@@ -93,6 +98,11 @@
 | `tests.unit.test_schemas_roundtrip.test_envelope_rejects_bad_status` | PASS |
 | `tests.unit.test_schemas_roundtrip.test_envelope_partial_requires_errors` | PASS |
 | `tests.unit.test_schemas_roundtrip.test_envelope_rejects_bad_hash_format` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_content_hash_reference_implementation` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_run_scoped_artifacts_require_run_id[run_manifest]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_run_scoped_artifacts_require_run_id[remote_job]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_run_scoped_artifacts_require_run_id[qa_report]` | PASS |
+| `tests.unit.test_schemas_roundtrip.test_retry_target_state_requires_run_namespace` | PASS |
 | `tests.unit.test_schemas_roundtrip.test_map_ordering_representation_is_an_array` | PASS |
 | `tests.unit.test_state_machine.test_all_gate_ids_defined_including_g5_split` | PASS |
 | `tests.unit.test_state_machine.test_human_gates_are_exactly_the_three_plus_split` | PASS |
@@ -103,3 +113,7 @@
 | `tests.unit.test_state_machine.test_rework_targets_are_known_states` | PASS |
 | `tests.unit.test_state_machine.test_terminal_states_have_no_exit` | PASS |
 | `tests.unit.test_state_machine.test_human_gate_transitions_require_approval_record` | PASS |
+| `tests.unit.test_state_machine.test_policy_states_never_appear_in_transition_rows` | PASS |
+| `tests.unit.test_state_machine.test_happy_path_is_deterministic_single_exit_per_state` | PASS |
+| `tests.unit.test_state_machine.test_serialization_rule_declared` | PASS |
+| `tests.unit.test_state_machine.test_all_artifact_and_evidence_names_have_a_contract_or_declaration` | PASS |

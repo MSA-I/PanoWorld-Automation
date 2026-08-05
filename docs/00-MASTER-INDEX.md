@@ -1,9 +1,9 @@
 # PanoWorld Automation — Master Index
 
 ## סטטוס
-`PLANNING_COMPLETE / IMPLEMENTATION_NOT_STARTED` — ‏PLAN-000 במצב `REVIEW`, ממתין לאישור משה.
+`M0_CONTRACTS_MERGED` — ‏PLAN-000 אושר ע"י משה ובוצע במלואו ‏(SESSION-001, ‏2026-08-05/06): ‏Git פעיל, חוזים ו-validator ממוזגים ל-main, ‏**109/109 בדיקות ירוקות**. ‏PLAN-001 טרם נכתב. לא הותקן Blender, לא הורדו מודלים, לא נשכר H200.
 
-נכון לעכשיו נוצרו מסמכי מחקר, תכנון ו-preflight evidence בלבד. לא הותקנו Blender, PanoWorld, מודלים או תלויות חדשות, לא אותחל Git, ולא נשכר שרת H200. ‏(SESSION-001, ‏2026-08-05.)
+מבנה בפועל: ‏`schemas/` ‏(envelope+13), ‏`contracts/` ‏(state machine, error codes, עקרונות אבטחה), ‏`src/pwa/` ‏(validator), ‏`tools/`, ‏`tests/` ‏(כולל golden fixture ‏8.3MB), ‏`docs/decisions/` ‏(ADR-0001..0003), ‏`docs/handoffs/`, ‏`evidence/PLAN-000/`.
 
 ## מטרת הפרויקט
 לבנות מערכת מתוזמרת שמקבלת floorplan + style reference, מכינה geometry/control assets/package תקין של PanoWorld, מריצה אותו על H200 ומבצעת QA עם human gates.
@@ -42,9 +42,10 @@
    - התקנה, חומרה, מודלים וקלטים.
    - הערה (SESSION-001): נמצאו בו 9 אי-דיוקים/השלמות מול קוד המקור — ראו Discrepancies ב-[דוח התאימות](../evidence/SESSION-001/agent-reports/panoworld-compat.md); המדריך טרם עודכן.
 
-## מסמכי SESSION-001 (סטטוס REVIEW)
+## מסמכי SESSION-001
 
-- [PLAN-000 — Repository Bootstrap and Contracts](plans/PLAN-000-repository-bootstrap-and-contracts.md) — התוכנית הממתינה לאישור.
+- [PLAN-000 — Repository Bootstrap and Contracts](plans/PLAN-000-repository-bootstrap-and-contracts.md) — **אושר ובוצע; ‏MERGED**. ‏Acceptance: ‏[evidence/PLAN-000/acceptance.md](../evidence/PLAN-000/acceptance.md); ‏Handoff: ‏[HANDOFF-PLAN-000-to-PLAN-001-001](handoffs/HANDOFF-PLAN-000-to-PLAN-001-001.md).
+- ‏ADRs: ‏[ADR-0001 Git bootstrap](decisions/ADR-0001-git-repository-bootstrap.md) · [ADR-0002 Schema versioning](decisions/ADR-0002-schema-versioning-strategy.md) · [ADR-0003 Fixture vendoring](decisions/ADR-0003-golden-fixture-vendoring.md).
 - [REQUIREMENTS.md](REQUIREMENTS.md) — דרישות פונקציונליות/לא-פונקציונליות, disclaimer, human gates.
 - [ARCHITECTURE.md](ARCHITECTURE.md) — context, components, data flow, trust boundaries; מאושר מול candidates.
 - [OPEN-DECISIONS.md](OPEN-DECISIONS.md) — ‏D-001..D-010.

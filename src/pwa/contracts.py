@@ -6,6 +6,7 @@ references the envelope) resolves offline.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -14,6 +15,18 @@ from referencing import Registry, Resource
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCHEMAS_DIR = REPO_ROOT / "schemas"
+
+
+def compute_content_hash(doc: dict) -> str:
+    """Normative content_hash (schemas/README.md): sha256 over the canonical
+    UTF-8 JSON of the document with the top-level ``content_hash`` removed.
+
+    ``sort_keys`` here applies ONLY to this ephemeral hashing serialization —
+    never to files written to disk (map JSON insertion order is load-bearing).
+    """
+    stripped = {k: v for k, v in doc.items() if k != "content_hash"}
+    canonical = json.dumps(stripped, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
+    return "sha256:" + hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
 def load_all_schemas(schemas_dir: Path | None = None) -> dict[str, dict]:

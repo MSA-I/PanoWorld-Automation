@@ -4,6 +4,13 @@
   "note1": "Pipeline RUN states for a single generation run. This is a DISTINCT vocabulary from the PLAN work-statuses of docs/04 (NOT_STARTED..CANCELLED) - contract-researcher finding 7. A document may never mix the two.",
   "note2": "This file is JSON-syntax, which is a valid YAML subset - it keeps the planned .yaml name while staying parseable by the locked dependency set (json stdlib). See contracts/README.md.",
   "note3": "Closes contract-researcher findings 1, 6, 18, 20: full fail edges, BLOCKED reachable from any state, G5 split into G5a/G5b, explicit gate mapping.",
+  "serialization_rule": "BINDING: state values written anywhere outside this file (PROJECT-STATE, reports, artifacts) are serialized as 'RUN:<STATE>', e.g. 'RUN:CAMERAS_PLANNED'. Bare state tokens are legal only inside this file. See schemas/README.md.",
+  "raw_evidence": {
+    "note": "Gate evidence that is NOT one of the 13 schema'd artifacts. Each entry is either produced by this PLAN's tooling or explicitly deferred to the PLAN that will own its contract (reviewer MAJOR-3; contract-researcher finding 4).",
+    "overlay_svg": "deferred: schema owned by the parsing PLAN (stage 2); human-review SVG overlay",
+    "control_asset_validation": "deferred: render_validation_report schema owned by the rendering PLAN (stage 5)",
+    "package_validator_report": "produced NOW by pwa.validator (Report.to_dict shape, snapshot-tested); JSON Schema formalization deferred to the packager PLAN (stage 8)"
+  },
 
   "states": [
     "NEW", "INGESTED", "INPUT_VALIDATED", "FLOORPLAN_PARSED",
@@ -39,7 +46,7 @@
     { "from": "GEOMETRY_BUILT",          "to": "GEOMETRY_REVIEW",          "gate": null,  "required_artifacts": [],                              "on_fail": "REWORK" },
     { "from": "GEOMETRY_REVIEW",         "to": "GEOMETRY_APPROVED",        "gate": "G2",  "required_artifacts": ["approval_record"],             "on_fail": "REWORK" },
     { "from": "GEOMETRY_APPROVED",       "to": "CAMERAS_PLANNED",          "gate": "G3",  "required_artifacts": ["camera_plan"],                 "on_fail": "REWORK" },
-    { "from": "CAMERAS_PLANNED",         "to": "CONTROL_ASSETS_RENDERED",  "gate": "G4",  "required_artifacts": [],                              "on_fail": "REWORK" },
+    { "from": "CAMERAS_PLANNED",         "to": "CONTROL_ASSETS_RENDERED",  "gate": "G4",  "required_artifacts": ["control_asset_validation"],    "on_fail": "REWORK" },
     { "from": "CONTROL_ASSETS_RENDERED", "to": "STYLE_SPEC_READY",         "gate": null,  "required_artifacts": ["style_spec"],                  "on_fail": "REWORK" },
     { "from": "STYLE_SPEC_READY",        "to": "STYLE_SPEC_APPROVED",      "gate": "G5a", "required_artifacts": ["approval_record"],             "on_fail": "REWORK" },
     { "from": "STYLE_SPEC_APPROVED",     "to": "SOURCE_PANO_READY",        "gate": null,  "required_artifacts": [],                              "on_fail": "REWORK" },

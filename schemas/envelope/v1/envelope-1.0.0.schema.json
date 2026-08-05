@@ -35,7 +35,7 @@
         "additionalProperties": false
       }
     },
-    "content_hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "content_hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$", "$comment": "sha256 of the canonical UTF-8 JSON of this document WITH THIS MEMBER REMOVED; canonical form per schemas/README.md (sort_keys applies to the ephemeral hashing serialization only). Reference impl: pwa.contracts.compute_content_hash." },
     "status": { "enum": ["complete", "partial", "failed"] },
     "errors": {
       "type": "array",
