@@ -1,7 +1,7 @@
 # PanoWorld Automation — Master Index
 
 ## סטטוס
-`M0_DONE` — ‏PLAN-000 אושר, בוצע, מוזג ל-main המקומי **ונסגר כ-DONE** ‏(2026-08-06): ‏Git פעיל, חוזים ו-validator ב-main, ‏**109/109 בדיקות ירוקות**, ‏D-001/D-008/D-010(vendoring) נסגרו כ-ADR-0001..0003. ‏PLAN-001 טרם נכתב. לא הותקן Blender, לא הורדו מודלים, לא נשכר H200, לא בוצע push לשום remote.
+`M1_PLAN_001_REVIEW` — ‏PLAN-000 נשאר `DONE`. ‏PLAN-001 intake + fixture packager מומש על `plan/PLAN-001`: ‏120/120 בדיקות ירוקות, tiny/golden validator ירוקים ו־evidence append-only. טרם בוצע merge; ‏DWG smoke פרטי ו-review בלתי תלוי עדיין פתוחים. לא הותקן Blender, לא הורדו PanoWorld/מודלים, לא הופעל H200 ולא בוצע push.
 
 מבנה בפועל: ‏`schemas/` ‏(envelope+13), ‏`contracts/` ‏(state machine, error codes, עקרונות אבטחה), ‏`src/pwa/` ‏(validator), ‏`tools/`, ‏`tests/` ‏(כולל golden fixture ‏8.3MB), ‏`docs/decisions/` ‏(ADR-0001..0003), ‏`docs/handoffs/`, ‏`evidence/PLAN-000/`.
 
@@ -42,8 +42,9 @@
    - התקנה, חומרה, מודלים וקלטים.
    - הערה (SESSION-001): נמצאו בו 9 אי-דיוקים/השלמות מול קוד המקור — ראו Discrepancies ב-[דוח התאימות](../evidence/SESSION-001/agent-reports/panoworld-compat.md); המדריך טרם עודכן.
 
-## מסמכי SESSION-001
+## מסמכי תוכניות
 
+- [PLAN-001 — Intake and Packager Baseline](plans/PLAN-001-intake-and-packager-baseline.md) — **`REVIEW`**; ‏Acceptance: ‏[evidence/PLAN-001/acceptance.md](../evidence/PLAN-001/acceptance.md); ‏Handoff: ‏[HANDOFF-PLAN-001-to-review-001](handoffs/HANDOFF-PLAN-001-to-review-001.md).
 - [PLAN-000 — Repository Bootstrap and Contracts](plans/PLAN-000-repository-bootstrap-and-contracts.md) — **`DONE`** ‏(נסגר 2026-08-06; חריגה מתועדת: ראיית red-phase לא נשתמרה). ‏Acceptance: ‏[evidence/PLAN-000/acceptance.md](../evidence/PLAN-000/acceptance.md); ‏Handoff: ‏[HANDOFF-PLAN-000-to-PLAN-001-001](handoffs/HANDOFF-PLAN-000-to-PLAN-001-001.md).
 - ‏ADRs: ‏[ADR-0001 Git bootstrap](decisions/ADR-0001-git-repository-bootstrap.md) · [ADR-0002 Schema versioning](decisions/ADR-0002-schema-versioning-strategy.md) · [ADR-0003 Fixture vendoring](decisions/ADR-0003-golden-fixture-vendoring.md).
 - [REQUIREMENTS.md](REQUIREMENTS.md) — דרישות פונקציונליות/לא-פונקציונליות, disclaimer, human gates.

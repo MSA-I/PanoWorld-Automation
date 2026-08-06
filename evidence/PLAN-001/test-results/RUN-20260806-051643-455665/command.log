@@ -1,0 +1,8 @@
+timestamp: 2026-08-06T05:16:43+00:00
+cwd: D:\משה פרוייקטים\פיתוח אתרים\PanoWorld-Automation
+command: D:\משה פרוייקטים\פיתוח אתרים\PanoWorld-Automation\.venv\Scripts\python.exe -m pytest -v --junitxml=D:\משה פרוייקטים\פיתוח אתרים\PanoWorld-Automation\evidence\PLAN-001\test-results\RUN-20260806-051643-455665\junit.xml --cov=src/pwa --cov-report=xml:D:\משה פרוייקטים\פיתוח אתרים\PanoWorld-Automation\evidence\PLAN-001\test-results\RUN-20260806-051643-455665\coverage.xml
+exit_code: 0
+
+--- stdout ---
+None
+--- stderr ---

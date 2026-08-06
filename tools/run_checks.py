@@ -9,6 +9,7 @@ Usage: uv run python tools/run_checks.py --plan-id PLAN-001
 from __future__ import annotations
 
 import argparse
+import locale
 import re
 import subprocess
 import sys
@@ -38,14 +39,24 @@ def main(argv: list[str] | None = None) -> int:
         f"--cov-report=xml:{out / 'coverage.xml'}",
     ]
     started = started_dt.isoformat(timespec="seconds")
-    proc = subprocess.run(cmd, cwd=REPO_ROOT, capture_output=True, text=True, encoding="utf-8")
-
-    (out / "command.log").write_text(
-        f"timestamp: {started}\ncwd: {REPO_ROOT}\ncommand: {' '.join(cmd)}\n"
-        f"exit_code: {proc.returncode}\n\n--- stdout ---\n{proc.stdout}\n"
-        f"--- stderr ---\n{proc.stderr}\n",
-        encoding="utf-8",
+    proc = subprocess.run(
+        cmd,
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        encoding=locale.getpreferredencoding(False),
+        errors="replace",
     )
+
+    stdout = proc.stdout.rstrip()
+    stderr = proc.stderr.rstrip()
+
+    log = (
+        f"timestamp: {started}\ncwd: {REPO_ROOT}\ncommand: {' '.join(cmd)}\n"
+        f"exit_code: {proc.returncode}\n\n--- stdout ---\n{stdout}\n"
+        f"--- stderr ---\n{stderr}"
+    )
+    (out / "command.log").write_text(log.rstrip() + "\n", encoding="utf-8")
 
     # Summarize junit.xml into a human-readable table.
     lines = [f"# {args.plan_id} test evidence summary", "", f"- Run at: {started}",

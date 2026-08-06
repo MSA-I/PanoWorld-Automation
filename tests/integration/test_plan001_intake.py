@@ -9,7 +9,8 @@ import ezdxf
 import pytest
 from PIL import Image
 
-from pwa.contracts import validate_artifact
+from pwa.contracts import compute_content_hash, validate_artifact
+from pwa.files import sha256_file
 from pwa.intake import ingest_project
 from pwa.packager import build_baseline_run
 
@@ -56,8 +57,12 @@ def test_all_floorplan_formats_keep_original_and_emit_valid_contracts(tmp_path, 
     manifest = json.loads((run_root / "project" / "project_manifest.json").read_text(encoding="utf-8"))
     assert validate_artifact(manifest) == []
     assert validate_artifact(report) == []
+    assert manifest["content_hash"] == compute_content_hash(manifest)
+    assert report["content_hash"] == compute_content_hash(report)
     copied = next((run_root / "project" / "inputs" / "originals").glob("floorplan.*"))
     assert copied.read_bytes() == original
+    for item in manifest["payload"]["inputs"]:
+        assert item["sha256"] == sha256_file(run_root / Path(item["path"]))
     assert "private-name" not in json.dumps(manifest)
     if kind == "pdf":
         assert list((run_root / "project" / "inputs" / "derivatives" / "pdf").glob("*.png"))

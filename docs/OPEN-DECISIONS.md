@@ -77,6 +77,7 @@
 ## D-010 (יתרה) — ‏license matrix מלא לפני שימוש מסחרי
 
 - **הקשר:** חלק ה-vendoring נסגר ‏(ADR-0003). נותר: אי-ההתאמה GitHub ‏Apache-2.0 מול ‏HF model card ‏MIT ‏(אומתה שוב ע"י panoworld-compat), ‏dataset ‏`license: other`, ורישיונות Qwen/control models — נדרש matrix מלא לפני שימוש מסחרי.
+- **תוספת PLAN-001:** ננעלו ב-`uv.lock` ‏`ezdxf==1.4.4` ‏(MIT) ו-`pypdfium2==5.12.1` ‏(Apache-2.0 או BSD-3-Clause; ‏PDFium ורכיבי צד שלישי כפופים לרישיונות הנלווים). בדיקת הפצה מלאה שלהם נשארת בתוך D-010 ואינה נסגרת בשלב זה.
 - **Options:** ‏A. license matrix מלא כ-task בשלב 12. ‏B. בדיקה מוקדמת אם יש כוונה מסחרית קרובה.
 - **Recommendation:** A אם השימוש הקרוב מחקרי/פנימי; משה יצהיר על ייעוד התוצרים.
 - **Impact:** חוקיות שימוש והפצה.

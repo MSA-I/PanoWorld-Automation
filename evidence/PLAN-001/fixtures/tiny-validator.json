@@ -1,0 +1,11 @@
+{
+  "scene": "scene",
+  "mode": "with-config",
+  "errors": [],
+  "warnings": [],
+  "summary": {
+    "maps": 1,
+    "viewpoints_mapped": 2,
+    "viewpoints_on_disk": 2
+  }
+}

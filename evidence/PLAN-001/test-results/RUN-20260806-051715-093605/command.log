@@ -1,0 +1,31 @@
+timestamp: 2026-08-06T05:17:15+00:00
+cwd: D:\משה פרוייקטים\פיתוח אתרים\PanoWorld-Automation
+command: D:\משה פרוייקטים\פיתוח אתרים\PanoWorld-Automation\.venv\Scripts\python.exe -m pytest -v --junitxml=D:\משה פרוייקטים\פיתוח אתרים\PanoWorld-Automation\evidence\PLAN-001\test-results\RUN-20260806-051715-093605\junit.xml --cov=src/pwa --cov-report=xml:D:\משה פרוייקטים\פיתוח אתרים\PanoWorld-Automation\evidence\PLAN-001\test-results\RUN-20260806-051715-093605\coverage.xml
+exit_code: 0
+
+--- stdout ---
+============================= test session starts =============================
+platform win32 -- Python 3.11.15, pytest-9.1.1, pluggy-1.6.0
+rootdir: D:\��� ���������\����� �����\PanoWorld-Automation
+configfile: pyproject.toml
+testpaths: tests
+plugins: cov-7.1.0
+collected 120 items
+
+tests\golden\test_validator_golden.py .......                            [  5%]
+tests\integration\test_plan001_intake.py .......                         [ 11%]
+tests\integration\test_plan001_packager.py ....                          [ 15%]
+tests\integration\test_validator_failures.py .....................       [ 32%]
+tests\unit\test_extrinsics_checks.py ..................                  [ 47%]
+tests\unit\test_schemas_roundtrip.py ................................... [ 76%]
+...............                                                          [ 89%]
+tests\unit\test_state_machine.py .............                           [100%]
+
+- generated xml file: D:\��� ���������\����� �����\PanoWorld-Automation\evidence\PLAN-001\test-results\RUN-20260806-051715-093605\junit.xml -
+=============================== tests coverage ================================
+______________ coverage: platform win32, python 3.11.15-final-0 _______________
+
+Coverage XML written to file D:\��� ���������\����� �����\PanoWorld-Automation\evidence\PLAN-001\test-results\RUN-20260806-051715-093605\coverage.xml
+============================= 120 passed in 5.25s =============================
+
+--- stderr ---

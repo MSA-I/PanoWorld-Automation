@@ -1,0 +1,11 @@
+{
+  "algorithm": "sha256(canonical sorted file inventory)",
+  "tiny": {
+    "run_id": "RUN-20260806-140000-demo1",
+    "package_hash": "sha256:aecd78f7d816ed50530b13c5b1fca69ac490297e5ed8a36435416d118dad801d"
+  },
+  "golden": {
+    "run_id": "RUN-20260806-141000-demo2",
+    "package_hash": "sha256:9617a714f7b2793c7170d8e842c1bc65344f5871cebafe33d2849df736b8cddd"
+  }
+}

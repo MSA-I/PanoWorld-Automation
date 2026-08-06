@@ -1,7 +1,7 @@
 # PLAN-001 — Intake and Packager Baseline
 
 - Plan ID: `PLAN-001-intake-and-packager-baseline`
-- Status: **`IN_PROGRESS`** — אושר לביצוע ע"י משה, 2026-08-06
+- Status: **`REVIEW`** — implementation הושלם מקומית; ממתין ל-review ול־DWG smoke פרטי
 - Branch: `plan/PLAN-001`
 - Policy: `MODEL-ROUTING-v1`
 - Requested implementer: OpenAI Codex / HIGH

@@ -1,5 +1,15 @@
 # PROGRESS — PanoWorld Automation
 
+## SESSION-002 — PLAN-001 implementation → REVIEW — 2026-08-06
+
+- intake immutable ל־PNG/JPG/PDF/DXF/DWG header, עם SHA-256 ו־schemas הקיימים.
+- fixture packager ל־tiny/golden, ‏map order, ‏package hash ו־validator raw evidence.
+- wrapper מתוקן ל־validator ללא `PYTHONPATH`; ‏evidence harness כעת append-only.
+- ‏120/120 בדיקות ירוקות, 0 failures/errors/skips; ‏17/17 fixture round-trip.
+- commits: ‏`d5ce48f` ‏(plan/templates), ‏`0e84d62` ‏(implementation).
+- blocker ‏`BLOCK-0001`: נדרש DWG פרטי ולא־רגיש ל־acceptance smoke אמיתי.
+- אין merge/push; אין parsing, ‏Blender, ‏PanoWorld, מודלים או H200.
+
 ## SESSION-001 — סגירת PLAN-000 — ‏2026-08-06
 
 בהנחיית משה בוצעה סגירה מסודרת: סטטוס **`DONE`**; ‏D-001/D-008/D-010(vendoring) נסגרו כ-ADR-0001..0003; סטטוסי סוכנים ו-recent_runs עודכנו ב-PROJECT-STATE; ‏REQUIREMENTS/ARCHITECTURE → ‏VERIFIED. **תיקון ראיות:** ההפניה ל-`red-phase.log` הוסרה/תוקנה — הקובץ נמחק ע"י ה-wipe של `run_checks.py` לפני שנשמר ב-git; טענת ה-TDD-האדום מסווגת כ-process-level ללא קובץ ראיה ‏(acceptance §TDD), והלקח נרשם ל-PLAN-001.

@@ -1,10 +1,10 @@
 project:
   id: panoworld-automation
   phase: implementation
-  overall_status: M0_CONTRACTS_MERGED
+  overall_status: M1_PLAN_001_REVIEW
   implementation_started: true
   updated_at: "2026-08-06"
-  updated_by_session: SESSION-001  # same session: plan approved by Moshe, then executed
+  updated_by_session: SESSION-002
 
 model_policy:
   id: MODEL-ROUTING-v1
@@ -19,12 +19,12 @@ model_policy:
     Real cross-provider review is open decision D-009.
 
 current_plan:
-  id: PLAN-000-repository-bootstrap-and-contracts
-  title: Repository bootstrap and contracts
-  status: DONE   # approved 2026-08-05, executed + merged (4ff4a41), closed 2026-08-06 per Moshe's closure instruction; documented deviation: red-phase TDD log not preserved (acceptance.md)
-  owner: orchestrator
-  path: docs/plans/PLAN-000-repository-bootstrap-and-contracts.md
-  branch: plan/PLAN-000   # merged into main; branch retained locally
+  id: PLAN-001-intake-and-packager-baseline
+  title: Intake and packager baseline
+  status: REVIEW
+  owner: openai-codex-implementer
+  path: docs/plans/PLAN-001-intake-and-packager-baseline.md
+  branch: plan/PLAN-001
   worktree: null
 
 milestones:
@@ -38,8 +38,10 @@ milestones:
       - evidence/PLAN-000/reviews/code-reviewer.md
   - id: M1
     title: local_floorplan_to_panoworld_package_poc
-    status: NOT_STARTED
-    evidence: []
+    status: IN_PROGRESS
+    evidence:
+      - evidence/PLAN-001/acceptance.md
+      - evidence/PLAN-001/test-results/RUN-20260806-052400-223281/
   - id: M2
     title: local_h200_ready_mvp
     status: NOT_STARTED
@@ -135,7 +137,23 @@ agents:
     status: DONE
     verdict: "APPROVE_WITH_MINOR_FIXES - both findings applied with tests"
 
-blockers: []
+  - name: plan-001-implementer
+    role: Intake and Packager Developer
+    plan_id: PLAN-001
+    provider: openai
+    requested_model: "OpenAI Codex"
+    actual_model_id: "not exposed by harness"
+    normalized_effort: HIGH
+    provider_effort: HIGH
+    fallback: "no"
+    reviewer_model: "Sonnet 5 HIGH requested"
+    status: REVIEW
+
+blockers:
+  - id: BLOCK-0001
+    summary: "Private non-sensitive DWG required for real intake smoke"
+    owner: Moshe
+    status: OPEN
 
 resolved_decisions:
   - "D-001 -> ADR-0001 git bootstrap in current root (accepted with PLAN-000 approval, 2026-08-05)"
@@ -154,6 +172,18 @@ open_decisions:
   - D-011 style_spec reference cardinality
 
 recent_runs:
+  - id: RUN-20260806-052400-223281
+    kind: PLAN-001 local test suite
+    result: "120 tests, 0 failures/errors/skipped, exit 0"
+    evidence: evidence/PLAN-001/test-results/RUN-20260806-052400-223281/
+  - id: RUN-20260806-140000-demo1
+    kind: PLAN-001 tiny fixture package
+    result: "with-config validator: 0 errors, 0 warnings"
+    evidence: evidence/PLAN-001/fixtures/tiny-validator.json
+  - id: RUN-20260806-141000-demo2
+    kind: PLAN-001 golden fixture package
+    result: "scene-only validator: 0 errors, 0 warnings"
+    evidence: evidence/PLAN-001/fixtures/golden-validator.json
   - id: RUN-20260805-204413-testsuite
     kind: local test suite (tools/run_checks.py)
     result: "109 tests, 0 failures/errors/skipped, exit 0"
@@ -176,9 +206,9 @@ evidence:
     - evidence/SESSION-001/agent-reports/plan-reviewer.md
 
 next_actions:
-  - decide_PLAN_001_scope_intake_or_packager
-  - write_PLAN_001
-  - fix_run_checks_evidence_wipe_behavior_in_PLAN_001
+  - supply_private_non_sensitive_DWG_for_BLOCK_0001
+  - independent_review_PLAN_001
+  - address_review_findings_without_merge
 
 human_gates:
   plan_000_approval: "approved 2026-08-05 (Moshe; internal reviews accepted as documented one-time exception, D-009 remains open)"
