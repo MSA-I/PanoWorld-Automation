@@ -1,5 +1,14 @@
 # PROGRESS — PanoWorld Automation
 
+## HERMES-KANBAN-SETUP — DORMANT — 2026-08-06
+
+- נוצר Board ‏`panoworld-dev` המקושר ל־Hermes Project ‏`panoworld-dev` ולמאגר המקומי.
+- הוגדרו `agent.max_turns: 90` ו־`goals.max_turns: 40`; לכרטיסים מורכבים תקציב 60–80 turns.
+- נוצר גרף סדרתי של 13 כרטיסים עבור חלק 1 בלבד: כרטיס ההתחלה `t_4ddc34f3` חסום ו־12 כרטיסים במצב `todo` מאחוריו.
+- ‏H200/GPU/remote runner ו־G7/G8 מוחרגים מכל הכרטיסים ומסומנים `DEFERRED TO PART 2`.
+- אימות safety: ‏`0 ready`, ‏`0 running`; ‏Kanban `dispatch --dry-run` החזיר `spawned: []`.
+- הקמפיין לא התחיל ולא נפתחו סשני Claude/Codex. פקודת ההפעלה הידנית מתועדת ב־[מסמך ההקמה](07-סיכום-לפני-הפעלת-Hermes-Kanban.md).
+
 ## SESSION-002 — PLAN-001 implementation → REVIEW — 2026-08-06
 
 - intake immutable ל־PNG/JPG/PDF/DXF/DWG header, עם SHA-256 ו־schemas הקיימים.

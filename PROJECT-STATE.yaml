@@ -18,6 +18,34 @@ model_policy:
     OpenAI roles ran on documented fallbacks (see evidence/SESSION-001/preflight-report.md).
     Real cross-provider review is open decision D-009.
 
+orchestration:
+  system: hermes-kanban
+  status: DORMANT
+  scope: PART_1_LOCAL_DEVELOPMENT_ONLY
+  board: panoworld-dev
+  hermes_project_id: p_0539c20f
+  start_task_id: t_4ddc34f3
+  start_task_status: BLOCKED_NEEDS_INPUT
+  start_command: >-
+    hermes kanban --board panoworld-dev unblock t_4ddc34f3
+    --reason "Approved by Moshe — start Part 1 development campaign"
+  task_counts:
+    blocked: 1
+    todo: 12
+    ready: 0
+    running: 0
+  budgets:
+    agent_max_turns: 90
+    goals_max_turns: 40
+    complex_card_goal_max_turns: "60-80"
+  automatic_retries_per_card: 0
+  excluded:
+    - H200_runner
+    - remote_GPU
+    - remote_execution
+    - G7_H200_smoke_gate
+    - G8_full_run_gate
+
 current_plan:
   id: PLAN-001-intake-and-packager-baseline
   title: Intake and packager baseline

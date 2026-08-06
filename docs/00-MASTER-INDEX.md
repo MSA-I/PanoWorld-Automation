@@ -1,7 +1,7 @@
 # PanoWorld Automation — Master Index
 
 ## סטטוס
-`M1_PLAN_001_REVIEW` — ‏PLAN-000 נשאר `DONE`. ‏PLAN-001 intake + fixture packager מומש על `plan/PLAN-001`: ‏120/120 בדיקות ירוקות, tiny/golden validator ירוקים, evidence append-only ו־DWG smoke אמיתי שעבר עם evidence מצונזר. טרם בוצעו review בלתי תלוי או merge. לא הותקן Blender, לא הורדו PanoWorld/מודלים, לא הופעל H200 ולא בוצע push.
+`M1_PLAN_001_REVIEW` — ‏PLAN-000 נשאר `DONE`. ‏PLAN-001 intake + fixture packager מומש על `plan/PLAN-001`: ‏120/120 בדיקות ירוקות, tiny/golden validator ירוקים, evidence append-only ו־DWG smoke אמיתי שעבר עם evidence מצונזר. Hermes Kanban הוכן במצב `DORMANT` עבור חלק 1 בלבד; כרטיס ההתחלה חסום ואין workers פעילים. טרם בוצעו review בלתי תלוי או merge. לא הותקן Blender, לא הורדו PanoWorld/מודלים, לא הופעל H200 ולא בוצע push.
 
 מבנה בפועל: ‏`schemas/` ‏(envelope+13), ‏`contracts/` ‏(state machine, error codes, עקרונות אבטחה), ‏`src/pwa/` ‏(validator), ‏`tools/`, ‏`tests/` ‏(כולל golden fixture ‏8.3MB), ‏`docs/decisions/` ‏(ADR-0001..0003), ‏`docs/handoffs/`, ‏`evidence/PLAN-000/`.
 
@@ -38,7 +38,11 @@
    - Opus 5 כברירת מחדל למשימות 3D קריטיות.
    - Effort, fallbacks ו-cross-provider review.
 
-7. [המדריך המקורי](../PanoWorld-מדריך-והסבר.txt)
+7. [סיכום והפעלת Hermes Kanban](07-סיכום-לפני-הפעלת-Hermes-Kanban.md)
+   - לוח `panoworld-dev`, תחום חלק 1 בלבד ופקודת ההפעלה הידנית.
+   - מצב `DORMANT`; אין כרטיסים מוכנים או workers פעילים.
+
+8. [המדריך המקורי](../PanoWorld-מדריך-והסבר.txt)
    - התקנה, חומרה, מודלים וקלטים.
    - הערה (SESSION-001): נמצאו בו 9 אי-דיוקים/השלמות מול קוד המקור — ראו Discrepancies ב-[דוח התאימות](../evidence/SESSION-001/agent-reports/panoworld-compat.md); המדריך טרם עודכן.
 
