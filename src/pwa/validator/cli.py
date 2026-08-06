@@ -1,4 +1,7 @@
-"""CLI for the PanoWorld package validator: ``uv run pwa-validate <scene-dir>``.
+"""CLI for the PanoWorld package validator.
+
+Repository invocation (package=false):
+``uv run python tools/validate_package.py <scene-dir>``.
 
 Config-dependent checks are enabled via flags instead of a YAML config file so
 the locked dependency set stays PyYAML-free (PLAN-000 C8):

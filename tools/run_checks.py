@@ -1,15 +1,15 @@
-"""Evidence harness (PLAN-000 T10): run the test suite and leave verifiable
-evidence under evidence/PLAN-000/test-results/.
+"""Evidence harness: run the test suite and leave append-only evidence.
 
 Writes: junit.xml, coverage.xml, command.log (exact command + full output +
-exit code + timestamp) and summary.md. The directory is wiped first so a stale
-pass can never be silently reused (doc 04: fresh tests only).
+exit code + timestamp) and summary.md. Every invocation writes a unique
+subdirectory so neither stale results nor previous evidence can be erased.
 
-Usage: uv run python tools/run_checks.py
+Usage: uv run python tools/run_checks.py --plan-id PLAN-001
 """
 from __future__ import annotations
 
-import shutil
+import argparse
+import re
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
@@ -17,25 +17,30 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-OUT = REPO_ROOT / "evidence" / "PLAN-000" / "test-results"
 
 
-def main() -> int:
-    if OUT.exists():
-        shutil.rmtree(OUT)
-    OUT.mkdir(parents=True)
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--plan-id", default="PLAN-000")
+    args = parser.parse_args(argv)
+    if not re.fullmatch(r"PLAN-\d{3}", args.plan_id):
+        parser.error("--plan-id must match PLAN-###")
+    started_dt = datetime.now(timezone.utc)
+    evidence_run_id = started_dt.strftime("RUN-%Y%m%d-%H%M%S-%f")
+    out = REPO_ROOT / "evidence" / args.plan_id / "test-results" / evidence_run_id
+    out.mkdir(parents=True)
 
     cmd = [
         sys.executable, "-m", "pytest",
         "-v",
-        f"--junitxml={OUT / 'junit.xml'}",
+        f"--junitxml={out / 'junit.xml'}",
         "--cov=src/pwa",
-        f"--cov-report=xml:{OUT / 'coverage.xml'}",
+        f"--cov-report=xml:{out / 'coverage.xml'}",
     ]
-    started = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    started = started_dt.isoformat(timespec="seconds")
     proc = subprocess.run(cmd, cwd=REPO_ROOT, capture_output=True, text=True, encoding="utf-8")
 
-    (OUT / "command.log").write_text(
+    (out / "command.log").write_text(
         f"timestamp: {started}\ncwd: {REPO_ROOT}\ncommand: {' '.join(cmd)}\n"
         f"exit_code: {proc.returncode}\n\n--- stdout ---\n{proc.stdout}\n"
         f"--- stderr ---\n{proc.stderr}\n",
@@ -43,10 +48,10 @@ def main() -> int:
     )
 
     # Summarize junit.xml into a human-readable table.
-    lines = ["# PLAN-000 test evidence summary", "", f"- Run at: {started}",
+    lines = [f"# {args.plan_id} test evidence summary", "", f"- Run at: {started}",
              f"- Command: `{' '.join(cmd[2:])}` (via .venv python)",
              f"- Exit code: **{proc.returncode}**", ""]
-    junit = OUT / "junit.xml"
+    junit = out / "junit.xml"
     if junit.exists():
         suite = ET.parse(junit).getroot().find("testsuite")
         if suite is not None:
@@ -68,9 +73,9 @@ def main() -> int:
                     result = "PASS"
                 lines.append(f"| `{name}` | {result} |")
     lines.append("")
-    (OUT / "summary.md").write_text("\n".join(lines), encoding="utf-8")
+    (out / "summary.md").write_text("\n".join(lines), encoding="utf-8")
 
-    print(f"evidence written to {OUT} (exit {proc.returncode})")
+    print(f"evidence written to {out} (exit {proc.returncode})")
     return proc.returncode
 
 
