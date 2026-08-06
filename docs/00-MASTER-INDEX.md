@@ -1,7 +1,7 @@
 # PanoWorld Automation — Master Index
 
 ## סטטוס
-`M1_PLAN_001_REVIEW` — ‏PLAN-000 נשאר `DONE`. ‏PLAN-001 intake + fixture packager מומש על `plan/PLAN-001`: ‏120/120 בדיקות ירוקות, tiny/golden validator ירוקים ו־evidence append-only. טרם בוצע merge; ‏DWG smoke פרטי ו-review בלתי תלוי עדיין פתוחים. לא הותקן Blender, לא הורדו PanoWorld/מודלים, לא הופעל H200 ולא בוצע push.
+`M1_PLAN_001_REVIEW` — ‏PLAN-000 נשאר `DONE`. ‏PLAN-001 intake + fixture packager מומש על `plan/PLAN-001`: ‏120/120 בדיקות ירוקות, tiny/golden validator ירוקים, evidence append-only ו־DWG smoke אמיתי שעבר עם evidence מצונזר. טרם בוצעו review בלתי תלוי או merge. לא הותקן Blender, לא הורדו PanoWorld/מודלים, לא הופעל H200 ולא בוצע push.
 
 מבנה בפועל: ‏`schemas/` ‏(envelope+13), ‏`contracts/` ‏(state machine, error codes, עקרונות אבטחה), ‏`src/pwa/` ‏(validator), ‏`tools/`, ‏`tests/` ‏(כולל golden fixture ‏8.3MB), ‏`docs/decisions/` ‏(ADR-0001..0003), ‏`docs/handoffs/`, ‏`evidence/PLAN-000/`.
 
@@ -55,6 +55,7 @@
 
 ## Evidence
 
+- [PLAN-001 acceptance](../evidence/PLAN-001/acceptance.md) · [real DWG smoke, redacted](../evidence/PLAN-001/dwg-intake-redacted.json).
 - [evidence/SESSION-001/preflight-report.md](../evidence/SESSION-001/preflight-report.md) — פקודות ותוצאות אמיתיות.
 - [contract-researcher](../evidence/SESSION-001/agent-reports/contract-researcher.md) · [panoworld-compat](../evidence/SESSION-001/agent-reports/panoworld-compat.md) · [test-architect](../evidence/SESSION-001/agent-reports/test-architect.md) — דוחות סוכני המחקר (שלב B).
 - [plan-reviewer](../evidence/SESSION-001/agent-reports/plan-reviewer.md) — ביקורת בלתי תלויה על PLAN-000 ‏(NEEDS_REWORK → כל הממצאים יושמו; ראו §15 בתוכנית).
@@ -80,6 +81,6 @@
 - אין להתחיל implementation בלי PLAN-000 מאושר.
 
 ## הפעולה הבאה המומלצת
-‏PLAN-000 סגור. הבא: **הכרעת משה על היקף PLAN-001 וכתיבתו** — ‏Intake ‏(לפי סדר doc 03) או ‏Packager ‏(builder של panoworld_manifest→map+viewpoints, שה-validator וה-fixtures שלו כבר קיימים). ‏PLAN-001 גם יתקן את התנהגות מחיקת ה-evidence של `tools/run_checks.py`.
+‏PLAN-000 סגור ו־PLAN-001 מומש. הבא: **ביקורת בלתי תלויה על `main...plan/PLAN-001` באמצעות Anthropic Sonnet 5 / HIGH**, תיקון findings, re-verification ומיזוג בידי ה־orchestrator בלבד.
 
 אין להתחיל parsing או Blender לפני ש-PLAN ייעודי אושר.

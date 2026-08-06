@@ -7,7 +7,8 @@
 - wrapper מתוקן ל־validator ללא `PYTHONPATH`; ‏evidence harness כעת append-only.
 - ‏120/120 בדיקות ירוקות, 0 failures/errors/skips; ‏17/17 fixture round-trip.
 - commits: ‏`d5ce48f` ‏(plan/templates), ‏`0e84d62` ‏(implementation).
-- blocker ‏`BLOCK-0001`: נדרש DWG פרטי ולא־רגיש ל־acceptance smoke אמיתי.
+- ‏`BLOCK-0001` נסגר: DWG מקומי אמיתי ולא־רגיש (`AC1024`) עבר intake; hash המקור והעותק זהים, 3/3 artifacts schema-valid וה־evidence מצונזר.
+- נותרה ביקורת Sonnet 5 HIGH בלתי תלויה, תיקון findings אם יהיו, re-verification ומיזוג.
 - אין merge/push; אין parsing, ‏Blender, ‏PanoWorld, מודלים או H200.
 
 ## SESSION-001 — סגירת PLAN-000 — ‏2026-08-06

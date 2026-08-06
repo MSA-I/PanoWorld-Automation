@@ -1,7 +1,7 @@
 # PLAN-001 — Intake and Packager Baseline
 
 - Plan ID: `PLAN-001-intake-and-packager-baseline`
-- Status: **`REVIEW`** — implementation הושלם מקומית; ממתין ל-review ול־DWG smoke פרטי
+- Status: **`REVIEW`** — implementation ו־DWG smoke אמיתי הושלמו מקומית; ממתין ל-review בלתי תלוי
 - Branch: `plan/PLAN-001`
 - Policy: `MODEL-ROUTING-v1`
 - Requested implementer: OpenAI Codex / HIGH
@@ -49,7 +49,7 @@
 - wrapper ה־validator עובד ללא `PYTHONPATH`.
 - evidence runs נשמרים בתיקיות ייחודיות ואינם מוחקים היסטוריה.
 - כל בדיקות PLAN-000 והבדיקות החדשות עוברות; Git נקי למעט artifacts ignored.
-- DWG acceptance אמיתי דורש קובץ פרטי ולא־רגיש ממשה; הוא לא נכנס ל־Git.
+- DWG acceptance אמיתי עבר על קובץ מקומי לא־רגיש; שם/נתיב המקור צונזרו והקובץ לא נכנס ל־Git.
 
 ## Security / rollback
 

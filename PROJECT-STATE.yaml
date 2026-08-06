@@ -4,7 +4,7 @@ project:
   overall_status: M1_PLAN_001_REVIEW
   implementation_started: true
   updated_at: "2026-08-06"
-  updated_by_session: SESSION-002
+  updated_by_session: SESSION-003
 
 model_policy:
   id: MODEL-ROUTING-v1
@@ -153,7 +153,8 @@ blockers:
   - id: BLOCK-0001
     summary: "Private non-sensitive DWG required for real intake smoke"
     owner: Moshe
-    status: OPEN
+    status: RESOLVED
+    resolution: "RUN-20260806-060723-42cc1f60; real local DWG AC1024; redacted evidence; source/copy SHA-256 equal"
 
 resolved_decisions:
   - "D-001 -> ADR-0001 git bootstrap in current root (accepted with PLAN-000 approval, 2026-08-05)"
@@ -172,6 +173,10 @@ open_decisions:
   - D-011 style_spec reference cardinality
 
 recent_runs:
+  - id: RUN-20260806-060723-42cc1f60
+    kind: PLAN-001 real local DWG intake smoke
+    result: "exit 0; AC1024; source/copy SHA-256 equal; 3/3 artifacts schema-valid; package validator 0 errors/warnings"
+    evidence: evidence/PLAN-001/dwg-intake-redacted.json
   - id: RUN-20260806-052400-223281
     kind: PLAN-001 local test suite
     result: "120 tests, 0 failures/errors/skipped, exit 0"
@@ -206,7 +211,6 @@ evidence:
     - evidence/SESSION-001/agent-reports/plan-reviewer.md
 
 next_actions:
-  - supply_private_non_sensitive_DWG_for_BLOCK_0001
   - independent_review_PLAN_001
   - address_review_findings_without_merge
 

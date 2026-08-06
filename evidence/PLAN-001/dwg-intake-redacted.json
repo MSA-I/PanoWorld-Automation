@@ -1,0 +1,29 @@
+{
+  "plan_id": "PLAN-001",
+  "blocker_id": "BLOCK-0001",
+  "run_id": "RUN-20260806-060723-42cc1f60",
+  "source": {
+    "description": "Local generic non-sensitive DWG from the user's CAD block library; source name and path redacted",
+    "committed": false,
+    "bytes": 1249292,
+    "header": "AC1024",
+    "sha256": "sha256:1ba59cf2fa7b34c191e59901b9fb625fba0c1714a90a60fde558c3860a9aad1d"
+  },
+  "copied_original": {
+    "path": "runs/RUN-20260806-060723-42cc1f60/project/inputs/originals/floorplan.dwg",
+    "tracked": false,
+    "sha256": "sha256:1ba59cf2fa7b34c191e59901b9fb625fba0c1714a90a60fde558c3860a9aad1d",
+    "byte_identical": true
+  },
+  "validation": {
+    "build_exit_code": 0,
+    "project_manifest_schema_errors": 0,
+    "input_quality_report_schema_errors": 0,
+    "panoworld_manifest_schema_errors": 0,
+    "package_validator_errors": 0,
+    "package_validator_warnings": 0,
+    "scale_known": true,
+    "units": "m"
+  },
+  "result": "PASS"
+}

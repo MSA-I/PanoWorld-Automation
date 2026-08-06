@@ -14,7 +14,7 @@
 
 1. Immutable intake snapshot under `runs/<run-id>/` with SHA-256 originals.
 2. Existing `project_manifest`, `input_quality_report` and `panoworld_manifest` schemas are reused unchanged.
-3. PNG/JPG/PDF/DXF intake is tested; DWG header/version path is tested synthetically.
+3. PNG/JPG/PDF/DXF intake is tested; a real local DWG header/version smoke passed with redacted evidence.
 4. Tiny/golden fixture packages pass the existing validator.
 5. `tools/validate_package.py` works without `PYTHONPATH`.
 6. `tools/run_checks.py` keeps append-only, per-run evidence.
@@ -41,10 +41,10 @@ git diff main...plan/PLAN-001 --check
 
 - `evidence/PLAN-001/test-results/RUN-20260806-052400-223281/`
 - `evidence/PLAN-001/fixtures/`
+- `evidence/PLAN-001/dwg-intake-redacted.json`
 
 ## Known limitations
 
-- BLOCK-0001: real private DWG smoke missing.
 - package validator report has no JSON Schema by explicit scope decision.
 - No process sandbox around PDFium/ezdxf; strict local limits are implemented.
 
@@ -61,7 +61,7 @@ No existing schema/contract was changed. Any future breaking change requires MAJ
 
 ## Open blockers
 
-- `BLOCK-0001`
+- None. `BLOCK-0001` is resolved by `RUN-20260806-060723-42cc1f60`.
 
 ## Approval
 

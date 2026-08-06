@@ -5,7 +5,8 @@
 - Owner: Moshe
 - Severity: medium
 - Opened at: 2026-08-06
-- Status: OPEN
+- Status: RESOLVED
+- Resolved at: 2026-08-06
 
 ## Exact failure
 
@@ -44,4 +45,8 @@ DWG smoke exit 0; manifest/report schema-valid; hash המקור וה־original �
 
 ## Resolution
 
-- fill only when resolved.
+- A local generic, non-sensitive DWG from the user's CAD block library was used without copying its source name/path into evidence.
+- `RUN-20260806-060723-42cc1f60` completed with exit code 0; detected real header/version `AC1024` and 1,249,292 bytes.
+- Source and immutable copied-original SHA-256 values matched: `1ba59cf2fa7b34c191e59901b9fb625fba0c1714a90a60fde558c3860a9aad1d`.
+- `project_manifest`, `input_quality_report` and `panoworld_manifest` each validated with 0 schema errors; package validator returned 0 errors and 0 warnings.
+- The run remains ignored under `runs/`; the DWG is not tracked. Redacted evidence: `evidence/PLAN-001/dwg-intake-redacted.json`.
