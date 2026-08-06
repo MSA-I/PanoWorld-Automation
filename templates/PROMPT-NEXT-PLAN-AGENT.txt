@@ -1,0 +1,93 @@
+תבנית פרומפט — סוכן תכנון השלב הבא
+====================================
+
+תפקיד
+-----
+פעל כסוכן התכנון של השלב הבא בפרויקט.
+
+פרטי הפרויקט
+------------
+PROJECT_PATH: [PROJECT_PATH]
+PREVIOUS_PLAN_ID: [PREVIOUS_PLAN_ID]
+NEXT_PLAN_ID: [NEXT_PLAN_ID]
+NEXT_PLAN_NAME: [NEXT_PLAN_NAME]
+
+מטרת המשימה
+-----------
+לבדוק מה הושלם בפועל בתוכנית הקודמת ולכתוב תוכנית מלאה ומדידה לשלב הבא. בשלב זה אתה מתכנן בלבד ואינך מתחיל implementation.
+
+קבצים שחובה לקרוא
+-----------------
+1. [PROJECT_PATH]\PROJECT-STATE.yaml
+2. [PROJECT_PATH]\docs\00-MASTER-INDEX.md
+3. [PROJECT_PATH]\docs\PROGRESS.md
+4. התוכנית האחרונה שהושלמה:
+   [PREVIOUS_PLAN_PATH]
+5. מסמך ה-HANDOFF לתוכנית הבאה:
+   [HANDOFF_PATH]
+6. דוח ה-Acceptance והראיות של התוכנית הקודמת:
+   [ACCEPTANCE_PATH]
+7. מסמך הארכיטקטורה וסדר הבנייה:
+   [ARCHITECTURE_PATH]
+8. מדיניות ניתוב המודלים:
+   [MODEL_ROUTING_PATH]
+9. כל AGENTS.md, CLAUDE.md או הוראות פרויקט אחרות הקיימות בריפו.
+
+Preflight
+---------
+1. אמת מול Git והקבצים את מצב הפרויקט בפועל.
+2. ודא שהתוכנית הקודמת הושלמה או תעד במדויק מה עדיין פתוח.
+3. אמת את קיום ה-artifacts וה-evidence שאליהם מפנה ה-HANDOFF.
+4. אל תסתמך על סיכום בצ'אט כראיה.
+5. אם יש סתירה בין state, docs, Git ו-evidence — עצור ותעד אותה לפני כתיבת התוכנית.
+
+התוצר הנדרש
+-----------
+צור את הקובץ:
+
+[PROJECT_PATH]\docs\plans\[NEXT_PLAN_ID]-[NEXT_PLAN_NAME].md
+
+התוכנית חייבת לכלול:
+1. Goal אחד מדיד.
+2. Current verified state עם evidence paths.
+3. Inputs יציבים מהשלב הקודם.
+4. Outputs וחוזים מחייבים.
+5. Scope ו-Non-goals.
+6. משימות קטנות ומסודרות לפי dependencies.
+7. בעלות קבצים ברורה לכל סוכן.
+8. Provider, model, actual model requirement ו-effort לכל תפקיד.
+9. Cross-provider review עבור artifacts קריטיים.
+10. Acceptance criteria מדידים.
+11. בדיקות ו-evidence צפויים לכל משימה.
+12. סיכוני אבטחה, רישוי, תאימות ונתונים.
+13. Human gates והחלטות הנדרשות ממשה.
+14. Rollback ו-cleanup.
+15. Handoff צפוי לשלב הבא.
+16. Definition of Done.
+
+כללים קשיחים
+------------
+- אל תתחיל implementation.
+- אל תתקין תוכנות או dependencies.
+- אל תוריד מודלים, checkpoints או datasets.
+- אל תפעיל Blender, PanoWorld או H200.
+- אל תיצור skeleton ריק או קובצי boilerplate.
+- אל תשנה חוזים קיימים בלי לתעד breaking change ולקבל אישור.
+- אל תנחש תוצאות, model IDs או ראיות.
+- השאר את התוכנית במצב REVIEW.
+
+פורמט הדיווח בסיום
+------------------
+NEXT_PLAN_ID:
+STATUS: REVIEW / BLOCKED
+VERIFIED_PREVIOUS_STATE:
+PLAN_CREATED:
+PROPOSED_SCOPE:
+NON_GOALS:
+AGENTS_AND_MODELS:
+OPEN_DECISIONS_FOR_MOSHE:
+RISKS_AND_BLOCKERS:
+EVIDENCE_PATHS:
+RECOMMENDED_NEXT_ACTION:
+
+אל תמשיך למימוש לאחר כתיבת התוכנית. המתן לאישור מפורש של משה.

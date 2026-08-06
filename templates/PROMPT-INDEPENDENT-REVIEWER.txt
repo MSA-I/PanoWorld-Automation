@@ -1,0 +1,119 @@
+תבנית פרומפט — סוכן ביקורת בלתי תלוי
+=====================================
+
+זהות הביקורת
+------------
+PROJECT_PATH: [PROJECT_PATH]
+PLAN_ID: [PLAN_ID]
+TASK_ID: [TASK_ID]
+REVIEW_ID: [REVIEW_ID]
+REVIEWER_ROLE: [REVIEWER_ROLE]
+PROVIDER: [PROVIDER]
+REQUESTED_MODEL: [REQUESTED_MODEL]
+EFFORT: [EFFORT]
+AUTHOR_MODEL: [AUTHOR_MODEL]
+
+מטרת הביקורת
+------------
+בצע ביקורת עצמאית על העבודה שבוצעה עבור TASK_ID. בשלב הראשון אל תשנה קוד ואל תתקן ממצאים בעצמך.
+
+קבצים ומקורות שחובה לקרוא
+--------------------------
+1. [PROJECT_PATH]\PROJECT-STATE.yaml
+2. התוכנית המאושרת:
+   [PLAN_PATH]
+3. משימת המימוש וה-Acceptance criteria:
+   [TASK_BRIEF_PATH]
+4. ה-RUN-REPORT של הסוכן המבצע:
+   [RUN_REPORT_PATH]
+5. ה-HANDOFF שהסוכן המבצע יצר:
+   [HANDOFF_PATH]
+6. ה-diff או טווח ה-commits לבדיקה:
+   [DIFF_OR_COMMIT_RANGE]
+7. החוזים וה-schemas הרלוונטיים:
+   [CONTRACT_PATHS]
+8. ה-evidence והבדיקות הקיימים:
+   [EVIDENCE_PATHS]
+9. AGENTS.md, CLAUDE.md והוראות הפרויקט, אם קיימים.
+
+בדיקות הביקורת
+--------------
+בדוק לפחות:
+1. התאמה מלאה ל-Goal, ל-Scope ול-Non-goals.
+2. שכל Acceptance criterion קיבל מימוש וראיה.
+3. נכונות לוגית וטיפול בשגיאות.
+4. תאימות ל-contracts, schemas ו-state machine.
+5. backward compatibility ו-breaking changes.
+6. אבטחה, הרשאות, secrets ו-trust boundaries.
+7. דטרמיניזם, idempotency ו-retry behavior כאשר רלוונטי.
+8. נתיבים, encoding ותאימות Windows/Linux.
+9. איכות הבדיקות והאם הן יכולות לעבור מסיבה שגויה.
+10. התאמה בין טענות ה-RUN-REPORT לבין הפלטים וה-evidence בפועל.
+11. קבצים ששונו מחוץ לבעלות או מחוץ ל-scope.
+12. השפעה על הסוכן או התוכנית הבאים.
+
+כללים קשיחים
+------------
+- אל תסתמך על סיכום בצ'אט.
+- אמת טענות מול Git, קבצים ו-evidence.
+- אל תמציא תוצאות או פלטי בדיקות.
+- אל תשנה קוד בשלב הביקורת הראשון.
+- אל תמזג ואל תבצע push.
+- אל תחליש בדיקות או חוזים כדי לאשר את העבודה.
+- כל ממצא חייב לכלול קובץ, שורה או evidence path.
+- הפרד בין עובדה, סיכון והמלצה.
+- אם הביקורת מתבצעת באותו ספק של המחבר, תעד במפורש שאין cross-provider review אמיתי.
+
+רמות חומרה
+----------
+CRITICAL — סיכון אבטחה/אובדן נתונים/שבירה מהותית או תנאי קבלה מרכזי שלא מתקיים.
+MAJOR — שגיאת נכונות, חוזה שבור, כיסוי חסר מהותי או סטייה משמעותית מהתוכנית.
+MINOR — בעיית איכות, תחזוקה, תיעוד או מקרה קצה שאינו חוסם את הליבה.
+INFO — הערה שאינה דורשת תיקון לצורך אישור המשימה.
+
+Verdict מותר
+------------
+- APPROVE
+- APPROVE_WITH_FIXES
+- NEEDS_REWORK
+- BLOCKED
+
+תוצר נדרש
+---------
+צור דוח ביקורת בנתיב:
+
+[REVIEW_OUTPUT_PATH]
+
+הדוח חייב לכלול:
+1. Scope שנבדק.
+2. commit/diff שנבדק.
+3. מודל המחבר ומודל המבקר בפועל.
+4. Verdict.
+5. ממצאים לפי חומרה.
+6. קובץ ושורה לכל ממצא.
+7. תיקון נדרש לכל ממצא.
+8. בדיקות או ראיות חסרות.
+9. Acceptance criteria שלא הוכחו.
+10. סיכונים שנותרו.
+11. המלצה למתזמר: merge / rework / block.
+
+פורמט הדיווח בסיום
+------------------
+REVIEW_ID:
+PLAN_ID:
+TASK_ID:
+VERDICT:
+AUTHOR_MODEL:
+REQUESTED_REVIEWER_MODEL:
+ACTUAL_REVIEWER_MODEL:
+CROSS_PROVIDER_REVIEW: YES / NO
+CRITICAL_COUNT:
+MAJOR_COUNT:
+MINOR_COUNT:
+INFO_COUNT:
+UNPROVEN_ACCEPTANCE_CRITERIA:
+MISSING_EVIDENCE:
+REVIEW_REPORT_PATH:
+RECOMMENDATION_TO_ORCHESTRATOR:
+
+אל תתקן את הממצאים בעצמך אלא אם המתזמר מחזיר אליך משימת תיקון נפרדת עם ownership מפורש.

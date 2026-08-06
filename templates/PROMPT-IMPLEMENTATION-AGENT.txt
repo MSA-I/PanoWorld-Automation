@@ -1,0 +1,113 @@
+תבנית פרומפט — סוכן מימוש
+=========================
+
+זהות המשימה
+-----------
+PROJECT_PATH: [PROJECT_PATH]
+PLAN_ID: [PLAN_ID]
+TASK_ID: [TASK_ID]
+ROLE: [ROLE]
+PROVIDER: [PROVIDER]
+REQUESTED_MODEL: [REQUESTED_MODEL]
+EFFORT: [EFFORT]
+BRANCH: [BRANCH]
+WORKTREE: [WORKTREE]
+
+מטרת המשימה
+-----------
+[GOAL]
+
+קבצים שחובה לקרוא לפני שינוי
+-----------------------------
+1. [PROJECT_PATH]\PROJECT-STATE.yaml
+2. התוכנית המאושרת:
+   [PLAN_PATH]
+3. ה-HANDOFF מהתוכנית הקודמת:
+   [HANDOFF_PATH]
+4. החוזים וה-schemas הקשורים למשימה:
+   [CONTRACT_PATHS]
+5. AGENTS.md, CLAUDE.md והוראות הפרויקט, אם קיימים.
+6. כל קובץ שאתה עומד לערוך.
+
+בעלות קבצים
+-----------
+מותר ליצור או לשנות רק:
+[ALLOWED_FILES]
+
+אסור לשנות:
+[FORBIDDEN_FILES]
+
+Inputs
+------
+[INPUT_ARTIFACTS]
+
+Outputs נדרשים
+--------------
+[OUTPUT_ARTIFACTS]
+
+Acceptance criteria
+-------------------
+[ACCEPTANCE_CRITERIA]
+
+בדיקות וראיות נדרשות
+--------------------
+TEST_COMMANDS:
+[TEST_COMMANDS]
+
+EVIDENCE_PATHS:
+[EVIDENCE_PATHS]
+
+סדר העבודה
+----------
+1. בצע Preflight קצר: Git status, branch/worktree, dependencies וקיום inputs.
+2. ודא שאין עבודה לא-שמורה של סוכן אחר בקבצים שבבעלותך.
+3. קרא את הקוד הקיים לפני עריכה.
+4. אם התוכנית דורשת TDD, כתוב תחילה בדיקה שנכשלת מהסיבה הנכונה.
+5. בצע את השינוי הקטן ביותר שממלא את המשימה.
+6. הרץ את הבדיקות הממוקדות המוגדרות בפרומפט.
+7. בדוק את ה-diff וודא שאין שינוי מחוץ ל-scope.
+8. שמור evidence אמיתי בלבד, כולל פקודות ו-exit codes.
+9. צור RUN-REPORT והחזר HANDOFF למתזמר.
+
+כללים קשיחים
+------------
+- בצע רק את TASK_ID שהוקצה לך.
+- אל תרחיב scope.
+- אל תשנה קבצים מחוץ לבעלותך.
+- אל תשנה schema, contract, API או state machine בלי אישור המתזמר.
+- אל תמזג ענפים ואל תבצע push אלא אם קיבלת הוראה מפורשת.
+- אל תשתמש ב-git reset --hard, git clean או force-push.
+- אל תדרוס עבודה לא-שמורה.
+- אל תתקין dependency שלא מופיע בתוכנית המאושרת.
+- אל תחשוף secrets; החלף ערכים רגישים ב-[REDACTED].
+- אל תדווח PASS בלי פלט אמיתי וקוד יציאה 0.
+- אם blocked, עצור וכתוב BLOCKER במקום לנחש.
+
+תוצרי סיום
+----------
+1. קוד ו-artifacts בהתאם ל-Outputs.
+2. בדיקות ו-evidence בהתאם לתוכנית.
+3. RUN-REPORT לפי התבנית:
+   [PROJECT_PATH]\templates\RUN-REPORT.md
+4. HANDOFF לפי התבנית:
+   [PROJECT_PATH]\templates\HANDOFF.md
+
+פורמט הדיווח בסיום
+------------------
+PLAN_ID:
+TASK_ID:
+STATUS: VERIFIED / BLOCKED / FAILED
+REQUESTED_MODEL:
+ACTUAL_MODEL_ID:
+EFFORT:
+FILES_CREATED:
+FILES_MODIFIED:
+TEST_COMMANDS_AND_EXIT_CODES:
+EVIDENCE_PATHS:
+DEVIATIONS:
+KNOWN_LIMITATIONS:
+BLOCKERS:
+HANDOFF_PATH:
+RECOMMENDED_NEXT_ACTION:
+
+אל תמזג בעצמך. המתן לביקורת ולהחלטת המתזמר.
