@@ -3,8 +3,8 @@ project:
   phase: implementation
   overall_status: M1_PLAN_001_REVIEW
   implementation_started: true
-  updated_at: "2026-08-06"
-  updated_by_session: SESSION-003
+  updated_at: "2026-08-09"
+  updated_by_session: PANO-DEV-START
 
 model_policy:
   id: MODEL-ROUTING-v1
@@ -14,25 +14,27 @@ model_policy:
   code_primary: "OpenAI approved Codex/GPT-5.6"
   cross_provider_review_required_for_critical_artifacts: true
   interface_limitation: >-
-    Claude Code subagents are Anthropic-only and inherit session effort;
-    OpenAI roles ran on documented fallbacks (see evidence/SESSION-001/preflight-report.md).
-    Real cross-provider review is open decision D-009.
+    Historical SESSION-001 Claude-only fallbacks remain documented in
+    evidence/SESSION-001/preflight-report.md. At campaign kickoff, bounded
+    Claude Code (claude-sonnet-5) and Codex (gpt-5.6-sol) sessions both passed;
+    real cross-provider review is now available, while policy decision D-009
+    remains open until formally resolved.
 
 orchestration:
   system: hermes-kanban
-  status: DORMANT
+  status: ACTIVE
   scope: PART_1_LOCAL_DEVELOPMENT_ONLY
   board: panoworld-dev
   hermes_project_id: p_0539c20f
   start_task_id: t_4ddc34f3
-  start_task_status: BLOCKED_NEEDS_INPUT
+  start_task_status: DONE
   start_command: >-
     hermes kanban --board panoworld-dev unblock t_4ddc34f3
     --reason "Approved by Moshe — start Part 1 development campaign"
-  task_counts:
-    blocked: 1
-    todo: 12
-    ready: 0
+  task_counts_after_kickoff:
+    done: 1
+    todo: 11
+    ready: 1
     running: 0
   budgets:
     agent_max_turns: 90
@@ -84,6 +86,20 @@ milestones:
     evidence: []
 
 agents:
+  - name: kickoff-orchestrator
+    role: Lead Orchestrator (campaign activation and baseline reconciliation)
+    plan_id: PANO-DEV-START
+    provider: openai
+    requested_model: "gpt-5.6-sol"
+    actual_model_id: "gpt-5.6-sol"
+    normalized_effort: EXTRA
+    provider_effort: "not exposed by Hermes worker"
+    fallback: "no"
+    model_reason: "system reasoning, repository reconciliation and deterministic verification"
+    reviewer_model: "claude-sonnet-5 requested for PLAN-001 closeout"
+    cross_provider_review: "available and required for PLAN-001 closeout"
+    status: DONE
+    evidence: evidence/PANO-DEV-START/kickoff-baseline-20260809.md
   - name: orchestrator
     role: Lead Orchestrator (planning + execution of PLAN-000)
     plan_id: PLAN-000
@@ -201,6 +217,10 @@ open_decisions:
   - D-011 style_spec reference cardinality
 
 recent_runs:
+  - id: PANO-DEV-START-20260809
+    kind: kickoff baseline and local verification
+    result: "120 tests pass with inherited PYTHONPATH cleared; 17/17 fixture roundtrip; validator 0 errors/warnings; 13-card serial graph verified"
+    evidence: evidence/PANO-DEV-START/kickoff-baseline-20260809.md
   - id: RUN-20260806-060723-42cc1f60
     kind: PLAN-001 real local DWG intake smoke
     result: "exit 0; AC1024; source/copy SHA-256 equal; 3/3 artifacts schema-valid; package validator 0 errors/warnings"
@@ -239,8 +259,9 @@ evidence:
     - evidence/SESSION-001/agent-reports/plan-reviewer.md
 
 next_actions:
-  - independent_review_PLAN_001
-  - address_review_findings_without_merge
+  - dispatch_t_6d733451_PLAN_001_closeout
+  - independent_review_PLAN_001_with_anthropic_sonnet_5
+  - address_review_findings_with_codex_without_starting_floorplan_parsing
 
 human_gates:
   plan_000_approval: "approved 2026-08-05 (Moshe; internal reviews accepted as documented one-time exception, D-009 remains open)"

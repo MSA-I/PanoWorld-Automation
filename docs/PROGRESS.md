@@ -1,5 +1,17 @@
 # PROGRESS — PanoWorld Automation
 
+## PANO-DEV-START — ACTIVE — 2026-08-09
+
+- משה הפעיל את קמפיין חלק 1; שער `t_4ddc34f3` השלים reconciliation מקומי ללא H200/GPU/remote וללא התחלת שלב עתידי.
+- Git אומת: `main` (`df24d5c`) הוא ancestor של `plan/PLAN-001` (`3baedba`), והענף נשאר `REVIEW` ולא ממוזג.
+- גרף Kanban אומת כשרשרת אציקלית של 13 כרטיסים ו־12 edges; לאחר סגירת שער ההתחלה רק `t_6d733451` בטוח לקידום.
+- זמינות אמיתית אומתה בסשנים חסומים: Claude Code `2.1.222` → `claude-sonnet-5`; Codex `0.144.6` → config נעול `gpt-5.6-sol`; לא היה fallback.
+- verification טרי: 120 tests ירוקים, 17/17 fixture round-trip, validator עם 0 errors/0 warnings, ו־diff check ירוק.
+- סביבת Hermes יורשת `PYTHONPATH` של Hermes Agent; לכן pytest ראשון התנגש ב־`tests.conftest`. הרצה עם `env -u PYTHONPATH` עברה 120/120 ויש להשתמש בכך בכרטיסים הבאים.
+- evidence מלא: [`evidence/PANO-DEV-START/kickoff-baseline-20260809.md`](../evidence/PANO-DEV-START/kickoff-baseline-20260809.md).
+- הפעולה הבאה: `t_6d733451` — review עצמאי ל־PLAN-001 ב־Sonnet 5 HIGH, rework ב־Codex אם נדרש, verification טרי ומיזוג orchestrator-only. אין להתחיל Floorplan Parsing.
+- ‏H200/GPU/remote ו־G7/G8 נשארים **DEFERRED TO PART 2**.
+
 ## HERMES-KANBAN-SETUP — DORMANT — 2026-08-06
 
 - נוצר Board ‏`panoworld-dev` המקושר ל־Hermes Project ‏`panoworld-dev` ולמאגר המקומי.
