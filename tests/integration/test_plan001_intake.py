@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import json
 import os
+import stat
+import subprocess
 from pathlib import Path
 
 import ezdxf
@@ -10,8 +12,8 @@ import pytest
 from PIL import Image
 
 from pwa.contracts import compute_content_hash, validate_artifact
-from pwa.files import sha256_file
-from pwa.intake import ingest_project
+from pwa.files import is_link_or_reparse, sha256_file
+from pwa.intake import _image_metadata, ingest_project
 from pwa.packager import build_baseline_run
 
 
@@ -125,3 +127,41 @@ def test_format_mismatch_and_links_are_rejected(tmp_path, monkeypatch):
             units="m",
             m_per_px=0.01,
         )
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows junction coverage")
+def test_windows_junction_exercises_reparse_attribute_detection(tmp_path):
+    target = tmp_path / "target"
+    junction = tmp_path / "junction"
+    target.mkdir()
+    try:
+        subprocess.run(
+            ["cmd.exe", "/d", "/c", "mklink", "/J", str(junction), str(target)],
+            check=True,
+            capture_output=True,
+        )
+        assert not junction.is_symlink()
+        assert junction.lstat().st_file_attributes & stat.FILE_ATTRIBUTE_REPARSE_POINT
+        assert is_link_or_reparse(junction)
+    finally:
+        if junction.exists():
+            junction.rmdir()
+
+
+def test_over_limit_image_is_rejected_before_verify(tmp_path, monkeypatch):
+    image_path = tmp_path / "oversized.png"
+    _image(image_path, "PNG")
+    with Image.open(image_path) as image:
+        image_type = type(image)
+    verify_calls = 0
+
+    def track_verify(_image):
+        nonlocal verify_calls
+        verify_calls += 1
+
+    monkeypatch.setattr("pwa.intake.MAX_IMAGE_PIXELS", 1)
+    monkeypatch.setattr(image_type, "verify", track_verify)
+
+    with pytest.raises(ValueError, match="100-megapixel intake limit"):
+        _image_metadata(image_path, ".png")
+    assert verify_calls == 0

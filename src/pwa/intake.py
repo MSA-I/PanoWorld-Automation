@@ -63,13 +63,13 @@ def _artifact(
 def _image_metadata(path: Path, expected_suffix: str) -> dict:
     expected = "JPEG" if expected_suffix in {".jpg", ".jpeg"} else "PNG"
     with Image.open(path) as image:
-        image.verify()
-    with Image.open(path) as image:
         if image.format != expected:
             raise ValueError(f"file extension does not match image format {image.format}")
         if image.width * image.height > MAX_IMAGE_PIXELS:
             raise ValueError("image exceeds the 100-megapixel intake limit")
-        return {"format": image.format, "width": image.width, "height": image.height, "mode": image.mode}
+        metadata = {"format": image.format, "width": image.width, "height": image.height, "mode": image.mode}
+        image.verify()
+        return metadata
 
 
 def _render_pdf(path: Path, derivatives: Path) -> tuple[dict, list[Path]]:

@@ -1,0 +1,36 @@
+timestamp: 2026-08-09T07:02:51+00:00
+cwd: D:\משה פרוייקטים\פיתוח אתרים\PanoWorld-Automation\.worktrees\t_6d733451
+command: D:\משה פרוייקטים\פיתוח אתרים\PanoWorld-Automation\.worktrees\t_6d733451\.venv\Scripts\python.exe -m pytest -v --junitxml=D:\משה פרוייקטים\פיתוח אתרים\PanoWorld-Automation\.worktrees\t_6d733451\evidence\PLAN-001\test-results\RUN-20260809-070251-128119\junit.xml --cov=src/pwa --cov-report=xml:D:\משה פרוייקטים\פיתוח אתרים\PanoWorld-Automation\.worktrees\t_6d733451\evidence\PLAN-001\test-results\RUN-20260809-070251-128119\coverage.xml
+exit_code: 0
+
+--- stdout ---
+============================= test session starts =============================
+platform win32 -- Python 3.11.15, pytest-9.1.1, pluggy-1.6.0
+rootdir: D:\משה פרוייקטים\פיתוח אתרים\PanoWorld-Automation\.worktrees\t_6d733451
+configfile: pyproject.toml
+testpaths: tests
+plugins: cov-7.1.0
+collected 122 items
+
+tests\golden\test_validator_golden.py .......                            [  5%]
+tests\integration\test_plan001_intake.py .........                       [ 13%]
+tests\integration\test_plan001_packager.py ....                          [ 16%]
+tests\integration\test_validator_failures.py .....................       [ 33%]
+tests\unit\test_extrinsics_checks.py ..................                  [ 48%]
+tests\unit\test_schemas_roundtrip.py ................................... [ 77%]
+...............                                                          [ 89%]
+tests\unit\test_state_machine.py .............                           [100%]
+
+============================== warnings summary ===============================
+.venv\Lib\site-packages\_pytest\cacheprovider.py:469
+  D:\משה פרוייקטים\פיתוח אתרים\PanoWorld-Automation\.worktrees\t_6d733451\.venv\Lib\site-packages\_pytest\cacheprovider.py:469: PytestCacheWarning: could not create cache path D:\משה פרוייקטים\פיתוח אתרים\PanoWorld-Automation\.worktrees\t_6d733451\.pytest_cache\v\cache\nodeids: [WinError 5] Access is denied: 'D:\\משה פרוייקטים\\פיתוח אתרים\\PanoWorld-Automation\\.worktrees\\t_6d733451\\.pytest_cache\\v\\cache'
+    config.cache.set("cache/nodeids", sorted(self.cached_nodeids))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+- generated xml file: D:\משה פרוייקטים\פיתוח אתרים\PanoWorld-Automation\.worktrees\t_6d733451\evidence\PLAN-001\test-results\RUN-20260809-070251-128119\junit.xml -
+=============================== tests coverage ================================
+______________ coverage: platform win32, python 3.11.15-final-0 _______________
+
+Coverage XML written to file D:\משה פרוייקטים\פיתוח אתרים\PanoWorld-Automation\.worktrees\t_6d733451\evidence\PLAN-001\test-results\RUN-20260809-070251-128119\coverage.xml
+======================= 122 passed, 1 warning in 15.93s =======================
+--- stderr ---
