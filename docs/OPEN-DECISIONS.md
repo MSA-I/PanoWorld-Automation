@@ -13,6 +13,10 @@
 | ‏D-001 ‏Git bootstrap | ‏Option A — שורש נוכחי, מיידי | [ADR-0001](decisions/ADR-0001-git-repository-bootstrap.md) | מיושם ‏(main פעיל). מוקש הנתיב העברי התממש חלקית ‏(editable ‏.pth) וטופל ב-`package=false` — ה-fallback ל-junction ‏ASCII נשאר זמין |
 | ‏D-008 ‏Schema versioning | ‏Option A — ‏envelope+semver+bundle | [ADR-0002](decisions/ADR-0002-schema-versioning-strategy.md) | מיושם, כולל הגדרת ‏content_hash קנונית |
 | ‏D-010 ‏(חלק ה-vendoring בלבד) | ‏vendoring תת-סט ‏scene0000 מותר | [ADR-0003](decisions/ADR-0003-golden-fixture-vendoring.md) | מיושם עם NOTICE+LICENSE; **יתרת D-010 (license matrix מסחרי) נותרה פתוחה — ראו בהמשך** |
+| D-004 Floorplan parser baseline | manual annotation + deterministic validator + narrow DXF convention for Part 1 | [ADR-0004](decisions/ADR-0004-floorplan-parser-baseline.md) | Approved for PLAN-002; production raster parser remains a later decision |
+| D-012 Floorplan contract evolution | additive 1.1.0 + annotation 1.0.0 + exact-version catalog + bundle 1.1 | [ADR-0005](decisions/ADR-0005-floorplan-contract-and-run-lifecycle.md) | Historical schemas/manifests remain immutable |
+| D-013 Immutable parse-run lifecycle | fresh derived immutable run per attempt | [ADR-0005](decisions/ADR-0005-floorplan-contract-and-run-lifecycle.md) | No append to finalized PLAN-001 runs |
+| D-014 G1 partial/confidence policy | partial/low-confidence/unresolved acknowledgement fails G1 | [ADR-0005](decisions/ADR-0005-floorplan-contract-and-run-lifecycle.md) | Correction requires a fresh run |
 
 ---
 
@@ -29,13 +33,6 @@
 - **Recommendation:** A ל-POC ‏(כבר מוגדר במסמך 04 ועובד עם Git); מעבר ל-B כשיש queries/concurrency אמיתיים; ‏C רק ב-MVP המתוזמר. אין להרים תשתית לפני שיש בה צורך מוכח.
 - **Impact:** מורכבות תפעולית מקומית; קלות migration בהמשך.
 - **Owner (הכנה):** ‏System Architect. **הכרעה:** משה ב-PLAN הרלוונטי.
-
-## D-004 — Floorplan parser baseline
-
-- **Options:** ‏A. CubiCasa5K adapter ‏(מודרניזציה נדרשת, stack ישן). ‏B. baseline היוריסטי ‏(FloorplanToBlender3d כרפרנס — ‏GPL, ‏בידוד נדרש). ‏C. VLM-assisted parsing עם validation דטרמיניסטי. ‏D. שילוב: התחלה ב-fixture ידני מסומן, ‏parser נבחר אחרי שה-contracts יציבים.
-- **Recommendation:** D — ‏PLAN-000 בכוונה לא מכריע; ה-POC הראשון יכול לרוץ על parse ידני של תוכנית אחת כדי לא לחסום את שרשרת ה-geometry→package.
-- **Impact:** דיוק, רישוי (GPL), עלות מודרניזציה.
-- **Owner (הכנה):** ‏CV/Spatial Architect ‏(Opus 5). **הכרעה:** משה ב-PLAN-002 (parsing).
 
 ## D-005 — Source panorama provider
 

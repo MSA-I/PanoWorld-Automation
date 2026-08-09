@@ -1,5 +1,14 @@
 # PROGRESS — PanoWorld Automation
 
+## PLAN-002 PLANNING — PLANNED — 2026-08-09
+
+- Moshe explicitly approved the bounded local Floorplan Parsing PLAN and all eight PLAN gate items; D-004 is recorded in ADR-0004 and D-012/D-013/D-014 in ADR-0005.
+- Post-approval AC-20 semantics are closed: every pre-parse source hash mismatch is CLI 2 with no finalized run; incomplete/blocked source quality is CLI 2 with no finalized run; only a complete, blocker-free source with missing/contradictory scale reaches `PARSE_SCALE_UNKNOWN`, failed diagnostics and CLI 3.
+- Plan architect: Anthropic `claude-opus-5` / EXTRA / no fallback. Independent reviewer: OpenAI `gpt-5.6-sol` / xhigh / no fallback, verdict `APPROVE`; post-approval spatial brief: Anthropic `claude-opus-5` / HIGH / no fallback.
+- Canonical artifacts: [`PLAN-002`](plans/PLAN-002-floorplan-parsing.md), [`ADR-0004`](decisions/ADR-0004-floorplan-parser-baseline.md), [`ADR-0005`](decisions/ADR-0005-floorplan-contract-and-run-lifecycle.md), [independent review](../evidence/PLAN-002/reviews/independent-openai-plan-review-2026-08-09.md), and [spatial brief](../evidence/PLAN-002/design/post-approval-spatial-brief-2026-08-09.md).
+- No parser implementation, dependency/lock change, merge, push, install, network, Blender, H200/GPU, cloud or remote action occurred in this planning closeout. G7/G8 remain **DEFERRED TO PART 2**.
+- The implementation-generated Layer A overlay retains a critical Visual/Geometry evidence gate requiring Moshe approval before G1 acceptance or PLAN-003 handoff.
+
 ## PLAN-001-CLOSEOUT — DONE — 2026-08-09
 
 - review בלתי תלוי וחוצה־ספקים הושלם ב־Anthropic `claude-sonnet-5` / HIGH: ללא CRITICAL/MAJOR; ארבעת ממצאי ה־MINOR נסגרו או אושררו במפורש.

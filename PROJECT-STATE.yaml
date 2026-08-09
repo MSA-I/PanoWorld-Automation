@@ -1,10 +1,10 @@
 project:
   id: panoworld-automation
   phase: implementation
-  overall_status: M1_PLAN_001_DONE
+  overall_status: PLAN_002_PLANNED
   implementation_started: true
   updated_at: "2026-08-09"
-  updated_by_session: PLAN-001-CLOSEOUT
+  updated_by_session: PLAN-002-APPROVAL-AND-SPATIAL-BRIEF
 
 model_policy:
   id: MODEL-ROUTING-v1
@@ -49,13 +49,13 @@ orchestration:
     - G8_full_run_gate
 
 current_plan:
-  id: PLAN-001-intake-and-packager-baseline
-  title: Intake and packager baseline
-  status: DONE
-  owner: orchestrator
-  path: docs/plans/PLAN-001-intake-and-packager-baseline.md
-  branch: plan/PLAN-001
-  worktree: null
+  id: PLAN-002-floorplan-parsing
+  title: Floorplan parsing
+  status: PLANNED
+  owner: spatial-architect
+  path: docs/plans/PLAN-002-floorplan-parsing.md
+  branch: panoworld-dev/t_b7ade39e-p1-02-floorplan-parsing
+  worktree: .worktrees/t_b7ade39e
 
 milestones:
   - id: M0
@@ -225,6 +225,52 @@ agents:
     session_id: "019fe54f-eb34-7293-82fc-b21f530b414f"
     evidence: evidence/PLAN-001/RUN-REPORT-PLAN-001-CLOSEOUT-20260809.md
 
+  - name: plan-002-spatial-architect
+    role: Floorplan Parsing Spatial/Contract Architect
+    plan_id: PLAN-002
+    provider: anthropic
+    requested_model: "Opus 5"
+    actual_model_id: "claude-opus-5"
+    normalized_effort: EXTRA
+    provider_effort: "session-inherited; not exposed"
+    fallback: "no"
+    model_reason: "spatial normalization, parsing invariants, provenance and overlay design"
+    reviewer_model: "gpt-5.6-sol / xhigh"
+    cross_provider_review: "required"
+    status: DONE
+
+  - name: plan-002-independent-plan-reviewer
+    role: Independent Contract/Architecture Plan Reviewer
+    plan_id: PLAN-002
+    provider: openai
+    requested_model: "GPT-5.6 Codex"
+    actual_model_id: "gpt-5.6-sol"
+    normalized_effort: EXTRA
+    provider_effort: xhigh
+    fallback: "no"
+    model_reason: "opposite-provider challenge of Anthropic-authored critical plan"
+    reviewer_model: "Moshe human approval"
+    cross_provider_review: "yes"
+    status: DONE
+    session_id: "019fe5ad-7fe4-7133-8d06-24d45746ecb0"
+    evidence: evidence/PLAN-002/reviews/independent-openai-plan-review-2026-08-09.md
+
+  - name: plan-002-post-approval-spatial-architect
+    role: Bounded post-approval spatial implementation architect
+    plan_id: PLAN-002
+    provider: anthropic
+    requested_model: "claude-opus-5"
+    actual_model_id: "claude-opus-5"
+    normalized_effort: HIGH
+    provider_effort: high
+    fallback: "no"
+    model_reason: "spatial geometry, coordinate transforms, invariants and source-aligned overlay design"
+    reviewer_model: "OpenAI approved Codex implementer; later Anthropic code/spatial review"
+    cross_provider_review: "yes"
+    status: DONE
+    session_id: "a3a34928-5dc3-44ad-ac9d-fe7c728167b2"
+    evidence: evidence/PLAN-002/design/post-approval-spatial-brief-2026-08-09.md
+
 blockers:
   - id: BLOCK-0001
     summary: "Private non-sensitive DWG required for real intake smoke"
@@ -236,11 +282,12 @@ resolved_decisions:
   - "D-001 -> ADR-0001 git bootstrap in current root (accepted with PLAN-000 approval, 2026-08-05)"
   - "D-008 -> ADR-0002 schema versioning: envelope + semver + bundle (accepted 2026-08-05)"
   - "D-010 (vendoring part) -> ADR-0003 golden-fixture vendoring under Apache-2.0 (accepted 2026-08-05)"
+  - "D-004 -> ADR-0004 Part 1 manual annotation + deterministic validator + narrow DXF baseline (accepted by Moshe 2026-08-09)"
+  - "D-012/D-013/D-014 -> ADR-0005 additive contracts, exact-version catalog, immutable derived runs and fail-closed G1 (accepted by Moshe 2026-08-09)"
 
 open_decisions:
   - D-002 workflow engine
   - D-003 storage/state for MVP
-  - D-004 floorplan parser baseline
   - D-005 source panorama provider
   - D-006 H200 cloud provider
   - D-007 dashboard stack
@@ -299,12 +346,13 @@ evidence:
     - evidence/SESSION-001/agent-reports/plan-reviewer.md
 
 next_actions:
-  - dispatch_P1_02_floorplan_parsing_planning_only
-  - write_bounded_PLAN_with_contracts_fixtures_security_acceptance_tests_and_rollback
-  - block_for_Moshe_approval_before_floorplan_parsing_implementation
+  - route_PLAN_002_TDD_implementation_to_OpenAI_Codex_HIGH
+  - retain_layer_A_overlay_visual_geometry_gate_for_Moshe_before_G1_acceptance
 
 human_gates:
   plan_000_approval: "approved 2026-08-05 (Moshe; internal reviews accepted as documented one-time exception, D-009 remains open)"
+  plan_002_approval: "approved by Moshe 2026-08-09 on Kanban t_b7ade39e; all eight PLAN-002 approval-gate items accepted; recorded in ADR-0004 and ADR-0005"
+  plan_002_ac20_semantics: "approved by Moshe 2026-08-09 on Kanban t_b7ade39e: all pre-parse source hash mismatches are CLI 2/no final run; incomplete or blocked source quality is CLI 2/no final run; complete blocker-free source with missing or contradictory scale is PARSE_SCALE_UNKNOWN CLI 3/failed diagnostic run"
   geometry_approval: pending
   source_panorama_approval: pending
   final_output_approval: pending
