@@ -1,6 +1,16 @@
 # PROGRESS — PanoWorld Automation
 
-## PANO-DEV-START — ACTIVE — 2026-08-09
+## PLAN-001-CLOSEOUT — DONE — 2026-08-09
+
+- review בלתי תלוי וחוצה־ספקים הושלם ב־Anthropic `claude-sonnet-5` / HIGH: ללא CRITICAL/MAJOR; ארבעת ממצאי ה־MINOR נסגרו או אושררו במפורש.
+- M-3/M-4 תוקנו ב־OpenAI `gpt-5.6-sol` / HIGH ללא fallback: junction אמיתי ב־Windows בודק reparse attribute, ו־100MP cap נאכף לפני Pillow `verify()`.
+- M-1 אושרר משום שהקמת Kanban לחלק 1 אושרה בידי משה והפכה קנונית ב־kickoff; M-2 נסגר ב־RUN-REPORT עצמאי.
+- verification טרי: 122/122 tests, ‏17/17 fixture round-trip, golden validator עם 0 errors/0 warnings ו־`git diff --check` ירוק.
+- evidence: [`RUN-REPORT-PLAN-001-CLOSEOUT-20260809.md`](../evidence/PLAN-001/RUN-REPORT-PLAN-001-CLOSEOUT-20260809.md) · [`RUN-20260809-070251-128119`](../evidence/PLAN-001/test-results/RUN-20260809-070251-128119/) · [independent review](../evidence/PLAN-001/reviews/independent-anthropic-review-20260809.md).
+- PLAN-001 מוזג מקומית בידי ה־orchestrator; לא בוצע push. הבא הוא תכנון בלבד של P1-02 Floorplan Parsing וחסימה לאישור משה לפני implementation.
+- אין H200/GPU/remote/cloud; ‏G7/G8 נשארים **DEFERRED TO PART 2**.
+
+## PANO-DEV-START — DONE — 2026-08-09
 
 - משה הפעיל את קמפיין חלק 1; שער `t_4ddc34f3` השלים reconciliation מקומי ללא H200/GPU/remote וללא התחלת שלב עתידי.
 - Git אומת: `main` (`df24d5c`) הוא ancestor של `plan/PLAN-001` (`3baedba`), והענף נשאר `REVIEW` ולא ממוזג.

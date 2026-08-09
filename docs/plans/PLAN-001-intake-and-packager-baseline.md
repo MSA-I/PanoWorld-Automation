@@ -1,7 +1,7 @@
 # PLAN-001 — Intake and Packager Baseline
 
 - Plan ID: `PLAN-001-intake-and-packager-baseline`
-- Status: **`REVIEW`** — implementation ו־DWG smoke אמיתי הושלמו מקומית; ממתין ל-review בלתי תלוי
+- Status: **`DONE`** — review חוצה־ספקים, תיקוני findings, evidence טרי ומיזוג orchestrator-only הושלמו מקומית
 - Branch: `plan/PLAN-001`
 - Policy: `MODEL-ROUTING-v1`
 - Requested implementer: OpenAI Codex / HIGH
@@ -68,3 +68,12 @@
 
 PLAN-001 יהיה `DONE` רק לאחר evidence טרי, review בלתי תלוי, תיקון findings
 קריטיים/מהותיים, merge ועדכון state. סוכן זה יעצור לפני review/merge.
+
+## Closeout record — 2026-08-09
+
+- Anthropic Sonnet 5 / HIGH ביצע review בלתי תלוי וחוצה־ספקים: `APPROVE_WITH_FIXES`, ללא ממצאי CRITICAL/MAJOR.
+- M-1 אושרר במפורש: commit ‏`3baedba` נשאר בענף משום שהקמת קמפיין Kanban לחלק 1 אושרה בידי משה והפכה קנונית ב-kickoff; הוא docs/state-only ואינו מרחיב את runtime של PLAN-001.
+- M-2 נסגר ב־`evidence/PLAN-001/RUN-REPORT-PLAN-001-CLOSEOUT-20260809.md`.
+- M-3/M-4 תוקנו ב־`87f00db`: בדיקת junction אמיתית ב-Windows ו-cap של 100MP לפני `Image.verify()`.
+- verification טרי: 122/122 tests, ‏17/17 fixture round-trip, ו-validator עם 0 errors/0 warnings.
+- אין Floorplan Parsing, ‏H200/GPU/remote/cloud; ‏G7/G8 נשארים **DEFERRED TO PART 2**.

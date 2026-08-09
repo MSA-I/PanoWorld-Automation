@@ -1,7 +1,7 @@
 # PanoWorld Automation — Master Index
 
 ## סטטוס
-`M1_PLAN_001_REVIEW` — ‏PLAN-000 נשאר `DONE`. ‏PLAN-001 intake + fixture packager מומש על `plan/PLAN-001`: ‏120/120 בדיקות ירוקות, tiny/golden validator ירוקים, evidence append-only ו־DWG smoke אמיתי שעבר עם evidence מצונזר. Hermes Kanban הוכן במצב `DORMANT` עבור חלק 1 בלבד; כרטיס ההתחלה חסום ואין workers פעילים. טרם בוצעו review בלתי תלוי או merge. לא הותקן Blender, לא הורדו PanoWorld/מודלים, לא הופעל H200 ולא בוצע push.
+`M1_PLAN_001_DONE` — ‏PLAN-000 ו־PLAN-001 במצב `DONE`. ‏PLAN-001 intake + fixture packager עבר review חוצה־ספקים, תיקוני reparse/image-cap, ‏122/122 בדיקות טריות, ‏17/17 round-trip ו-validator ירוק; מוזג ל־`main` המקומי בידי ה־orchestrator ללא push. הבא הוא P1-02 Floorplan Parsing: תכנון בלבד ואז חסימה לאישור משה לפני implementation. לא הותקן Blender, לא הורדו PanoWorld/מודלים, לא הופעל H200.
 
 מבנה בפועל: ‏`schemas/` ‏(envelope+13), ‏`contracts/` ‏(state machine, error codes, עקרונות אבטחה), ‏`src/pwa/` ‏(validator), ‏`tools/`, ‏`tests/` ‏(כולל golden fixture ‏8.3MB), ‏`docs/decisions/` ‏(ADR-0001..0003), ‏`docs/handoffs/`, ‏`evidence/PLAN-000/`.
 
@@ -40,7 +40,7 @@
 
 7. [סיכום והפעלת Hermes Kanban](07-סיכום-לפני-הפעלת-Hermes-Kanban.md)
    - לוח `panoworld-dev`, תחום חלק 1 בלבד ופקודת ההפעלה הידנית.
-   - מצב `DORMANT`; אין כרטיסים מוכנים או workers פעילים.
+   - רשומת pre-activation היסטורית; הקמפיין הופעל ב־2026-08-09 ו־PLAN-001 נסגר.
 
 8. [המדריך המקורי](../PanoWorld-מדריך-והסבר.txt)
    - התקנה, חומרה, מודלים וקלטים.
@@ -48,7 +48,7 @@
 
 ## מסמכי תוכניות
 
-- [PLAN-001 — Intake and Packager Baseline](plans/PLAN-001-intake-and-packager-baseline.md) — **`REVIEW`**; ‏Acceptance: ‏[evidence/PLAN-001/acceptance.md](../evidence/PLAN-001/acceptance.md); ‏Handoff: ‏[HANDOFF-PLAN-001-to-review-001](handoffs/HANDOFF-PLAN-001-to-review-001.md).
+- [PLAN-001 — Intake and Packager Baseline](plans/PLAN-001-intake-and-packager-baseline.md) — **`DONE`**; ‏Acceptance: ‏[evidence/PLAN-001/acceptance.md](../evidence/PLAN-001/acceptance.md); ‏Review: ‏[independent Anthropic review](../evidence/PLAN-001/reviews/independent-anthropic-review-20260809.md); ‏Closeout: ‏[RUN-REPORT](../evidence/PLAN-001/RUN-REPORT-PLAN-001-CLOSEOUT-20260809.md); ‏Handoff: ‏[PLAN-001 to PLAN-002](handoffs/HANDOFF-PLAN-001-to-PLAN-002-001.md).
 - [PLAN-000 — Repository Bootstrap and Contracts](plans/PLAN-000-repository-bootstrap-and-contracts.md) — **`DONE`** ‏(נסגר 2026-08-06; חריגה מתועדת: ראיית red-phase לא נשתמרה). ‏Acceptance: ‏[evidence/PLAN-000/acceptance.md](../evidence/PLAN-000/acceptance.md); ‏Handoff: ‏[HANDOFF-PLAN-000-to-PLAN-001-001](handoffs/HANDOFF-PLAN-000-to-PLAN-001-001.md).
 - ‏ADRs: ‏[ADR-0001 Git bootstrap](decisions/ADR-0001-git-repository-bootstrap.md) · [ADR-0002 Schema versioning](decisions/ADR-0002-schema-versioning-strategy.md) · [ADR-0003 Fixture vendoring](decisions/ADR-0003-golden-fixture-vendoring.md).
 - [REQUIREMENTS.md](REQUIREMENTS.md) — דרישות פונקציונליות/לא-פונקציונליות, disclaimer, human gates.
@@ -85,6 +85,6 @@
 - אין להתחיל implementation בלי PLAN-000 מאושר.
 
 ## הפעולה הבאה המומלצת
-‏PLAN-000 סגור ו־PLAN-001 מומש. הבא: **ביקורת בלתי תלויה על `main...plan/PLAN-001` באמצעות Anthropic Sonnet 5 / HIGH**, תיקון findings, re-verification ומיזוג בידי ה־orchestrator בלבד.
+‏PLAN-000 ו־PLAN-001 סגורים. הבא: **P1-02 יוצר PLAN תחום ל־Floorplan Parsing ואז נחסם לאישור משה לפני implementation**.
 
 אין להתחיל parsing או Blender לפני ש-PLAN ייעודי אושר.

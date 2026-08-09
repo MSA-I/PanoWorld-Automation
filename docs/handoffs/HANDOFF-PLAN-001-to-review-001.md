@@ -3,7 +3,7 @@
 - Handoff ID: HANDOFF-PLAN-001-to-review-001
 - PLAN_ID: PLAN-001
 - Producer: OpenAI Codex implementation agent
-- Producer provider/model/effort: OpenAI / exact model ID not exposed / HIGH
+- Producer provider/model/effort: historical OpenAI / exact model ID not exposed / HIGH; closeout rework OpenAI `gpt-5.6-sol` / HIGH
 - Consumer: Independent code/spec reviewer
 - Consumer provider/model/effort: Anthropic / Sonnet 5 / HIGH requested
 - Date: 2026-08-06
@@ -65,6 +65,9 @@ No existing schema/contract was changed. Any future breaking change requires MAJ
 
 ## Approval
 
-- Producer status: REVIEW
-- Reviewer status: NOT_STARTED
-- Orchestrator status: NOT_MERGED
+- Producer status: VERIFIED
+- Reviewer status: `APPROVE_WITH_FIXES` → all four minor findings closed or explicitly ratified
+- Reviewer model: Anthropic `claude-sonnet-5` / HIGH; cross-provider review: yes
+- Fresh evidence: `RUN-20260809-070251-128119` — 122/122
+- Orchestrator status: DONE / merged to local main; no push
+- Downstream handoff: `HANDOFF-PLAN-001-to-PLAN-002-001.md`

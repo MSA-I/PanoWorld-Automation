@@ -1,10 +1,10 @@
 project:
   id: panoworld-automation
   phase: implementation
-  overall_status: M1_PLAN_001_REVIEW
+  overall_status: M1_PLAN_001_DONE
   implementation_started: true
   updated_at: "2026-08-09"
-  updated_by_session: PANO-DEV-START
+  updated_by_session: PLAN-001-CLOSEOUT
 
 model_policy:
   id: MODEL-ROUTING-v1
@@ -51,8 +51,8 @@ orchestration:
 current_plan:
   id: PLAN-001-intake-and-packager-baseline
   title: Intake and packager baseline
-  status: REVIEW
-  owner: openai-codex-implementer
+  status: DONE
+  owner: orchestrator
   path: docs/plans/PLAN-001-intake-and-packager-baseline.md
   branch: plan/PLAN-001
   worktree: null
@@ -68,10 +68,12 @@ milestones:
       - evidence/PLAN-000/reviews/code-reviewer.md
   - id: M1
     title: local_floorplan_to_panoworld_package_poc
-    status: IN_PROGRESS
+    status: DONE
     evidence:
       - evidence/PLAN-001/acceptance.md
-      - evidence/PLAN-001/test-results/RUN-20260806-052400-223281/
+      - evidence/PLAN-001/test-results/RUN-20260809-070251-128119/
+      - evidence/PLAN-001/reviews/independent-anthropic-review-20260809.md
+      - evidence/PLAN-001/RUN-REPORT-PLAN-001-CLOSEOUT-20260809.md
   - id: M2
     title: local_h200_ready_mvp
     status: NOT_STARTED
@@ -191,7 +193,37 @@ agents:
     provider_effort: HIGH
     fallback: "no"
     reviewer_model: "Sonnet 5 HIGH requested"
-    status: REVIEW
+    status: DONE
+  - name: plan-001-independent-reviewer
+    role: Independent Intake/Packager Code and Security Reviewer
+    plan_id: PLAN-001
+    provider: anthropic
+    requested_model: "Sonnet 5"
+    actual_model_id: "claude-sonnet-5"
+    normalized_effort: HIGH
+    provider_effort: HIGH
+    fallback: "no"
+    model_reason: "independent cross-provider spec, code and security review"
+    reviewer_model: N/A
+    cross_provider_review: "yes - OpenAI-authored implementation reviewed by Anthropic"
+    status: DONE
+    verdict: "APPROVE_WITH_FIXES; 0 critical, 0 major, 4 minor, 3 info"
+    evidence: evidence/PLAN-001/reviews/independent-anthropic-review-20260809.md
+  - name: plan-001-closeout-rework
+    role: Bounded Intake Security/Test Rework Implementer
+    plan_id: PLAN-001
+    provider: openai
+    requested_model: "gpt-5.6-sol"
+    actual_model_id: "gpt-5.6-sol"
+    normalized_effort: HIGH
+    provider_effort: high
+    fallback: "no"
+    model_reason: "targeted M-3/M-4 implementation and Windows regression tests"
+    reviewer_model: "claude-sonnet-5 (finding author); deterministic re-verification by orchestrator"
+    cross_provider_review: "yes"
+    status: DONE
+    session_id: "019fe54f-eb34-7293-82fc-b21f530b414f"
+    evidence: evidence/PLAN-001/RUN-REPORT-PLAN-001-CLOSEOUT-20260809.md
 
 blockers:
   - id: BLOCK-0001
@@ -217,6 +249,14 @@ open_decisions:
   - D-011 style_spec reference cardinality
 
 recent_runs:
+  - id: PLAN-001-CLOSEOUT-20260809
+    kind: independent-review closure and local merge verification
+    result: "Anthropic review closed; 122 tests pass; 17/17 fixture roundtrip; validator 0 errors/warnings; M-1..M-4 closed"
+    evidence: evidence/PLAN-001/RUN-REPORT-PLAN-001-CLOSEOUT-20260809.md
+  - id: RUN-20260809-070251-128119
+    kind: PLAN-001 fresh closeout test suite
+    result: "122 tests, 0 failures/errors/skipped, exit 0; real Windows junction and pre-verify pixel-cap regressions pass"
+    evidence: evidence/PLAN-001/test-results/RUN-20260809-070251-128119/
   - id: PANO-DEV-START-20260809
     kind: kickoff baseline and local verification
     result: "120 tests pass with inherited PYTHONPATH cleared; 17/17 fixture roundtrip; validator 0 errors/warnings; 13-card serial graph verified"
@@ -259,9 +299,9 @@ evidence:
     - evidence/SESSION-001/agent-reports/plan-reviewer.md
 
 next_actions:
-  - dispatch_t_6d733451_PLAN_001_closeout
-  - independent_review_PLAN_001_with_anthropic_sonnet_5
-  - address_review_findings_with_codex_without_starting_floorplan_parsing
+  - dispatch_P1_02_floorplan_parsing_planning_only
+  - write_bounded_PLAN_with_contracts_fixtures_security_acceptance_tests_and_rollback
+  - block_for_Moshe_approval_before_floorplan_parsing_implementation
 
 human_gates:
   plan_000_approval: "approved 2026-08-05 (Moshe; internal reviews accepted as documented one-time exception, D-009 remains open)"
