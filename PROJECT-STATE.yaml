@@ -1,10 +1,10 @@
 project:
   id: panoworld-automation
   phase: implementation
-  overall_status: PLAN_002_PLANNED
+  overall_status: PLAN_002_REWORK_REVIEWED_NEEDS_SECOND_REWORK
   implementation_started: true
-  updated_at: "2026-08-09"
-  updated_by_session: PLAN-002-APPROVAL-AND-SPATIAL-BRIEF
+  updated_at: "2026-08-10"
+  updated_by_session: PLAN-002-ORCHESTRATION-AND-REVIEW-DISPATCH
 
 model_policy:
   id: MODEL-ROUTING-v1
@@ -51,7 +51,54 @@ orchestration:
 current_plan:
   id: PLAN-002-floorplan-parsing
   title: Floorplan parsing
-  status: PLANNED
+  status: REWORK_REVIEWED_NEEDS_SECOND_REWORK
+  open_gate_conditions:
+    - id: GC-1
+      text: "Validate and contain parse_run_id before any filesystem operation."
+      kind: bounded_code_fix
+    - id: GC-2
+      text: >-
+        Rework path checking so lexical reparse points, including runs_root
+        itself, are not erased by resolve() before inspection.
+      kind: bounded_code_fix
+    - id: GC-3
+      text: >-
+        Apply reparse and containment checks to source-manifest and
+        quality-artifact paths before reading them.
+      kind: bounded_code_fix
+    - id: GC-4
+      text: >-
+        Recompute the annotation content_hash and bind its artifact ID and hash
+        into parse outputs.
+      kind: bounded_code_fix
+    - id: GC-5
+      text: >-
+        Restrict annotation image binding to approved floorplan or PDF-page
+        source artifacts, rejecting missing, ambiguous, cross-run or unsupported
+        bindings.
+      kind: bounded_code_fix
+    - id: GC-6
+      text: >-
+        Resolve opening-fit semantics by using projected width after successful
+        wall resolution, or by adopting an explicit projection-ratio and
+        minimum-span invariant.
+      kind: retained_human_gate
+      gate: "PLAN-002 section 20 Geometry/Contract - requires Moshe's explicit approval before implementation"
+  status_note: >-
+    Implementation exists as uncommitted working-tree state in the worktree and
+    is not merged. Orchestrator re-verified it deterministically on 2026-08-10:
+    261 tests pass with inherited PYTHONPATH cleared, git diff --check clean,
+    pyproject.toml and uv.lock unchanged. Both Anthropic Opus 5 independent
+    reviews returned NEEDS_REWORK with two separate CRITICAL findings, each
+    independently confirmed by the orchestrator (containment bypass in
+    runs.py:11-31 reproduced with a proof-of-concept; missing opening
+    duplicate-detection in validate.py:181-188 confirmed by inspection). The
+    passing suite is therefore not sufficient evidence of correctness: the tests
+    do not cover these paths. Eight acceptance criteria are NOT MET (AC-8, AC-9,
+    AC-12, AC-14, AC-15, AC-17) or WEAK (AC-1, AC-3, AC-10, AC-13, AC-18,
+    AC-20). Rework is required before any G1 claim. Fail-closed human gates
+    remain outstanding: Moshe's visual/geometry approval of the first Layer A
+    overlay (PLAN-002 section 20) and no merge without separate authorisation.
   owner: spatial-architect
   path: docs/plans/PLAN-002-floorplan-parsing.md
   branch: panoworld-dev/t_b7ade39e-p1-02-floorplan-parsing
@@ -271,6 +318,242 @@ agents:
     session_id: "a3a34928-5dc3-44ad-ac9d-fe7c728167b2"
     evidence: evidence/PLAN-002/design/post-approval-spatial-brief-2026-08-09.md
 
+  - name: plan-002-implementer
+    role: Floorplan Parsing Implementer (src/pwa/floorplan, schemas 1.1.0/annotation, tests, fixtures)
+    plan_id: PLAN-002
+    provider: openai
+    requested_model: "OpenAI approved Codex model (PLAN-002 section 17)"
+    actual_model_id: "gpt-5.4"
+    runtime_provider: headroom
+    normalized_effort: HIGH
+    provider_effort: high
+    fallback: >-
+      YES - MODEL DEVIATION. PLAN-002 section 17 and MODEL-ROUTING-v1 require the
+      approved OpenAI Codex model (the campaign baseline is gpt-5.6-sol, used for
+      PLAN-001 closeout and the PLAN-002 independent plan review). The
+      implementation session actually ran gpt-5.4 through the 'headroom' runtime
+      provider. The substitution was not pre-authorised and was discovered by the
+      orchestrator during PLAN-002 state reconciliation on 2026-08-10, not
+      declared by the implementer. Recorded retroactively per MODEL-ROUTING-v1
+      rule 2 ("no silent model substitution"). Moshe was informed on 2026-08-10
+      and directed that the deviation be recorded and the existing implementation
+      be reviewed rather than reimplemented.
+    fallback_impact_assessment: >-
+      Cross-provider integrity is preserved: the author remains OpenAI, so the
+      required independent reviewer remains Anthropic. gpt-5.4 sits below the
+      approved tier, so reviewer scrutiny is raised accordingly and acceptance
+      rests on deterministic evidence (261/261 tests, git diff --check clean,
+      unchanged dependency lock) rather than on author-model authority.
+    model_reason: "bounded PLAN-002 implementation (as run; not the approved model)"
+    reviewer_model: "claude-opus-5 x2 (code/security/contracts + spatial/geometry)"
+    cross_provider_review: "required; OpenAI-authored implementation reviewed by Anthropic"
+    status: DONE_PENDING_REVIEW
+    session_id: "019fe716-d621-7881-b2b9-f23978c760c0"
+    evidence: evidence/PLAN-002/implementation/runtime-metadata.json
+
+  - name: plan-002-independent-code-reviewer
+    role: Independent Code/Security/Contracts Reviewer for PLAN-002 implementation
+    plan_id: PLAN-002
+    provider: anthropic
+    requested_model: "Opus 5"
+    actual_model_id: "claude-opus-5"
+    normalized_effort: HIGH
+    provider_effort: session-inherited
+    fallback: "no"
+    model_reason: "opposite-provider review of OpenAI-authored implementation; run lifecycle, containment, subprocess and contract versioning"
+    reviewer_model: "Moshe human approval"
+    cross_provider_review: "yes"
+    status: DONE
+    verdict: "NEEDS_REWORK; 1 critical, 11 major, 10 minor, 4 info"
+    key_findings: >-
+      C-1 absolute --source-run containing '..' bypasses containment
+      (runs.py:11-31; the '..' guard is skipped for absolute paths and
+      relative_to() is lexical) - AC-17 NOT MET, independently reproduced by the
+      orchestrator with a proof-of-concept that read a file outside runs_root.
+      M-7 unsupported DXF entities on an unknown layer downgrade to a warning -
+      AC-12 NOT MET. M-10 absolute Windows paths and the OS user name are staged
+      into tracked evidence - AC-15 NOT MET. M-12 the approved post-approval
+      spatial brief was rewritten in place during implementation (906+/309-).
+    ac_verdicts: >-
+      VERIFIED AC-2, AC-4, AC-5, AC-19, AC-21, AC-22, AC-23;
+      WEAK_EVIDENCE AC-1, AC-3, AC-13, AC-18, AC-20;
+      NOT_MET AC-12, AC-15, AC-17
+    evidence: evidence/PLAN-002/reviews/independent-anthropic-code-review-20260810.md
+
+  - name: plan-002-independent-spatial-reviewer
+    role: Independent Spatial/Geometry Reviewer for PLAN-002 implementation
+    plan_id: PLAN-002
+    provider: anthropic
+    requested_model: "Opus 5"
+    actual_model_id: "claude-opus-5"
+    normalized_effort: HIGH
+    provider_effort: session-inherited
+    fallback: "no"
+    model_reason: "MODEL-ROUTING-v1 rule 3 - spatial authority for coordinate transforms, identity rules, invariants and overlay alignment"
+    reviewer_model: "Moshe human approval"
+    cross_provider_review: "yes"
+    status: DONE
+    verdict: "NEEDS_REWORK; 1 critical, 4 major, 4 minor, 4 info"
+    key_findings: >-
+      C-1 duplicate-geometry detection covers walls and rooms but not openings
+      (validate.py:181-188 has no seen_openings set), so two coincident doors
+      produce two identical entity ids, zero findings, status complete, CLI 0 and
+      G1 eligibility - violates section 7 identity rules and AC-8; confirmed by
+      the orchestrator by direct code inspection. M-2 opening-to-wall matching
+      tests only the opening centre point, not the section 6 requirement that the
+      opening line be collinear with exactly one wall, so a perpendicular or 45
+      degree door binds silently with up to 41 percent width error. M-3 the
+      proper-crossing test folds zero into the negative branch, so collinear
+      overlaps and vertex-on-edge touches are never detected - AC-9 NOT MET.
+      M-4 the DXF overlay source layer is built from the detections' own
+      provenance, so source and detections are coincident by construction and
+      cannot disagree - AC-14 unfalsifiable for DXF, and rooms/doors groups are
+      emitted empty. M-5 JPEG sources are embedded as data:image/png.
+    verified_correct: >-
+      Challenged and held: y-down to y-up transform matches the specified
+      formula exactly with 0.0 round-trip error; quantization uses
+      Decimal(str(v)) before hashing with correct banker's rounding and -0.0
+      normalization; anchor is the minimum over wall endpoints only; CCW sign,
+      canonical rotation and idempotence correct; IDs stable across 20 random
+      reorderings and across in-bounds additions; opening half-width fit checked
+      at both wall ends; confidence comparison strictly less-than 0.5; overlays
+      XML-valid, LF-only, timestamp-free, no script or external content.
+    ac6_strength_assessment: >-
+      The shared-generator suspicion was tested and is FALSE - the fixture tool
+      holds two independently transcribed coordinate tables (mm/y-up and
+      px/y-down) with no shared constant, and the reviewer reproduced the
+      canonical hash from both. But AC-6 is narrower than the acceptance file
+      implies: every fixture coordinate is axis-aligned and an exact multiple of
+      0.05 m so no rounding path is exercised, the translation anchor makes
+      height_px invisible to the projection, the opening comparison cannot see
+      the collinearity defect, and both adapters share normalize() end-to-end so
+      they can only ever be wrong together.
+    ac_verdicts: >-
+      VERIFIED AC-6, AC-7, AC-11, AC-16 (with caveat);
+      WEAK_EVIDENCE AC-10;
+      NOT_MET AC-8, AC-9, AC-14
+    evidence: evidence/PLAN-002/reviews/independent-anthropic-spatial-review-20260810.md
+
+  - name: plan-002-rework-implementer
+    role: Bounded PLAN-002 Rework Implementer (independent-review findings)
+    plan_id: PLAN-002
+    provider: anthropic
+    requested_model: "Sonnet 5"
+    actual_model_id: "claude-sonnet-5"
+    normalized_effort: HIGH
+    provider_effort: session-inherited
+    fallback: >-
+      YES - documented. MODEL-ROUTING-v1 routes implementation to the approved
+      OpenAI Codex model, but the Codex CLI is unavailable in this environment
+      (verified 2026-08-10; OmniRoute exposes gpt-5.6-sol as a chat API only,
+      with no filesystem or test-execution capability, so it cannot implement).
+      First documented fallback per the policy fallback table
+      (OpenAI Codex -> Sonnet 5 HIGH), which requires tests after substitution.
+      Approved by Moshe on 2026-08-10.
+    model_reason: "bounded correctness rework against a fixed finding list; no contract change"
+    reviewer_model: "gpt-5.6-sol via OmniRoute (PLAN-002 section 17: an Anthropic implementer forces an OpenAI reviewer)"
+    cross_provider_review: "required - Anthropic-authored rework must be reviewed by OpenAI"
+    status: DONE_PENDING_CROSS_PROVIDER_REVIEW
+    verdict: >-
+      All findings in the dispatch list closed; 1 sub-clause deferred with
+      reasoning; no escalation required (every fix fitted inside the existing
+      contract, schema and error-code surface).
+    orchestrator_verification: >-
+      Independently re-verified 2026-08-10, not accepted on the implementer's
+      report. Full suite 291 passed (baseline 261), exit 0, inherited PYTHONPATH
+      cleared. Containment proof-of-concept that previously escaped runs_root now
+      returns "source_run must stay within runs_root" for both the absolute and
+      the relative attack path. Opening duplicate detection confirmed present at
+      validate.py:264-282, keyed on the same identity tuple as normalize.py's
+      _opening_identity. git diff --check clean; pyproject.toml and uv.lock
+      unchanged; no tracked file deleted; no path or OS-user-name leak remains in
+      regenerated evidence.
+    deferred_items:
+      - id: M-2b-spatial
+        summary: >-
+          Derive opening width_m from the span projected onto the matched wall
+          direction rather than the raw span length.
+        status: DEFERRED_WITH_REASONING
+        rationale: >-
+          The collinearity gate delivered in M-2a now requires both span
+          endpoints within OPENING_OFFSET_M (0.02 m) of the wall's infinite
+          line, which bounds angular deviation at roughly 2.5 degrees for a
+          0.9 m door and caps raw-versus-projected length drift near 0.1
+          percent - too small to flip any pass/fail invariant. Width is computed
+          in dxf_worker.py before wall matching occurs, so projecting it would
+          require relocating the computation after resolution, which exceeds a
+          bounded rework pass. Recorded for a future PLAN rather than silently
+          dropped.
+    out_of_scope_reported:
+      - >-
+        Code-review minors m-1..m-5 and m-7..m-10 (mojibake, validator_for
+        catalog origin, .tmp/ gitignore, relpath backslash pattern, worker-log
+        write-side cap, examples.json reformat, ValueError coercion in the
+        overlay handler) were not in the dispatch fix list and remain open.
+        Reported for visibility, not silently dropped.
+    evidence: evidence/PLAN-002/reviews/rework-report-20260810.md
+
+  - name: plan-002-independent-openai-rework-reviewer
+    role: Independent Cross-Provider Reviewer of the PLAN-002 rework
+    plan_id: PLAN-002
+    provider: openai
+    requested_model: "gpt-5.6-sol"
+    actual_model_id: "gpt-5.6-sol"
+    normalized_effort: EXTRA
+    provider_effort: xhigh
+    runtime_provider: "OmniRoute local gateway (codex/gpt-5.6-sol-xhigh), streaming"
+    fallback: "no"
+    model_reason: >-
+      PLAN-002 section 17 requires an OpenAI reviewer once the rework author is
+      Anthropic. The Codex CLI is unavailable, so the approved model was reached
+      as a chat API through OmniRoute; the reviewer had no filesystem or tool
+      access and judged an inline package supplied by the orchestrator.
+    reviewer_model: "Moshe human approval"
+    cross_provider_review: "yes - Anthropic-authored rework reviewed by OpenAI"
+    status: DONE
+    verdict: "NEEDS_REWORK - 1 new CRITICAL, 8 new MAJOR, deferral rationale rejected"
+    key_findings: >-
+      NEW CRITICAL - parse_run_id is used unvalidated to build both final_run and
+      staging_run (builder.py:374-375), so an absolute value discards the
+      runs_root prefix entirely and a relative '../' value traverses out.
+      Independently reproduced by the orchestrator: mkdir succeeded outside
+      runs_root and cli.py passes the raw argument straight through with no
+      validation. Both Anthropic reviewers missed this - they verified the
+      SOURCE path and never questioned the DESTINATION path.
+      NEW MAJOR - annotation content_hash is never recomputed
+      (annotation_source.py has no reference to it at all), so a tampered
+      annotation with a stale hash is accepted, and the annotation artifact
+      ID/hash is not bound into parse outputs as D-013 requires. AC-13 broken.
+      NEW MAJOR - resolve() runs before the reparse-point walk, so an in-root
+      junction whose target stays in-root is accepted, and a runs_root that is
+      itself a junction is never checked. C-1 code therefore only
+      PARTIALLY_CLOSED and AC-17 still not fully met.
+      Further new majors - copied inventory is not rehashed after copying;
+      annotation may bind to a style_reference image instead of the floorplan
+      because kind is not checked; additional preflight inputs still raise out of
+      parse_run(); unsupported DXF findings can be discarded by an earlier
+      cardinality failure; the DXF overlay uses a fixed r=20 source-unit radius
+      that is unusable for metre-unit DXFs; JPEG EXIF is embedded verbatim into
+      the overlay; the overlay is written non-exclusively and can follow a
+      staging symlink.
+      CONFIRMED CLOSED - C-1 spatial (duplicate openings), code M-2, M-3, M-4,
+      M-5, M-7, spatial M-3, M-5.
+      CANNOT_VERIFY - code M-8 and M-9: the two test files that would prove them
+      were not included in the review package. An orchestrator packaging gap, not
+      an implementation defect.
+    deferral_rejected: >-
+      The reviewer accepted the 2.5-degree / 0.1-percent arithmetic for a 0.9 m
+      opening but rejected the general conclusion. For a 0.05 m opening the same
+      0.04 m perpendicular budget gives a projected span of 0.03 m - a 66.7
+      percent excess - and a 0.04 m perpendicular span centred on the wall
+      projects to zero while still passing both endpoint checks. The reviewer
+      also constructed a 0.9 m case where raw-versus-projected width flips
+      PARSE_OPENING_WIDTH_EXCEEDS_WALL. Because width feeds canonical geometry
+      and stable IDs, the reviewer judges this a PLAN-002 section 20 retained
+      Geometry/Contract gate requiring Moshe's explicit approval, not an
+      implementer decision.
+    evidence: evidence/PLAN-002/reviews/independent-openai-rework-review-20260810.md
+
 blockers:
   - id: BLOCK-0001
     summary: "Private non-sensitive DWG required for real intake smoke"
@@ -296,6 +579,28 @@ open_decisions:
   - D-011 style_spec reference cardinality
 
 recent_runs:
+  - id: PLAN-002-REWORK-VERIFY-20260810
+    kind: orchestrator independent verification of the rework against both Opus 5 reviews
+    result: >-
+      291 tests pass (baseline 261), 0 failures/errors/skipped, exit 0, inherited
+      PYTHONPATH cleared; git diff --check clean; pyproject.toml and uv.lock
+      unchanged; no tracked deletions. Both CRITICAL findings independently
+      re-verified as closed: the containment proof-of-concept that previously
+      read a file outside runs_root is now rejected for absolute and relative
+      paths alike, and opening duplicate detection is present and keyed on the
+      canonical identity tuple. No path or OS-user-name leak remains in
+      regenerated evidence. One sub-clause deferred with quantified reasoning.
+    evidence: evidence/PLAN-002/reviews/rework-report-20260810.md
+  - id: PLAN-002-ORCH-VERIFY-20260810
+    kind: orchestrator independent re-verification of uncommitted PLAN-002 implementation
+    result: >-
+      261 tests pass (0 failures/errors/skipped, exit 0) with inherited
+      PYTHONPATH cleared, using the root .venv Python 3.11 from the worktree;
+      git diff --check clean; git diff -- pyproject.toml uv.lock empty. Also
+      recorded: implementer model deviation (gpt-5.4 via headroom instead of the
+      approved OpenAI Codex/gpt-5.6-sol tier). Two Anthropic Opus 5 independent
+      reviews dispatched.
+    evidence: PROJECT-STATE.yaml agents.plan-002-implementer.fallback
   - id: PLAN-001-CLOSEOUT-20260809
     kind: independent-review closure and local merge verification
     result: "Anthropic review closed; 122 tests pass; 17/17 fixture roundtrip; validator 0 errors/warnings; M-1..M-4 closed"
@@ -346,8 +651,93 @@ evidence:
     - evidence/SESSION-001/agent-reports/plan-reviewer.md
 
 next_actions:
-  - route_PLAN_002_TDD_implementation_to_OpenAI_Codex_HIGH
-  - retain_layer_A_overlay_visual_geometry_gate_for_Moshe_before_G1_acceptance
+  # Ordered roadmap agreed with Moshe on 2026-08-10. He chose option (C):
+  # finish the outstanding fixes BEFORE running any real floorplan through the
+  # pipeline, on the reasoning that there is no value in exercising a real plan
+  # against code we already know has a hole in it. Do not reorder these without
+  # asking him.
+  - id: NA-1
+    action: second_rework_on_gate_conditions_GC1_to_GC5
+    detail: >-
+      Five bounded code fixes from the OpenAI cross-provider review, listed in
+      full under current_plan.open_gate_conditions. None of them touch a
+      contract, so no new PLAN is required.
+    blocked_by: null
+    status: READY
+  - id: NA-2
+    action: decide_GC6_opening_fit_semantics
+    detail: >-
+      Choose between (a) computing opening width from the span projected onto
+      the matched wall after wall resolution, or (b) an explicit
+      projection-ratio plus minimum-span invariant. Width feeds canonical
+      geometry and stable entity IDs, so PLAN-002 section 20 makes this a
+      retained Geometry/Contract gate.
+    blocked_by: "Moshe's explicit decision - must not be decided by an agent"
+    status: AWAITING_MOSHE
+  - id: NA-3
+    action: repackage_and_rerun_cross_provider_review
+    detail: >-
+      Re-review after NA-1/NA-2. The previous package omitted
+      tests/unit/test_contract_versions.py and
+      tests/integration/test_plan002_failure_matrix.py, which left code findings
+      M-8 and M-9 as CANNOT_VERIFY. That was an orchestrator packaging error,
+      not an implementation defect - include both files next time.
+    blocked_by: NA-1, NA-2
+    status: BLOCKED
+  - id: NA-4
+    action: layer_A_overlay_visual_geometry_gate
+    detail: >-
+      Present the first implementation-generated Layer A source-aligned overlay
+      to Moshe. Until he approves it, it is not G1 evidence and must not be
+      handed to PLAN-003 (PLAN-002 section 20).
+    blocked_by: NA-3
+    status: BLOCKED
+  - id: NA-5
+    action: annotate_the_downloaded_public_domain_floorplan
+    detail: >-
+      Only after the above. Hand-author a floorplan_annotation 1.0.0 document for
+      samples/Sample_Floorplan.jpg (see samples/README.md) and run it end to end
+      as a realistic smoke test. Part 1 has no OCR and no learned raster parser,
+      so a raster plan cannot be parsed without this manual annotation step -
+      that is by design, not a defect. A smoke test only: with no labelled
+      ground truth it is not accuracy evidence (PLAN-002 section 13).
+    blocked_by: NA-4
+    status: BLOCKED
+
+pending_inputs:
+  - id: sample-floorplan-pd
+    path: samples/Sample_Floorplan.jpg
+    provenance: samples/README.md
+    source: "Wikimedia Commons, File:Sample_Floorplan.jpg, author Boereck"
+    license: "public domain - no attribution or share-alike obligation; adds nothing to open D-010 risk"
+    sha256: "917A5753FECEB65F8401381894BFB0809BD43194879002D2AA2ACB74EE80DF08"
+    downloaded_at: "2026-08-10"
+    downloaded_because: "Moshe asked for a real floorplan for future agents to work on"
+    status: NOT_YET_A_PROJECT_FIXTURE
+    note: >-
+      Deliberately downloaded from Wikimedia Commons rather than a general web
+      search, because arbitrary web images are copyrighted and D-010 (full
+      licence matrix before commercial use) is still open. Adopting this file as
+      a project fixture is a PLAN decision; an agent must not promote it on its
+      own. It is a raster with 7 EXIF tags, so the open OpenAI finding about the
+      raster overlay embedding source bytes verbatim applies to it directly.
+
+review_finding_dispositions:
+  - id: M-12
+    summary: >-
+      The approved post-approval spatial brief
+      (evidence/PLAN-002/design/post-approval-spatial-brief-2026-08-09.md) was
+      rewritten in place during implementation (906 insertions, 309 deletions)
+      instead of being amended as an append-only record.
+    decision: ACCEPTED_AS_IS
+    decided_by: Moshe
+    decided_at: "2026-08-10"
+    rationale: >-
+      Moshe reviewed the finding and directed that the current brief content be
+      retained rather than reverted to the 2026-08-09 version. The original text
+      remains recoverable from git history on branch
+      panoworld-dev/t_b7ade39e-p1-02-floorplan-parsing, so the record is not
+      lost. No rework action is required for this finding.
 
 human_gates:
   plan_000_approval: "approved 2026-08-05 (Moshe; internal reviews accepted as documented one-time exception, D-009 remains open)"

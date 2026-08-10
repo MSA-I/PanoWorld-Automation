@@ -1,0 +1,20 @@
+{
+  "f-hash-manifest": {
+    "path": ".tmp\\plan002-evidence-RUN-20260809-173417-586650\\f-hash-manifest\\runs\\RUN-20260809-f-hash-manifest-source\\project\\project_manifest.json",
+    "before_sha256": "sha256:de30f25f3cded03994ee0f323331949c384d7f25e4271f02895bf00ca734a23d",
+    "after_sha256": "sha256:00a12ffaf383871438c85e81cdb114063878392cfff9b739875d6ed1c9cc6e1f",
+    "declared_hash": "sha256:0ad4a58e591912570c23499fa4be4549fe8e2018a15df3236bdbbb3c68e5a502"
+  },
+  "f-hash-quality": {
+    "path": ".tmp\\plan002-evidence-RUN-20260809-173417-586650\\f-hash-quality\\runs\\RUN-20260809-f-hash-quality-source\\project\\input_quality_report.json",
+    "before_sha256": "sha256:571da3c7c9532ebba2184fe6b25030c556e70a234128e4c09b17fa605029fa47",
+    "after_sha256": "sha256:04550442fc3154d66dc7058cc37be146ff079d20552f1cd16cda00120ac1d1e2",
+    "declared_hash": "sha256:eca4f7508c2e0e2e7a78a855974237519ad08a23ca172ccb2680a29b24deb474"
+  },
+  "f-hash-inventory": {
+    "path": ".tmp\\plan002-evidence-RUN-20260809-173417-586650\\f-hash-inventory\\runs\\RUN-20260809-f-hash-inventory-source\\project\\inputs\\originals\\floorplan.png",
+    "before_sha256": "sha256:c4cb495c1b7a9a16b0b40cc44c7c113356d1ff2dd38ef4d513be0ed003b91004",
+    "after_sha256": "sha256:59e920b31dbbff9fe4662aa0712836cd75b57cae3350cbd95fa8194af05d55a3",
+    "declared_hash": "sha256:c4cb495c1b7a9a16b0b40cc44c7c113356d1ff2dd38ef4d513be0ed003b91004"
+  }
+}

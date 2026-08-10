@@ -1,4 +1,4 @@
-"""Contract tests for the 13 artifact schemas + envelope (PLAN-000 T5/T9, AC4)."""
+"""Contract tests for the artifact schemas + envelope (PLAN-000 T5/T9, AC4)."""
 from __future__ import annotations
 
 import json
@@ -17,10 +17,10 @@ EXAMPLES = json.loads(
 ARTIFACT_IDS = sorted(EXAMPLES)
 
 
-def test_all_13_artifact_schemas_present():
+def test_all_artifact_schemas_present():
     schemas = load_all_schemas()
     assert sorted(set(schemas) - {"envelope"}) == ARTIFACT_IDS
-    assert len(ARTIFACT_IDS) == 13
+    assert len(ARTIFACT_IDS) == 14
 
 
 def test_every_schema_file_is_valid_draft_2020_12():

@@ -11,6 +11,14 @@
 *.py text eol=lf
 *.toml text eol=lf
 *.lock text eol=lf
+# PLAN-002: overlay SVGs are byte-deterministic LF-only artifacts bound by
+# SHA-256 (PLAN-002 section 10, AC-14). Without this rule `* text=auto` rewrites
+# them to CRLF on Windows checkout and every overlay hash breaks on a fresh
+# clone. .dxf and .xml are fixture/evidence text held to the same LF policy.
+*.svg text eol=lf
+*.dxf text eol=lf
+*.xml text eol=lf
+*.log text eol=lf
 NOTICE text eol=lf
 LICENSE-* text eol=lf
 *.png binary

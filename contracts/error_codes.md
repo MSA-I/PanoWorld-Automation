@@ -41,3 +41,27 @@ cases (test-architect §3, as amended by plan-reviewer M-4 and missed-risk 1).
 | `PANO_NAME_COLLISION` | error (config mode) | Configured `pano_image_name` collides with an existing input file (inference writes outputs back into viewpoint dirs) | — |
 | `VIEWPOINT_BUDGET_EXCEEDED` | error (config mode) | A map's total traversal node count exceeds `max_views` (mirrors verified `viewpoint_max_view`, default 8) | — |
 | `VRAM_BUDGET_WARNING` | warn | Width ≥ 2048 with ≥ 12 total traversal nodes — the local guide's memory table says 12 views @ 2048 OOMs an H200. Warn-only: the table is not primary-source-verified (reviewer missed-risk 3) | — |
+## Floorplan parser ג€” append-only `PARSE_*` vocabulary (PLAN-002)
+
+| Code | Severity | Meaning |
+|---|---|---|
+| `PARSE_SOURCE_UNSUPPORTED` | error | Input is not accepted by any PLAN-002 adapter or annotation contract validation failed before parse. |
+| `PARSE_SOURCE_HASH_MISMATCH` | error | Verified source bytes do not match the recorded immutable hash. |
+| `PARSE_UNITS_MISMATCH` | error | DXF `$INSUNITS` is unsupported or contradicts the source manifest units. |
+| `PARSE_UNSUPPORTED_FEATURE` | error | The DXF uses semantics outside the approved narrow `PWA-*` convention. |
+| `PARSE_SCALE_UNKNOWN` | error | Source scale is missing or contradictory after a complete/blocker-free preflight. |
+| `PARSE_EMPTY_GEOMETRY` | error | The parse path yielded no usable walls or rooms after the required stage. |
+| `PARSE_OPEN_POLYGON` | error | A room polygon is open or too short after canonical closing rules. |
+| `PARSE_SELF_INTERSECTING_POLYGON` | error | A room polygon is zero-area, repeated-vertex, or self-crossing. |
+| `PARSE_DEGENERATE_WALL` | error | A wall is shorter than the minimum allowed metric length. |
+| `PARSE_DUPLICATE_ENTITY` | error | Canonical geometry collided within one run; no suffix or merge is allowed. |
+| `PARSE_UNKNOWN_WALL_REF` | error | An opening references or resolves to no wall. |
+| `PARSE_AMBIGUOUS_WALL_REF` | error | An opening resolves to more than one wall candidate. |
+| `PARSE_OPENING_OFF_WALL` | error | An opening contradicts its declared wall or lies outside the allowed offset. |
+| `PARSE_OPENING_WIDTH_EXCEEDS_WALL` | error | Opening span does not fit within its wall under the approved slack rule. |
+| `PARSE_DIMENSION_INCONSISTENT` | error | Declared dimension differs from measured geometry beyond tolerance. |
+| `PARSE_RESOURCE_LIMIT` | error | A configured byte/count/pixel/overlay/resource bound was exceeded. |
+| `PARSE_TIMEOUT` | error | DXF parsing exceeded the bounded timeout. |
+| `PARSE_LOW_CONFIDENCE` | warn | At least one normalized entity fell below the low-confidence threshold. |
+| `PARSE_UNMAPPED_SOURCE_ENTITY` | warn | A source entity was recorded and ignored because its layer was unmapped. |
+| `PARSE_ROOM_BOUNDARY_UNMATCHED` | warn | Two room boundaries properly cross; Part 1 flags it but stays fail-open under warning semantics. |

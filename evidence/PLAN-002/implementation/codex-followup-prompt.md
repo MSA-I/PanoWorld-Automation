@@ -1,0 +1,14 @@
+Continue PLAN-002 implementation. Your first pass is green but NOT yet review-ready against the approved brief. Perform a requirements-to-code/test audit against evidence/PLAN-002/design/post-approval-spatial-brief-2026-08-09.md and close every Part 1 gap with strict TDD.
+
+Known gaps that MUST be addressed, not merely documented:
+1. The integration failure matrix currently covers only 2 failure cases; implement and test the full bounded failure/edge matrix required by the approved brief (including unsupported inputs, malformed/adversarial DXF, missing/unknown scale, resource limits, topology/geometry invariants, staging/finalization semantics, and deterministic reruns).
+2. DxfSource currently calls extract_dxf in-process. Implement the brief's bounded subprocess worker boundary with timeout/output/entity/size limits and deterministic error mapping. limits in parse-report must contain the actual configured/effective limits, not {}.
+3. parse_run currently catches Exception and silently returns CLI 2 while leaving staging; implement the exact operational-failure/staging cleanup or retention semantics from the brief and test them.
+4. Validate all path containment/source hash/dimension/scale bindings and artifact lineage requirements from the brief. Do not trust annotation source_image_ref blindly. Test traversal and hash mismatch.
+5. Ensure schema bundle versioning/exact-version behavior and all emitted artifacts match the approved contracts without breaking v1.0.0 historical examples.
+6. Expand tests beyond happy-path/minimal checks. Every named code and boundary condition in the approved requirement matrix must have executable coverage, not prose-only evidence.
+7. Rebuild evidence/PLAN-002/failures/parse-failure-matrix.json from actual executions and regenerate fresh full-suite JUnit/coverage/summary. Verify git diff --check.
+8. Actual runtime metadata IS available in local Codex session `019fe716-d621-7881-b2b9-f23978c760c0` (<home>/.codex/sessions/2026/08/09/rollout-2026-08-09T18-14-21-019fe716-d621-7881-b2b9-f23978c760c0.jsonl) [redacted absolute path/user name -- M-10, code review 2026-08-10]: session_meta reports model_provider=headroom on line 1, and turn_context payload.model=gpt-5.4 on line 6. Record ACTUAL_MODEL_ID=gpt-5.4 with this source, clearly distinguishing requested model/provider from runtime model/provider.
+9. Do not change the already-approved design brief. Treat its existing worktree modification as pre-existing user work.
+
+Local-only. No network, cloud, GPU, H200, G7, or G8. Do not add dependencies. Use the repository .venv Python 3.11. Do not stop until the complete approved Part 1 acceptance matrix is implemented, tested, and evidence is regenerated. If a requirement cannot be completed, identify it precisely in the final message; do not claim end-to-end completion.
