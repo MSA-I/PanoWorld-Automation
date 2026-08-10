@@ -33,8 +33,10 @@ class AnnotationSource:
         *,
         source_root: Path | None = None,
         source_inventory: dict[str, dict] | None = None,
+        document: dict | None = None,
     ) -> RawGeometry:
-        document = json.loads(Path(path).read_text(encoding="utf-8"))
+        if document is None:
+            document = json.loads(Path(path).read_text(encoding="utf-8"))
         errors = validate_artifact(document)
         if errors:
             raise ValueError(errors[0].message)

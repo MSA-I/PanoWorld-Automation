@@ -266,7 +266,7 @@ def test_operational_fixture_matrix(tmp_path, monkeypatch, fixture: str):
     assert diagnostic is not None
     assert diagnostic["cli_exit"] == 2
     assert diagnostic["overlay"] == {"overlay_omitted_reason": "no_normalized_geometry"}
-    if fixture == "f-worker-garbage":
+    if fixture in {"f-worker-garbage", "f-hash-inventory"}:
         assert result.staging_run.is_dir()
         assert not result.final_run.exists()
         assert (result.staging_run / "parse" / "parse-report.json").is_file()
@@ -707,7 +707,8 @@ def test_warning_fixture_matrix(tmp_path, fixture: str):
     if fixture == "f-hostile-label":
         overlay_text = overlay_path.read_text(encoding="utf-8")
         assert "<script" not in overlay_text.lower()
-        assert "&lt;script&gt;" in overlay_text
+        assert "&lt;script&gt;" not in overlay_text
+        assert "unknown-layer-0001" in overlay_text
 
 
 def _hash_tree(root: Path) -> dict[str, str]:

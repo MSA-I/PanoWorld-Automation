@@ -7,10 +7,15 @@
 # this file. There is no other one.
 #
 # READ THIS BEFORE ACTING: the merge PRESERVED the work, it did not ACCEPT it.
-# PLAN-002 is `SECOND_REWORK_REVIEWED_NEEDS_THIRD_REWORK`. Seven bounded fixes
-# GC3-1..GC3-7 are open, one of them a CRITICAL arbitrary-write escape that the
-# orchestrator reproduced. Nothing here is G1 evidence. Do not build on the
-# floorplan parser's output as if it were accepted.
+# PLAN-002 is `THIRD_REWORK_DONE_PENDING_CROSS_PROVIDER_REVIEW`. The seven
+# bounded fixes GC3-1..GC3-7 -- including the CRITICAL arbitrary-write escape --
+# were implemented on 2026-08-10 and independently verified by the orchestrator
+# with proofs-of-concept, and one regression the rework itself introduced
+# (GC3-11) was found, dispatched back and closed. That is still NOT acceptance:
+# the fourth independent cross-provider review (NA-3d) has not run, GC3-8/GC3-9
+# wording and GC3-10's visual gate remain Moshe's, and nothing here is G1
+# evidence. Do not build on the floorplan parser's output as if it were accepted.
+# The work lives on branch `panoworld-dev/na-3b-gc3-fixes`, not on main.
 # =============================================================================
 
 state_authority:
@@ -27,10 +32,10 @@ state_authority:
 project:
   id: panoworld-automation
   phase: implementation
-  overall_status: PLAN_002_NA3_CROSS_PROVIDER_REVIEW_DONE_NEEDS_THIRD_REWORK
+  overall_status: PLAN_002_NA3B_THIRD_REWORK_DONE_PENDING_ANTHROPIC_REVIEW
   implementation_started: true
   updated_at: "2026-08-10"
-  updated_by_session: PLAN-002-NA3-CROSS-PROVIDER-RE-REVIEW
+  updated_by_session: PLAN-002-NA3B-THIRD-REWORK
 
 model_policy:
   id: MODEL-ROUTING-v1
@@ -77,7 +82,7 @@ orchestration:
 current_plan:
   id: PLAN-002-floorplan-parsing
   title: Floorplan parsing
-  status: SECOND_REWORK_REVIEWED_NEEDS_THIRD_REWORK
+  status: THIRD_REWORK_DONE_PENDING_CROSS_PROVIDER_REVIEW
   open_gate_conditions:
     - id: GC-1
       text: "Validate and contain parse_run_id before any filesystem operation."
@@ -354,6 +359,84 @@ current_plan:
       gate: "PLAN-002 section 20 - Moshe's visual approval"
       severity: N/A
       orchestrator_verified: "n/a"
+    - id: GC3-11
+      text: >-
+        Regression introduced by the NA-3b rework itself, found by the
+        orchestrator, not by any reviewer. GC3-7's narrowing of
+        `except Exception` to
+        `except (OSError, ValueError, UnicodeDecodeError, JSONDecodeError)`
+        stopped catching PIL.Image.DecompressionBombError, which derives directly
+        from Exception. It is raised by Image.open() above roughly 178 Mpixels,
+        and both raster opens (AnnotationSource.extract and _source_binding) run
+        BEFORE render_overlay()'s MAX_SOURCE_PIXELS check, so the pixel cap
+        cannot fire first. The exception therefore escaped parse_run() - the
+        exact API-contract break GC3-7 exists to prevent, reintroduced through a
+        different exception class.
+      kind: bounded_code_fix
+      severity: MAJOR
+      orchestrator_verified: >-
+        REPRODUCED with a proof-of-concept against the real parse_run() (real
+        annotation source, Image.MAX_IMAGE_PIXELS lowered so a small fixture hits
+        the production condition): before the rework cli_exit 2, after the rework
+        the exception escaped, after the follow-up fix cli_exit 2 again. See
+        evidence/PLAN-002/reviews/orchestrator-verification-na3b-20260810.md.
+      implementation_status: IMPLEMENTED
+      implemented_note: >-
+        Dispatched back to the same OpenAI implementer as a bounded follow-up
+        rather than fixed by the orchestrator, because PLAN-002 section 17 keeps
+        the implementer OpenAI. Both Pillow size-guard classes are now named, and
+        the audit it was asked for also added input-driven RecursionError and
+        integer-string-conversion ValueError handling for JSON decoding plus a
+        decoded-top-level-must-be-an-object check. Four parametrised regression
+        tests, 8 cases. No bare `except Exception` was reintroduced and
+        test_programming_error_is_not_hidden_as_operational_cli2 still passes, so
+        RuntimeError/TypeError/AttributeError still propagate.
+  round3_bounded_fix_resolution:
+    implemented_at: "2026-08-10"
+    implemented_by: plan-002-rework3-implementer
+    branch: panoworld-dev/na-3b-gc3-fixes
+    dispatch_brief: evidence/PLAN-002/reviews/na3b-rework3-dispatch-20260810.md
+    implementer_report: evidence/PLAN-002/reviews/rework3-report-20260810.md
+    orchestrator_verification: evidence/PLAN-002/reviews/orchestrator-verification-na3b-20260810.md
+    suite: "338 passed, exit 0 (baseline 316; 330 after round 1, 338 after the GC3-11 follow-up)"
+    golden_projection_hash: "unchanged - sha256:e5041ddcf05eb02da0a07176d483ee4eaef311bf885204078710f07fe3b7e77e"
+    per_gate_verification:
+      GC3-1: "CLOSED - orchestrator PoC: pre-fix 5 files written outside runs_root through a .staging junction and left there; after, 0 files outside, cli_exit 2, nothing created"
+      GC3-2: "CLOSED - orchestrator PoC: pre-fix all three declared inventory paths absent from a run reporting complete; after, all three present with matching SHA-256"
+      GC3-3: "CLOSED by inspection plus 3 implementer tests that fail pre-fix; not separately reproduced (needs an interleaving harness)"
+      GC3-4: "CLOSED by inspection plus 5 implementer tests that fail pre-fix"
+      GC3-5: "CLOSED - orchestrator PoC at the worker's own entry point: pre-fix 50 entities scanned against a cap of 20 with no error; after, fatal_error_code PARSE_RESOURCE_LIMIT"
+      GC3-6: "CLOSED - orchestrator PoC: pre-fix a private layer name appeared in parse-report.json, floorplan_parse.json AND overlay.svg; after, 0 occurrences, opaque tokens only"
+      GC3-7: "CLOSED - orchestrator PoC with .staging occupied by a regular file: pre-fix FileExistsError escaped parse_run(); after, cli_exit 2. Both implementer tests for this one pass pre-fix too, so the evidence is the PoC and the diff, not those tests"
+    non_vacuity: "13 of the 15 tests added in round 1 fail against a reconstructed pre-fix tree; the 2 that pass are both GC3-7's and are called out above"
+    disclosures_for_the_reviewer:
+      - >-
+        The pre-staging inventory hash check was REMOVED and its test replaced
+        (was ..._fails_preflight_without_staging, now ..._fails_snapshot_before_parsing).
+        A source-inventory hash mismatch is still CLI 2 with no final run and the
+        hash is still verified before any parsing, so Moshe's approved section 20
+        semantics hold - but staging is now created and partially populated before
+        the mismatch is detected. The orchestrator judges this required rather
+        than optional, because the removed check was a second read of the same
+        file and that is exactly the TOCTOU GC3-3 exists to eliminate. Flagged
+        because a test rewritten to match new behaviour can be a correction or a
+        weakening, and that call belongs to the independent reviewer.
+      - >-
+        The f-hostile-label failure-matrix row no longer asserts that
+        "&lt;script&gt;" appears in the overlay; it now asserts the hostile name
+        is absent and an opaque token is present. Stronger privacy property, but
+        it retires the one test that exercised XML escaping. Escaping itself is
+        untouched in overlay.py.
+      - >-
+        The GC3-5 implementer test reaches its CLI-3 assertion through an
+        in-process DxfSource.extract substitute, so the cumulative trigger and
+        the subprocess fatal_error_code mapping are proven separately rather than
+        in one end-to-end run. The orchestrator PoC covers the worker half.
+      - >-
+        Three zero-byte junk files were created in the repository root by broken
+        shell quoting - `1` and `CLI` by the follow-up run, `-,+` by an
+        orchestrator verification command - and all three were deleted before
+        committing, with git status confirmed clean of them.
   status_note: >-
     Implementation is COMMITTED on this branch (HEAD ad4830c at the start of the
     NA-3 session) and is NOT merged into main. Merging still requires Moshe's
@@ -372,6 +455,30 @@ current_plan:
     open_gate_conditions_round3 GC3-1..GC3-10, of which GC3-8 and GC3-9 are
     retained human gates for Moshe. AC-4, AC-13, AC-14, AC-15, AC-17, AC-18 and
     AC-20 are assessed NOT MET and AC-23 WEAK by this round. No G1 claim.
+    UPDATE 2026-08-10, NA-3b: the seven bounded fixes are now implemented on
+    branch panoworld-dev/na-3b-gc3-fixes and independently verified by the
+    orchestrator (see round3_bounded_fix_resolution above), and the regression the
+    rework itself introduced (GC3-11) was found, dispatched back and closed. The
+    ACs the NA-3 reviewer marked NOT MET are the ones these fixes target, but
+    re-assessing them is the NA-3d reviewer's job, not the orchestrator's, and no
+    AC verdict is changed here. Still no G1 claim, still not merged to main.
+
+    UPDATE 2026-08-10, NA-3d: the fourth independent review ran and returned
+    NEEDS_REWORK, so NA-3b is NOT accepted. Six of the eight gates are closed on
+    the evidence; GC3-2 and GC3-3 are PARTIALLY_CLOSED, in both cases because the
+    gate's literal text was satisfied while the invariant it exists to protect was
+    not. Three MAJOR findings define the fourth bounded rework, now queued as NA-3e
+    and awaiting Moshe's go: a post-rename verification failure publishes a run
+    that self-reports "complete" while returning CLI 2 (confirmed by an executed
+    probe); the annotation raster is still read three times with the hash-checked
+    read separate from the embedded read; and a Windows drive-relative path
+    component defeats the write-side containment walk, which is the GC-1 CRITICAL
+    defect class surviving inside the helpers GC3-1 created, latent today only
+    because of a call ordering no test asserts. AC-17 and AC-18 rise to MET; AC-4
+    stays NOT MET for a new reason; AC-15 does not match the accepted GC3-9
+    deviation and should be reconciled by amending the AC or recording a deviation,
+    not by code. Still no G1 claim, still not merged to main, and NA-4's visual gate
+    stays blocked behind NA-3e.
   owner: spatial-architect
   path: docs/plans/PLAN-002-floorplan-parsing.md
   branch: panoworld-dev/t_b7ade39e-p1-02-floorplan-parsing
@@ -891,6 +998,99 @@ agents:
     evidence: evidence/PLAN-002/reviews/independent-openai-rework2-review-20260810.md
     orchestrator_verification: evidence/PLAN-002/reviews/orchestrator-verification-na3-20260810.md
     dispatch_brief: evidence/PLAN-002/reviews/openai-rework2-review-dispatch-20260810.md
+  - name: rework3-implementer
+    role: PLAN-002 third bounded rework implementer (GC3-1..GC3-7, then GC3-11)
+    plan_id: PLAN-002
+    task_id: NA-3b
+    provider: openai
+    requested_model: "gpt-5.6-sol"
+    actual_model_id: "gpt-5.6-sol"
+    normalized_effort: EXTRA
+    provider_effort: "xhigh"
+    fallback: "no - the Codex CLI was tried first this time and worked; no Anthropic fallback was used"
+    model_reason: "PLAN-002 section 17 row 3 staffs code implementation to the OpenAI Codex implementer"
+    runtime_metadata: >-
+      Read from the Codex session rollout header, not from model self-description,
+      as section 17 requires. OpenAI Codex v0.144.6; model gpt-5.6-sol; provider
+      config "headroom"; approval never; sandbox workspace-write; reasoning effort
+      xhigh. Round 1 session 019fec7e-142a-7702-ad8d-b17a575fa149; GC3-11
+      follow-up session 019feca9-9c9f-7c61-a818-6de4c53ee1fc.
+    reviewer_model: "Anthropic - required by section 17 row 3 (OpenAI implementer, then Anthropic reviewer); see NA-3d"
+    cross_provider_review: "required and NOT yet done - NA-3d"
+    status: DONE
+    verdict: >-
+      All seven gate conditions closed; 338 passed, exit 0 (baseline 316); golden
+      canonical projection hash unchanged. One regression introduced by the rework
+      itself (GC3-11, DecompressionBombError escaping parse_run()) was found by the
+      orchestrator, dispatched back to this same implementer and closed. The
+      implementer stayed inside every boundary: no contract, schema, error-code or
+      dependency change, pyproject.toml and uv.lock byte-identical, GC3-8/9/10
+      untouched, and it did not commit.
+    dispatch_brief: evidence/PLAN-002/reviews/na3b-rework3-dispatch-20260810.md
+    evidence: evidence/PLAN-002/reviews/rework3-report-20260810.md
+    orchestrator_verification: evidence/PLAN-002/reviews/orchestrator-verification-na3b-20260810.md
+  - name: na3d-reviewer-pass1
+    role: PLAN-002 fourth independent review, first pass (code/spatial, read-only)
+    plan_id: PLAN-002
+    task_id: NA-3d
+    provider: anthropic
+    requested_model: "opus / claude-opus-5"
+    actual_model_id: "claude-sonnet-5"
+    normalized_effort: "not exposed by the CLI as a parameter separate from the model tag"
+    provider_effort: "n/a"
+    fallback: >-
+      yes - DOCUMENTED SUBSTITUTION, not silent. The Opus 5 route was attempted
+      first and returned HTTP 429 (rate limit, reset after 59m 54s) with zero
+      tokens and no review. Sonnet 5 ran so the round could proceed, and the Opus
+      pass was queued for after the window; it ran and is recorded separately as
+      na3d-reviewer-pass2.
+    model_reason: "PLAN-002 section 17 row 3 staffs review of an OpenAI implementer to an Anthropic reviewer"
+    runtime_metadata: >-
+      From the harness, not from model self-description. claude CLI 2.1.226,
+      headless (-p), --strict-mcp-config, read-only tool allowlist. Session
+      be8ca90e-f567-4832-a000-94e30ca271de; 70 turns; 24.9 min; tokens in/out
+      864,601 / 122,725; USD 11.25; 7 permission denials.
+    status: DONE
+    verdict: >-
+      ACCEPT with 2 MINOR and 2 INFO findings; GC3-3 judged PARTIALLY_CLOSED.
+      SUPERSEDED ON EVIDENCE by pass 2, and the reason is an orchestrator error
+      recorded in the archived header: the read-only allowlist was written as
+      Bash(git diff:*), which matches neither "git --no-pager diff" nor a
+      "cd ... && git diff" compound, so all 7 of this reviewer's diff attempts
+      were denied. It judged the current code, never the change set, and did not
+      read src/pwa/files.py, the failure-matrix test or the two unit test files.
+    evidence: evidence/PLAN-002/reviews/independent-anthropic-rework3-review-20260810.md
+  - name: na3d-reviewer-pass2
+    role: PLAN-002 fourth independent review, queued Opus pass with diff access (read-only)
+    plan_id: PLAN-002
+    task_id: NA-3d
+    provider: anthropic
+    requested_model: "opus / claude-opus-5"
+    actual_model_id: "claude-opus-5"
+    normalized_effort: "not exposed by the CLI as a parameter separate from the model tag"
+    provider_effort: "n/a"
+    fallback: "no - the requested route was honoured once the rate-limit window reopened"
+    model_reason: "PLAN-002 section 17 row 3; this is the pass that closes the diff-access gap pass 1 suffered"
+    runtime_metadata: >-
+      From the harness, not from model self-description. claude CLI headless (-p),
+      --strict-mcp-config, read-only allowlist with NO Bash tool at all, plus a
+      workspace directory added outside the repository holding the pre-materialised
+      patch (diffstat and the full src/+tests/ diff 11ef553 -> 6eaef17). Session
+      5d392e28-1a97-43ff-b3dc-8b19c6f67133; 37 turns; 19.2 min; tokens in/out
+      818,905 / 63,875; cache read/creation 1,255,235 / 602,942; USD 13.56;
+      0 permission denials.
+    status: DONE
+    verdict: >-
+      NEEDS_REWORK. 3 MAJOR, 5 MINOR, 5 INFO. GC3-1, GC3-4, GC3-5, GC3-6, GC3-7
+      and GC3-11 CLOSED; GC3-2 and GC3-3 PARTIALLY_CLOSED. AC-17 and AC-18 raised
+      to MET; AC-4 stays NOT MET for a new reason (F-1); AC-20 PARTIALLY MET;
+      AC-13/AC-14 CANNOT_VERIFY; AC-15 NOT MET as written because the accepted
+      GC3-9 deviation contradicts its second clause; AC-23 still WEAK. It
+      independently reproduced both defects the orchestrator had found by
+      experiment (its F-3 = O-NA3D-1, its F-7 = O-NA3D-2) without access to that
+      document, and its F-1 has since been confirmed by an executed probe.
+    evidence: evidence/PLAN-002/reviews/independent-anthropic-rework3-review-opus-20260810.md
+    orchestrator_verification: evidence/PLAN-002/reviews/orchestrator-verification-na3d-findings-20260810.md
 
 blockers:
   - id: BLOCK-0001
@@ -917,6 +1117,77 @@ open_decisions:
   - D-011 style_spec reference cardinality
 
 recent_runs:
+  - id: PLAN-002-NA3D-REVIEW-20260810
+    kind: NA-3d fourth independent review (Anthropic, two passes) and orchestrator verification
+    result: >-
+      VERDICT: NEEDS_REWORK. Two Anthropic passes ran and both are archived
+      unedited. Pass 1 (Sonnet 5, after Opus returned HTTP 429) said ACCEPT with 2
+      MINOR and 2 INFO. Pass 2 (Opus 5, once the window reopened, with the diff
+      pre-materialised as a readable patch and no Bash tool) said NEEDS_REWORK with
+      3 MAJOR, 5 MINOR, 5 INFO. NEEDS_REWORK governs, and not as a matter of taste:
+      an orchestrator error in pass 1's allowlist - Bash(git diff:*) matches
+      neither "git --no-pager diff" nor a "cd ... && git diff" compound - denied all
+      7 of its diff attempts, so it judged the current code and never the change
+      set, and it did not read src/pwa/files.py, the failure-matrix test or the two
+      unit test files. Pass 2 read all of them plus the full diff. THE THREE MAJORS.
+      F-1 (runs.py:221): a post-rename inventory hash drift raises after
+      os.replace has already published the run, the caller gets CLI 2, and
+      builder.py:450 skips writing the failure report because staging no longer
+      exists - CONFIRMED BY EXECUTED PROBE: cli_exit 2, staging gone, a 15-file
+      finalized run present, and its own parse-report.json reading outcome
+      "complete" / cli_exit 0. F-2 (annotation_source.py:60): the staged raster is
+      read three times and the hash-verified read is not the read whose pixels are
+      embedded in overlay.svg or recorded as source_sha256, so GC3-3's defect moved
+      from the source run into staging rather than being eliminated. F-3
+      (runs.py:14): _contained_parts accepts a Windows drive-relative component
+      such as "C:sub", and root / "C:" discards the root, while the four write-side
+      helpers lack the resolve()/relative_to check their read-side sibling has -
+      the GC-1 CRITICAL defect class surviving in the write-side family, latent
+      today only because of call ordering that no test asserts. The orchestrator had
+      independently found F-3 and F-7 by running the Windows aliasing experiment
+      pass 1 requested, with a working proof-of-concept that wrote a file outside
+      the containment root; pass 2 reproduced both from code alone, without access
+      to that document. The experiment also answered pass 1's open question in the
+      NEGATIVE: trailing dots, trailing spaces, case folding and NTFS 8.3 aliases
+      do NOT defeat the reparse check - lstat reports reparse=True with identical
+      st_ino/st_dev through every alias form, and resolve() normalizes aliases
+      before the containment test. Verifications pass 2 asked for and could not run
+      itself, all executed: 338 passed exit 0 in 60 s; the golden canonical
+      projection hash test passed; git diff --stat 6eaef17 -- src tests empty, so
+      the tree it read is the reviewed commit; pyproject.toml, uv.lock, schemas,
+      contracts and docs diffs empty. Still NOT merged, NOT pushed, NOT a G1 claim.
+    evidence: evidence/PLAN-002/reviews/orchestrator-verification-na3d-findings-20260810.md
+  - id: PLAN-002-NA3B-REWORK-20260810
+    kind: NA-3b third bounded rework (OpenAI implementer) and orchestrator verification
+    result: >-
+      338 tests pass (baseline 316), 0 failures/errors/skipped, exit 0, inherited
+      PYTHONPATH cleared. Golden canonical projection hash unchanged. Implemented
+      by OpenAI gpt-5.6-sol / xhigh through the Codex CLI in a workspace-write
+      sandbox with hooks disabled, model identity read from the session rollout.
+      The orchestrator did not accept the report: it reconstructed a pre-fix tree
+      from HEAD and ran the real parse_run() against both trees. GC3-1 - pre-fix 5
+      files written outside runs_root through a .staging junction and left there on
+      the failure path; after, 0 files outside, cli_exit 2, nothing created. GC3-2 -
+      pre-fix all three manifest-declared inventory paths absent from a run
+      reporting complete; after, all three present with matching SHA-256. GC3-5 -
+      pre-fix 50 entities scanned against a cap of 20 with fatal_error_code null;
+      after, PARSE_RESOURCE_LIMIT. GC3-6 - pre-fix the client layer name present in
+      parse-report.json, floorplan_parse.json and overlay.svg; after, 0
+      occurrences, refs read dxf:unknown-layout-0001/unknown-layer-0001#3C. GC3-7 -
+      pre-fix FileExistsError [WinError 183] escaping parse_run() when .staging is
+      a regular file; after, cli_exit 2. Non-vacuity: 13 of the 15 new round-1
+      tests fail against the pre-fix tree. THE VERIFICATION ALSO FOUND A NEW
+      REGRESSION the rework introduced (GC3-11): narrowing the GC3-7 handler let
+      PIL.Image.DecompressionBombError, which derives from Exception and not from
+      OSError, escape parse_run() at both raster open sites. Dispatched back to the
+      same implementer rather than patched by the orchestrator, so section 17's
+      provider separation stays intact, and re-verified closed (cli_exit 2,
+      operational_failure, nothing raised). Boundaries held: git diff --check exit
+      0; pyproject.toml, uv.lock, schemas, contracts and docs diffs empty; 8
+      modified source/test files; 0 absolute paths or OS account name in the new
+      evidence. NOT merged, NOT pushed, and NOT acceptance - NA-3d (Anthropic
+      reviewer) has not run.
+    evidence: evidence/PLAN-002/reviews/orchestrator-verification-na3b-20260810.md
   - id: PLAN-002-NA3-REVIEW-20260810
     kind: NA-3 cross-provider re-review and orchestrator verification
     result: >-
@@ -1099,7 +1370,28 @@ next_actions:
       available on this machine, so the OpenAI implementer route should be tried
       before any fallback is claimed again.
     blocked_by: null
-    status: READY
+    status: DONE
+    result: >-
+      Done 2026-08-10 on branch panoworld-dev/na-3b-gc3-fixes, not merged. The
+      OpenAI implementer route was tried first and worked: Codex CLI,
+      gpt-5.6-sol at xhigh, --sandbox workspace-write, hooks disabled, so no
+      fallback was needed this time. All seven closed. Suite 338 passed, exit 0
+      (baseline 316). Golden canonical projection hash unchanged. The
+      orchestrator did not accept the implementer's report: five of the seven
+      gates were re-proved by running the real parse_run() against a
+      reconstructed pre-fix tree and then against the fixed tree, and that
+      verification found ONE NEW REGRESSION the rework itself introduced -
+      narrowing the GC3-7 handler let PIL.Image.DecompressionBombError, which
+      derives from Exception and not from OSError, escape parse_run() on both
+      raster open sites. It was dispatched back to the same implementer as
+      GC3-11 and is closed. GC3-3 and GC3-4 rest on code reading plus
+      fail-if-reverted tests, not on an orchestrator proof-of-concept. Four
+      disclosures for the NA-3d reviewer are recorded under
+      current_plan.round3_bounded_fix_resolution.disclosures_for_the_reviewer.
+    evidence:
+      - evidence/PLAN-002/reviews/na3b-rework3-dispatch-20260810.md
+      - evidence/PLAN-002/reviews/rework3-report-20260810.md
+      - evidence/PLAN-002/reviews/orchestrator-verification-na3b-20260810.md
   - id: NA-3c
     action: decide_GC3_8_pdf_page_contract_and_GC3_9_evidence_redaction
     detail: >-
@@ -1123,11 +1415,79 @@ next_actions:
   - id: NA-3d
     action: fourth_cross_provider_review
     detail: >-
-      Re-review after NA-3b/NA-3c, same route as NA-3 (Codex CLI, read-only
-      sandbox, hooks disabled, model identity read from the session rollout).
-      Nothing needs packaging.
-    blocked_by: NA-3b
-    status: BLOCKED
+      Re-review after NA-3b/NA-3c. CORRECTED 2026-08-10: the reviewer for this
+      round must be ANTHROPIC, not OpenAI. The "same route as NA-3 (Codex CLI)"
+      wording written here earlier assumed an Anthropic implementer; NA-3b was
+      in fact implemented by OpenAI (Codex CLI, gpt-5.6-sol/xhigh), and PLAN-002
+      section 17 row 3 states the sequence explicitly - "OpenAI Codex
+      implementer, then Anthropic code/spatial reviewer". Reviewing OpenAI's own
+      code with OpenAI would destroy the opposite-provider property the whole
+      gate exists for. So: Anthropic reviewer with real read-only filesystem
+      access to branch panoworld-dev/na-3b-gc3-fixes, model identity read from
+      runtime metadata and recorded, no silent substitution. Nothing needs
+      packaging. The reviewer must be handed the four disclosures under
+      current_plan.round3_bounded_fix_resolution.disclosures_for_the_reviewer
+      and told that the orchestrator's own verification is evidence to be
+      challenged, not a finding to be trusted - in particular GC3-3 and GC3-4,
+      which have no orchestrator proof-of-concept behind them.
+    blocked_by: null
+    status: DONE
+    result: >-
+      Done 2026-08-10. VERDICT: NEEDS_REWORK, so NA-3b is not accepted and NA-4
+      stays blocked. Two Anthropic passes, both archived unedited: pass 1 Sonnet 5
+      (documented substitution after Opus returned HTTP 429) said ACCEPT; pass 2
+      Opus 5, run once the window reopened with the diff pre-materialised and no
+      Bash tool, said NEEDS_REWORK with 3 MAJOR, 5 MINOR, 5 INFO. Pass 2 governs
+      because pass 1 was denied all 7 of its diff attempts by an orchestrator error
+      in the allowlist and never saw the change set. Gates: GC3-1, GC3-4, GC3-5,
+      GC3-6, GC3-7, GC3-11 CLOSED; GC3-2 and GC3-3 PARTIALLY_CLOSED. The three
+      MAJORs are F-1 (a post-rename verification failure publishes a run that says
+      "complete" while the caller is told CLI 2 - confirmed by executed probe), F-2
+      (the raster is read three times and the hash-checked read is not the embedded
+      read, so GC3-3's defect moved into staging), and F-3 (a drive-relative
+      component defeats the write-side containment walk - the GC-1 CRITICAL class
+      surviving in the write-side helpers, latent only because of call ordering).
+      The orchestrator found F-3 and F-7 independently via the Windows aliasing
+      experiment pass 1 requested, with a proof-of-concept that wrote outside the
+      root; that experiment also answered the trailing-dot and 8.3-alias question
+      NEGATIVE - neither defeats the reparse check. Suite re-verified at 338 passed
+      exit 0 with the golden hash test green, and the working tree proven identical
+      to 6eaef17 for src/ and tests/.
+    evidence:
+      - evidence/PLAN-002/reviews/na3d-anthropic-review-dispatch-20260810.md
+      - evidence/PLAN-002/reviews/independent-anthropic-rework3-review-20260810.md
+      - evidence/PLAN-002/reviews/independent-anthropic-rework3-review-opus-20260810.md
+      - evidence/PLAN-002/reviews/orchestrator-verification-na3d-findings-20260810.md
+  - id: NA-3e
+    action: fourth_bounded_rework_on_the_NA3D_findings
+    detail: >-
+      AWAITING MOSHE'S GO - not dispatched. Scope, in the reviewer's own priority
+      order, all bounded code fixes with no contract, schema, error-code or
+      dependency change: (1) F-1, finalize_run must not leave a published run when
+      the post-rename inventory check fails - rename back, quarantine, or treat it
+      as a hard failure, and the report must land somewhere on disk; (2) F-2, give
+      the annotation raster a single snapshot so the hash-checked bytes are the
+      bytes whose dimensions are validated and whose pixels are embedded; (3) F-3
+      plus F-7 together, reject any path component containing ":" in
+      _contained_parts and add the resolve()/relative_to(root) check to
+      validate_contained_destination - two lines that close both the drive-relative
+      escape and the ADS channel, with a failure-matrix test per mechanism; (4)
+      F-4, route the six staged write sites through the checked helpers instead of
+      mkdir(parents=True, exist_ok=True); (5) F-5, extend the finalisation check to
+      the derived envelopes and overlay.svg, not only payload.inputs; (6) F-6, bound
+      the annotation read so MAX_ANNOTATION_BYTES limits the read it names and
+      MemoryError stops being reachable out of parse_run(); (7) F-8, check
+      source_image_ref for containment before extract() opens it rather than after.
+      Also worth taking: a direct unit test for the overlay XML escaping path that
+      disclosure 2 retired, and one end-to-end test spanning the real DXF worker
+      subprocess for GC3-5 that disclosure 3 admits is missing. Section 17 staffing
+      for this round: the implementer must be OPENAI (Codex CLI, gpt-5.6-sol) and
+      the follow-up reviewer ANTHROPIC, same as NA-3b/NA-3d. F-9 through F-13 are
+      records, not work items. F-13 is worth a cheap guard: a pre-commit check for
+      zero-byte files with non-identifier names, since that class has now recurred
+      five times in two rounds.
+    blocked_by: null
+    status: BLOCKED_ON_MOSHE
   - id: NA-4
     action: layer_A_overlay_visual_geometry_gate
     detail: >-
@@ -1136,7 +1496,7 @@ next_actions:
       handed to PLAN-003 (PLAN-002 section 20). Regenerate the Layer A artifacts
       after NA-3b first - the NA-3 reviewer listed this as its final gate
       condition (GC3-10).
-    blocked_by: NA-3d
+    blocked_by: NA-3e
     status: BLOCKED
   - id: NA-5
     action: annotate_the_downloaded_public_domain_floorplan

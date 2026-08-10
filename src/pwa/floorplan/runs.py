@@ -5,7 +5,73 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from pwa.files import copy_immutable, is_link_or_reparse
+from pwa.files import copy_immutable, is_link_or_reparse, sha256_file
+from pwa.floorplan.findings import FloorplanError
+
+
+def _contained_parts(relpath: str | Path) -> tuple[str, ...]:
+    candidate = Path(relpath)
+    invalid_component = any(part in {"", ".", ".."} for part in candidate.parts)
+    if candidate.is_absolute() or not candidate.parts or invalid_component:
+        raise ValueError("path must be a contained relative path")
+    return candidate.parts
+
+
+def validate_contained_destination(root: Path, relpath: str | Path) -> Path:
+    """Validate an output path without trusting a not-yet-existing root.
+
+    Every existing component is inspected lexically before ``resolve()`` can
+    erase a junction or symlink. Missing components are permitted because this
+    helper is used before staging is created.
+    """
+    root = Path(root)
+    if not root.exists() or not root.is_dir() or is_link_or_reparse(root):
+        raise ValueError("destination root must be an existing regular directory")
+    cursor = root
+    for part in _contained_parts(relpath):
+        cursor = cursor / part
+        if cursor.exists() or cursor.is_symlink():
+            if is_link_or_reparse(cursor):
+                raise ValueError("destination traverses a link or reparse point")
+    return cursor
+
+
+def create_contained_directory(root: Path, relpath: str | Path) -> Path:
+    """Create a destination directory one checked component at a time."""
+    root = Path(root)
+    validate_contained_destination(root, relpath)
+    parts = _contained_parts(relpath)
+    cursor = root
+    for index, part in enumerate(parts):
+        cursor = cursor / part
+        if cursor.exists() or cursor.is_symlink():
+            if is_link_or_reparse(cursor) or not cursor.is_dir():
+                raise ValueError("destination traverses a non-directory or reparse point")
+            if index == len(parts) - 1:
+                raise FileExistsError(str(cursor))
+            continue
+        cursor.mkdir()
+        if is_link_or_reparse(cursor) or not cursor.is_dir():
+            raise ValueError("created destination directory is not a regular directory")
+    return cursor
+
+
+def resolve_contained_output(root: Path, relpath: str | Path) -> Path:
+    """Return a new output leaf after checking/creating its parent chain."""
+    parts = _contained_parts(relpath)
+    if len(parts) > 1:
+        parent_relative = Path(*parts[:-1])
+        parent_path = Path(root) / parent_relative
+        if parent_path.exists() or parent_path.is_symlink():
+            validate_contained_destination(root, parent_relative)
+            if not parent_path.is_dir():
+                raise ValueError("destination parent must be a directory")
+        else:
+            create_contained_directory(root, parent_relative)
+    leaf = validate_contained_destination(root, Path(*parts))
+    if leaf.exists() or leaf.is_symlink():
+        raise FileExistsError(str(leaf))
+    return leaf
 
 
 def resolve_contained_run(runs_root: Path, candidate: Path) -> Path:
@@ -37,8 +103,8 @@ def resolve_contained_run(runs_root: Path, candidate: Path) -> Path:
         relative = candidate.relative_to(runs_root_raw)
     except ValueError as exc:
         raise ValueError("source_run must stay within runs_root") from exc
-    if not relative.parts:
-        raise ValueError("source_run must not equal runs_root")
+    if len(relative.parts) != 1 or relative.parts[0].startswith("."):
+        raise ValueError("source_run must be a direct finalized child of runs_root")
     cursor = runs_root_raw
     for part in relative.parts:
         cursor = cursor / part
@@ -52,6 +118,8 @@ def resolve_contained_run(runs_root: Path, candidate: Path) -> Path:
     # ancestor was just proven not to be a link/reparse point, so this
     # resolve() cannot substitute anything away.
     resolved = cursor.resolve(strict=True)
+    if not cursor.is_dir():
+        raise ValueError("source_run must be a directory")
     try:
         resolved.relative_to(runs_root)
     except ValueError as exc:
@@ -111,27 +179,44 @@ def resolve_contained_relpath(root: Path, relpath: str, *, must_exist: bool = Tr
 
 
 def copy_source_inventory(source_run: Path, staging_run: Path, manifest: dict) -> None:
-    staging_project = staging_run / "project"
     for item in manifest["payload"]["inputs"]:
         source_item = resolve_contained_relpath(source_run, item["path"])
-        destination_item = resolve_contained_relpath(staging_project, item["path"], must_exist=False)
+        destination_item = resolve_contained_output(staging_run, item["path"])
         copied_hash = copy_immutable(source_item, destination_item)
-        # A (OpenAI cross-provider rework review, 2026-08-10): preflight
-        # hashes the source, then this copies it -- but copy_immutable()'s
-        # own hash check only proves the destination matches what it *just*
-        # read from source, not what the manifest declared at preflight
-        # time. Reverify against the manifest-declared hash so a file that
-        # changes on disk between the preflight check and this copy is
-        # caught instead of silently finalizing with a stale hash (D-013's
-        # "reverified hashes").
+        # The source manifest is the preflight declaration. copy_immutable()
+        # proves the staged bytes match its one source read; this comparison
+        # also proves that snapshot matches the immutable declared hash.
         if copied_hash != item["sha256"]:
-            raise ValueError("source inventory item changed between preflight and copy")
+            raise FloorplanError(
+                "PARSE_SOURCE_HASH_MISMATCH",
+                "source inventory item does not match its declared hash",
+                source_ref=item["path"],
+            )
 
 
-def copy_artifact(source: Path, destination: Path) -> None:
-    copy_immutable(source, destination)
+def write_bytes_contained(root: Path, relpath: str | Path, data: bytes) -> Path:
+    destination = resolve_contained_output(root, relpath)
+    with destination.open("xb") as stream:
+        stream.write(data)
+        stream.flush()
+        os.fsync(stream.fileno())
+    return destination
 
 
-def finalize_run(staging_run: Path, final_run: Path) -> None:
-    final_run.parent.mkdir(parents=True, exist_ok=True)
+def verify_run_inventory(run_root: Path, manifest: dict) -> None:
+    for item in manifest["payload"]["inputs"]:
+        declared_path = resolve_contained_relpath(run_root, item["path"])
+        if sha256_file(declared_path) != item["sha256"]:
+            raise ValueError("finalized inventory hash mismatch")
+
+
+def finalize_run(staging_run: Path, final_run: Path, manifest: dict) -> None:
+    runs_root = final_run.parent
+    staging_relative = staging_run.relative_to(runs_root)
+    resolve_contained_relpath(runs_root, staging_relative.as_posix())
+    validate_contained_destination(runs_root, final_run.name)
+    if final_run.exists() or final_run.is_symlink():
+        raise FileExistsError(str(final_run))
+    verify_run_inventory(staging_run, manifest)
     os.replace(staging_run, final_run)
+    verify_run_inventory(final_run, manifest)

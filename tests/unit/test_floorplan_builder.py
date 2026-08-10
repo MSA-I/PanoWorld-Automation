@@ -88,6 +88,27 @@ def test_source_binding_binds_sha256_of_original_not_sanitized_bytes(tmp_path):
     assert binding["source_sha256"] != sanitized_hash
 
 
+def test_source_binding_hash_and_pixels_come_from_one_raster_read(tmp_path, monkeypatch):
+    """GC3-3: swapping the path during sanitization cannot split hash/pixels."""
+    path = tmp_path / "floorplan.png"
+    _write_png_with_text(path, color="blue")
+    original_hash = sha256_file(path)
+
+    from pwa.floorplan.builder import _sanitize_raster_bytes as real_sanitize
+
+    def sanitize_then_swap(image, media_type):
+        sanitized = real_sanitize(image, media_type)
+        _write_png_with_text(path, color="red")
+        return sanitized
+
+    monkeypatch.setattr("pwa.floorplan.builder._sanitize_raster_bytes", sanitize_then_swap)
+
+    binding = _source_binding(path, _raw_raster())
+
+    assert binding["source_sha256"] == original_hash
+    assert Image.open(io.BytesIO(binding["image_bytes"])).getpixel((0, 0)) == (0, 0, 255)
+
+
 def test_source_binding_is_byte_deterministic_across_repeated_calls(tmp_path):
     """GC-7: sanitized embedding must be byte-deterministic across repeated
     runs on the same source bytes -- Pillow's encoder settings must be
