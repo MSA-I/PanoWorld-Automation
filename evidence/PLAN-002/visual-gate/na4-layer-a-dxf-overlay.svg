@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17279.625 10484.975">
+<metadata>{"adapter":"dxf","normalization":{"quantum_m":0.0001,"scale_m_per_px":null,"source_height_px":null,"source_unit_scale_m":0.001,"source_units":"mm","translation_m":[0.7562,0.4899],"y_axis":"up"},"quantum_m":0.0001,"source_sha256":"sha256:1de4be82c41a732acae1b7ce3ed91bf405a9eeccf9a5cee877a6ad44ef70daae"}</metadata>
+<g id="source">
+<polyline points="785.438,785.487 2180.588,785.487" stroke="#94a3b8" fill="none"/>
+<polyline points="2180.588,785.487 6003.938,785.487" stroke="#94a3b8" fill="none"/>
+<polyline points="6003.938,785.487 6003.938,1499.038" stroke="#94a3b8" fill="none"/>
+<polyline points="6003.938,1499.038 11392.837,1499.038" stroke="#94a3b8" fill="none"/>
+<polyline points="11392.837,1499.038 11392.837,785.487" stroke="#94a3b8" fill="none"/>
+<polyline points="11392.837,785.487 16494.188,785.487" stroke="#94a3b8" fill="none"/>
+<polyline points="16494.188,785.487 16494.188,9699.538" stroke="#94a3b8" fill="none"/>
+<polyline points="16494.188,9699.538 785.438,9699.538" stroke="#94a3b8" fill="none"/>
+<polyline points="785.438,9699.538 785.438,785.487" stroke="#94a3b8" fill="none"/>
+<polyline points="785.438,4598.188 6302.138,4598.188" stroke="#94a3b8" fill="none"/>
+<polyline points="785.438,5450.188 3756.788,5450.188" stroke="#94a3b8" fill="none"/>
+<polyline points="3756.788,4598.188 3756.788,7569.538" stroke="#94a3b8" fill="none"/>
+<polyline points="6302.138,1499.038 6302.138,9699.538" stroke="#94a3b8" fill="none"/>
+<polyline points="6302.138,5854.887 16494.188,5854.887" stroke="#94a3b8" fill="none"/>
+<polyline points="3330.788,7569.538 6302.138,7569.538" stroke="#94a3b8" fill="none"/>
+<polyline points="3330.788,7569.538 3330.788,9699.538" stroke="#94a3b8" fill="none"/>
+<polyline points="11382.188,5854.887 11382.188,9699.538" stroke="#94a3b8" fill="none"/>
+<polygon points="785.438,785.487 6003.938,785.487 6003.938,4598.188 785.438,4598.188" fill="none" stroke="#94a3b8"/>
+<polygon points="785.438,4598.188 3756.788,4598.188 3756.788,5450.188 785.438,5450.188" fill="none" stroke="#94a3b8"/>
+<polygon points="785.438,5450.188 3756.788,5450.188 3756.788,7569.538 3330.788,7569.538 3330.788,9699.538 785.438,9699.538" fill="none" stroke="#94a3b8"/>
+<polygon points="3330.788,7569.538 6302.138,7569.538 6302.138,9699.538 3330.788,9699.538" fill="none" stroke="#94a3b8"/>
+<polygon points="6302.138,5854.887 11382.188,5854.887 11382.188,9699.538 6302.138,9699.538" fill="none" stroke="#94a3b8"/>
+<polygon points="6302.138,1499.038 11392.837,1499.038 11392.837,785.487 16494.188,785.487 16494.188,5854.887 6302.138,5854.887" fill="none" stroke="#94a3b8"/>
+<polygon points="11382.188,5854.887 16494.188,5854.887 16494.188,9699.538 11382.188,9699.538" fill="none" stroke="#94a3b8"/>
+<polyline points="6302.138,7517.238 6302.138,6727.238" stroke="#94a3b8" fill="none"/>
+<polyline points="2830.587,4598.188 3660.587,4598.188" stroke="#94a3b8" fill="none"/>
+<polyline points="11830.938,785.487 12530.938,785.487" stroke="#94a3b8" fill="none"/>
+<polyline points="13087.638,785.487 13787.638,785.487" stroke="#94a3b8" fill="none"/>
+<polyline points="2104.637,9699.538 3044.637,9699.538" stroke="#94a3b8" fill="none"/>
+<polyline points="3638.238,9699.538 4578.238,9699.538" stroke="#94a3b8" fill="none"/>
+</g>
+<g id="walls">
+<polyline points="785.488,9699.538 785.488,785.438" stroke="#14532d" fill="none"/>
+<polyline points="785.488,9699.538 16494.188,9699.538" stroke="#14532d" fill="none"/>
+<polyline points="785.488,5450.238 3756.788,5450.238" stroke="#14532d" fill="none"/>
+<polyline points="785.488,4598.237 6302.088,4598.237" stroke="#14532d" fill="none"/>
+<polyline points="785.488,785.438 2180.587,785.438" stroke="#14532d" fill="none"/>
+<polyline points="2180.587,785.438 6003.887,785.438" stroke="#14532d" fill="none"/>
+<polyline points="3330.788,9699.538 3330.788,7569.538" stroke="#14532d" fill="none"/>
+<polyline points="3330.788,7569.538 6302.088,7569.538" stroke="#14532d" fill="none"/>
+<polyline points="3756.788,7569.538 3756.788,4598.237" stroke="#14532d" fill="none"/>
+<polyline points="6003.887,1499.038 6003.887,785.438" stroke="#14532d" fill="none"/>
+<polyline points="6003.887,1499.038 11392.888,1499.038" stroke="#14532d" fill="none"/>
+<polyline points="6302.088,9699.538 6302.088,1499.038" stroke="#14532d" fill="none"/>
+<polyline points="6302.088,5854.837 16494.188,5854.837" stroke="#14532d" fill="none"/>
+<polyline points="11382.188,9699.538 11382.188,5854.837" stroke="#14532d" fill="none"/>
+<polyline points="11392.888,1499.038 11392.888,785.438" stroke="#14532d" fill="none"/>
+<polyline points="11392.888,785.438 16494.188,785.438" stroke="#14532d" fill="none"/>
+<polyline points="16494.188,9699.538 16494.188,785.438" stroke="#14532d" fill="none"/>
+</g>
+<g id="rooms">
+<polygon points="785.488,9699.538 3330.788,9699.538 3330.788,7569.538 3756.788,7569.538 3756.788,5450.238 785.488,5450.238" fill="none" stroke="#2563eb"/>
+<polygon points="785.488,5450.238 3756.788,5450.238 3756.788,4598.237 785.488,4598.237" fill="none" stroke="#2563eb"/>
+<polygon points="785.488,4598.237 6003.887,4598.237 6003.887,785.438 785.488,785.438" fill="none" stroke="#2563eb"/>
+<polygon points="3330.788,9699.538 6302.088,9699.538 6302.088,7569.538 3330.788,7569.538" fill="none" stroke="#2563eb"/>
+<polygon points="6302.088,9699.538 11382.188,9699.538 11382.188,5854.837 6302.088,5854.837" fill="none" stroke="#2563eb"/>
+<polygon points="6302.088,5854.837 16494.188,5854.837 16494.188,785.438 11392.888,785.438 11392.888,1499.038 6302.088,1499.038" fill="none" stroke="#2563eb"/>
+<polygon points="11382.188,9699.538 16494.188,9699.538 16494.188,5854.837 11382.188,5854.837" fill="none" stroke="#2563eb"/>
+</g>
+<g id="doors">
+<circle cx="3245.588" cy="4598.237" r="172.796" fill="#b45309" data-center="3245.588,4598.237"/>
+<circle cx="6302.088" cy="7122.237" r="172.796" fill="#b45309" data-center="6302.088,7122.237"/>
+</g>
+<g id="windows">
+<circle cx="2574.688" cy="9699.538" r="172.796" fill="#0891b2" data-center="2574.688,9699.538"/>
+<circle cx="4108.287" cy="9699.538" r="172.796" fill="#0891b2" data-center="4108.287,9699.538"/>
+<circle cx="12180.888" cy="785.438" r="172.796" fill="#0891b2" data-center="12180.888,785.438"/>
+<circle cx="13437.688" cy="785.438" r="172.796" fill="#0891b2" data-center="13437.688,785.438"/>
+</g>
+<g id="ids">
+<text x="785.488" y="5242.488" font-size="345.593">w-43be73d10f15</text>
+<text x="8639.837" y="9699.538" font-size="345.593">w-3563907b23e9</text>
+<text x="2271.137" y="5450.238" font-size="345.593">w-a7ce755a130f</text>
+<text x="3543.788" y="4598.237" font-size="345.593">w-09132db4e1b3</text>
+<text x="1483.037" y="785.438" font-size="345.593">w-7dc001ec1f6e</text>
+<text x="4092.238" y="785.438" font-size="345.593">w-a47db2b386cc</text>
+<text x="3330.788" y="8634.538" font-size="345.593">w-c4b8ad011533</text>
+<text x="4816.438" y="7569.538" font-size="345.593">w-86bcb493ada1</text>
+<text x="3756.788" y="6083.887" font-size="345.593">w-b7af96b3825d</text>
+<text x="6003.887" y="1142.237" font-size="345.593">w-19fdc6bf2d54</text>
+<text x="8698.388" y="1499.038" font-size="345.593">w-9e138687925a</text>
+<text x="6302.088" y="5599.288" font-size="345.593">w-6a23dc165cd7</text>
+<text x="11398.138" y="5854.837" font-size="345.593">w-7ef4439162ae</text>
+<text x="11382.188" y="7777.188" font-size="345.593">w-f869e5c33f87</text>
+<text x="11392.888" y="1142.237" font-size="345.593">w-e854aca3b27d</text>
+<text x="13943.537" y="785.438" font-size="345.593">w-e501ec4eff53</text>
+<text x="16494.188" y="5242.488" font-size="345.593">w-14f264f0d434</text>
+<text x="2624.354" y="7573.104" font-size="345.593">r-4eb845fdf730</text>
+<text x="2271.137" y="5024.237" font-size="345.593">r-8a99a0c74e3d</text>
+<text x="3394.688" y="2691.837" font-size="345.593">r-cfa2ea3af0eb</text>
+<text x="4816.438" y="8634.538" font-size="345.593">r-2456aba6aa91</text>
+<text x="8842.138" y="7777.188" font-size="345.593">r-bb1dfa1180eb</text>
+<text x="11396.387" y="2713.104" font-size="345.593">r-5c27f48cec56</text>
+<text x="13938.188" y="7777.188" font-size="345.593">r-a2a0b3947021</text>
+<text x="2574.688" y="9699.538" font-size="345.593">o-817c5baac8ee</text>
+<text x="3245.588" y="4598.237" font-size="345.593">o-a621926e0cb6</text>
+<text x="4108.287" y="9699.538" font-size="345.593">o-c391888a20b3</text>
+<text x="6302.088" y="7122.237" font-size="345.593">o-4f62f06a9275</text>
+<text x="12180.888" y="785.438" font-size="345.593">o-0f56fba169dc</text>
+<text x="13437.688" y="785.438" font-size="345.593">o-ad3177b8c128</text>
+</g>
+<g id="confidence">
+<text x="785.488" y="5242.488" font-size="345.593">1</text>
+<text x="8639.837" y="9699.538" font-size="345.593">1</text>
+<text x="2271.137" y="5450.238" font-size="345.593">1</text>
+<text x="3543.788" y="4598.237" font-size="345.593">1</text>
+<text x="1483.037" y="785.438" font-size="345.593">1</text>
+<text x="4092.238" y="785.438" font-size="345.593">1</text>
+<text x="3330.788" y="8634.538" font-size="345.593">1</text>
+<text x="4816.438" y="7569.538" font-size="345.593">1</text>
+<text x="3756.788" y="6083.887" font-size="345.593">1</text>
+<text x="6003.887" y="1142.237" font-size="345.593">1</text>
+<text x="8698.388" y="1499.038" font-size="345.593">1</text>
+<text x="6302.088" y="5599.288" font-size="345.593">1</text>
+<text x="11398.138" y="5854.837" font-size="345.593">1</text>
+<text x="11382.188" y="7777.188" font-size="345.593">1</text>
+<text x="11392.888" y="1142.237" font-size="345.593">1</text>
+<text x="13943.537" y="785.438" font-size="345.593">1</text>
+<text x="16494.188" y="5242.488" font-size="345.593">1</text>
+<text x="2624.354" y="7573.104" font-size="345.593">1</text>
+<text x="2271.137" y="5024.237" font-size="345.593">1</text>
+<text x="3394.688" y="2691.837" font-size="345.593">1</text>
+<text x="4816.438" y="8634.538" font-size="345.593">1</text>
+<text x="8842.138" y="7777.188" font-size="345.593">1</text>
+<text x="11396.387" y="2713.104" font-size="345.593">1</text>
+<text x="13938.188" y="7777.188" font-size="345.593">1</text>
+<text x="2574.688" y="9699.538" font-size="345.593">1</text>
+<text x="3245.588" y="4598.237" font-size="345.593">1</text>
+<text x="4108.287" y="9699.538" font-size="345.593">1</text>
+<text x="6302.088" y="7122.237" font-size="345.593">1</text>
+<text x="12180.888" y="785.438" font-size="345.593">1</text>
+<text x="13437.688" y="785.438" font-size="345.593">1</text>
+</g>
+<g id="legend"></g>
+</svg>
