@@ -11,6 +11,7 @@ from PIL import Image
 
 from pwa.contracts import compute_content_hash
 from pwa.floorplan.annotation_source import AnnotationSource
+from pwa.floorplan.config import MAX_SOURCE_RASTER_BYTES
 from pwa.floorplan.dxf_source import DxfSource
 from pwa.floorplan.findings import FloorplanError
 from pwa.floorplan.dxf_worker import extract_dxf
@@ -121,26 +122,55 @@ def test_annotation_source_reads_one_raster_snapshot_for_hash_and_dimensions(tmp
     annotation_path, image_path = _write_annotation_fixture(tmp_path)
     image_ref = image_path.relative_to(tmp_path).as_posix()
     expected_bytes = image_path.read_bytes()
+    expected_sha256 = sha256_file(image_path)
     image_reads = 0
-    real_read_bytes = Path.read_bytes
+    read_sizes: list[int] = []
+    real_open = Path.open
 
-    def counted_read_bytes(path):
+    class BoundedReader:
+        def __init__(self, stream):
+            self.stream = stream
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc_value, traceback):
+            self.stream.close()
+
+        def read(self, size=-1):
+            read_sizes.append(size)
+            return self.stream.read(size)
+
+    def counted_open(path, mode="r", *args, **kwargs):
         nonlocal image_reads
-        if Path(path) == image_path:
+        stream = real_open(path, mode, *args, **kwargs)
+        if Path(path) == image_path and mode == "rb":
             image_reads += 1
-        return real_read_bytes(path)
+            return BoundedReader(stream)
+        return stream
 
-    monkeypatch.setattr(Path, "read_bytes", counted_read_bytes)
+    monkeypatch.setattr(Path, "open", counted_open)
 
     raw, image_snapshot = AnnotationSource().extract_with_image_snapshot(
         annotation_path,
         source_root=tmp_path,
-        source_inventory={image_ref: {"kind": "floorplan", "sha256": sha256_file(image_path)}},
+        source_inventory={image_ref: {"kind": "floorplan", "sha256": expected_sha256}},
     )
 
     assert image_reads == 1
+    assert read_sizes == [MAX_SOURCE_RASTER_BYTES + 1]
     assert image_snapshot == expected_bytes
     assert raw.frame.height_px == 1800
+
+
+def test_annotation_source_maps_raster_read_overflow_to_resource_limit(tmp_path, monkeypatch):
+    annotation_path, image_path = _write_annotation_fixture(tmp_path)
+    monkeypatch.setattr("pwa.floorplan.annotation_source.MAX_SOURCE_RASTER_BYTES", image_path.stat().st_size - 1)
+
+    with pytest.raises(FloorplanError) as exc:
+        AnnotationSource().extract(annotation_path, source_root=tmp_path)
+
+    assert exc.value.finding.code == "PARSE_RESOURCE_LIMIT"
 
 
 def test_annotation_source_rejects_reparse_image_ref_before_open(tmp_path, monkeypatch):

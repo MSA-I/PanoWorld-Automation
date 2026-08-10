@@ -9,6 +9,7 @@ import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from decimal import Decimal
+from os import replace as atomic_replace
 from pathlib import Path
 
 from PIL import Image
@@ -128,9 +129,10 @@ def _diagnostic(
     finding: Finding | None,
     findings: list[Finding] | None = None,
     overlay_omitted_reason: str = "no_normalized_geometry",
+    residual_state: str | None = None,
 ) -> dict:
     findings = findings or ([finding] if finding is not None else [])
-    return {
+    diagnostic = {
         "report_version": 1,
         "parse_run_id": parse_run_id,
         "source_run_id": source_run_id,
@@ -157,6 +159,9 @@ def _diagnostic(
         "overlay": {"overlay_omitted_reason": overlay_omitted_reason},
         "canonical_projection_sha256": None,
     }
+    if residual_state is not None:
+        diagnostic["residual_state"] = residual_state
+    return diagnostic
 
 
 def _failed_scale_artifacts(
@@ -441,7 +446,7 @@ def _staged_operational_result(
     final_run: Path,
     staging_run: Path,
     finding: Finding | None = None,
-    overlay_omitted_reason: str = "no_normalized_geometry",
+    residual_state: str | None = None,
 ) -> ParseRunResult:
     report = _diagnostic(
         parse_run_id=parse_run_id,
@@ -450,12 +455,21 @@ def _staged_operational_result(
         cli_exit=2,
         outcome="operational_failure",
         finding=finding,
-        overlay_omitted_reason=overlay_omitted_reason,
+        residual_state=residual_state,
     )
     try:
         report_path = staging_run / "parse" / "parse-report.json"
-        if staging_run.is_dir() and not report_path.exists():
-            _write_staged_json(report_path, report)
+        if staging_run.is_dir():
+            if report_path.exists():
+                # A successful finalization rollback restores the previously
+                # exclusive happy-path report. Replace that now-invalid claim
+                # atomically from an exclusively-created sibling so retained
+                # staging never reports a failed run as complete.
+                replacement_path = report_path.with_name("parse-report.operational-failure.tmp")
+                _write_staged_json(replacement_path, report)
+                atomic_replace(replacement_path, report_path)
+            else:
+                _write_staged_json(report_path, report)
     except (OSError, ValueError):
         pass
     return ParseRunResult(cli_exit=2, final_run=final_run, staging_run=staging_run, diagnostic=report)
@@ -1073,10 +1087,10 @@ def parse_run(
                     adapter=adapter,
                     final_run=final_run,
                     staging_run=staging_run,
-                    overlay_omitted_reason=(
+                    residual_state=(
                         "finalized_directory_left_behind"
                         if isinstance(exc, FinalizedRunLeftBehindError)
-                        else "no_normalized_geometry"
+                        else None
                     ),
                 )
         return _staged_operational_result(
@@ -1101,9 +1115,9 @@ def parse_run(
             adapter=adapter,
             final_run=final_run,
             staging_run=staging_run,
-            overlay_omitted_reason=(
+            residual_state=(
                 "finalized_directory_left_behind"
                 if isinstance(exc, FinalizedRunLeftBehindError)
-                else "no_normalized_geometry"
+                else None
             ),
         )

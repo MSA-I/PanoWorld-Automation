@@ -10,6 +10,7 @@ from pathlib import Path
 from PIL import Image
 
 from pwa.contracts import compute_content_hash, validate_artifact
+from pwa.floorplan.config import MAX_SOURCE_RASTER_BYTES
 from pwa.floorplan.findings import FloorplanError
 from pwa.floorplan.runs import resolve_contained_relpath
 from pwa.floorplan.types import RawDimension, RawGeometry, RawOpening, RawRoom, RawWall, SourceFrame
@@ -76,7 +77,14 @@ class AnnotationSource:
             raise ValueError("annotation source image is not an approved floorplan source artifact")
         image_root = source_root if source_root is not None else Path(path).parent
         image_path = resolve_contained_relpath(image_root, image_ref)
-        image_bytes = image_path.read_bytes()
+        with image_path.open("rb") as stream:
+            image_bytes = stream.read(MAX_SOURCE_RASTER_BYTES + 1)
+        if len(image_bytes) > MAX_SOURCE_RASTER_BYTES:
+            raise FloorplanError(
+                "PARSE_RESOURCE_LIMIT",
+                "source raster exceeds byte limit",
+                source_ref=image_ref,
+            )
         image_sha256 = "sha256:" + hashlib.sha256(image_bytes).hexdigest()
         if image_sha256 != payload["image"]["sha256"]:
             raise FloorplanError("PARSE_SOURCE_HASH_MISMATCH", "annotation image hash mismatch")

@@ -9,10 +9,11 @@ from pathlib import Path
 import pytest
 
 from pwa.contracts import compute_content_hash
+from pwa.floorplan import runs as floorplan_runs
 from pwa.floorplan.builder import parse_run
 from pwa.floorplan.config import MAX_ANNOTATION_BYTES
 from pwa.floorplan.findings import FloorplanError
-from pwa.floorplan.runs import validate_contained_destination
+from pwa.floorplan.runs import resolve_contained_relpath, validate_contained_destination
 from pwa.intake import ingest_project
 from tests.integration.test_plan002_parse_run import _annotation_doc, _image, _source_run
 from tests.unit.test_floorplan_sources import _write_dxf_fixture
@@ -118,6 +119,48 @@ def test_destination_containment_is_reproved_if_component_grammar_misses_drive_a
     )
 
     assert _destination_is_rejected(staging_root, "inventory-path")
+
+
+def test_read_side_rejects_ads_component_via_shared_component_grammar(tmp_path):
+    root = tmp_path / "source"
+    root.mkdir()
+
+    with pytest.raises(ValueError, match="contained relative path"):
+        resolve_contained_relpath(root, "artifact.dxf:payload", must_exist=False)
+
+
+def test_read_side_component_grammar_accepts_every_parser_resolved_path(tmp_path, monkeypatch):
+    source_run, copied_floorplan = _source_run(tmp_path, "RUN-20260811-source-read-grammar")
+    annotation = _annotation_doc(tmp_path, copied_floorplan)
+    result = parse_run(
+        runs_root=tmp_path / "runs",
+        source_run=source_run,
+        parse_run_id="RUN-20260811-parse-read-grammar",
+        annotation=annotation,
+    )
+    assert result.cli_exit == 0
+
+    manifest = _read_json(result.final_run / "project" / "project_manifest.json")
+    legitimate_paths = [
+        *(item["path"] for item in manifest["payload"]["inputs"]),
+        "project/project_manifest.json",
+        "project/input_quality_report.json",
+        "parse/annotation.json",
+        "parse/overlay.svg",
+    ]
+    real_contained_parts = floorplan_runs._contained_parts
+    grammar_calls: list[str] = []
+
+    def recording_contained_parts(relpath):
+        parts = real_contained_parts(relpath)
+        grammar_calls.append(Path(*parts).as_posix())
+        return parts
+
+    monkeypatch.setattr(floorplan_runs, "_contained_parts", recording_contained_parts)
+
+    for relpath in legitimate_paths:
+        assert resolve_contained_relpath(result.final_run, relpath) == result.final_run / relpath
+    assert grammar_calls == legitimate_paths
 
 
 @pytest.mark.parametrize(
