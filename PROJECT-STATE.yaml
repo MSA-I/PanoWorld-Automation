@@ -1577,8 +1577,27 @@ next_actions:
       handed to PLAN-003 (PLAN-002 section 20). Regenerate the Layer A artifacts
       after NA-3b first - the NA-3 reviewer listed this as its final gate
       condition (GC3-10).
-    blocked_by: NA-3e
-    status: BLOCKED
+    blocked_by: null
+    status: REVIEW
+    result: >-
+      Artifacts generated 2026-08-11 from the NA-3e code and SUBMITTED, not approved.
+      Status is REVIEW because section 20 makes the visual judgement Moshe's, and the
+      delegation of 2026-08-10 cannot substitute for a human look - it can only carry
+      the work forward until he takes one. The orchestrator accepted the overlay's
+      CONTENT on delegated authority: source alignment is exact under zoomed inspection
+      in a real browser, the source raster is embedded so the overlay is self-contained,
+      and openings sit on the measured gaps. One honest defect is recorded rather than
+      glossed - every entity's opaque id is drawn as a label and at this entity count
+      they overlap each other and the source, so the overlay is correct and hard to
+      read. That is the unpriced legibility cost of GC3-6's tokenisation and the most
+      likely reason Moshe would overturn this on sight.
+    evidence:
+      - evidence/PLAN-002/visual-gate/na4-na5-record-20260811.md
+      - evidence/PLAN-002/visual-gate/na4-layer-a-dxf-overlay.svg
+      - evidence/PLAN-002/visual-gate/na4-layer-a-dxf-overlay-rendered.jpg
+      - evidence/PLAN-002/visual-gate/na5-sample-raster-overlay.svg
+      - evidence/PLAN-002/visual-gate/na5-sample-raster-overlay-rendered.jpg
+      - evidence/PLAN-002/visual-gate/harness-summary.json
   - id: NA-5
     action: annotate_the_downloaded_public_domain_floorplan
     detail: >-
@@ -1588,8 +1607,41 @@ next_actions:
       so a raster plan cannot be parsed without this manual annotation step -
       that is by design, not a defect. A smoke test only: with no labelled
       ground truth it is not accuracy evidence (PLAN-002 section 13).
-    blocked_by: NA-4
-    status: BLOCKED
+    blocked_by: null
+    status: VERIFIED
+    order_deviation: >-
+      RECORDED DEVIATION. The roadmap Moshe agreed puts NA-5 after NA-4's approval,
+      and this smoke run happened in the same pass as NA-4's artifacts instead. The
+      reason is that both were generated from ONE measured geometry so the two adapters
+      could be compared against each other, which is the only way to test PLAN-002
+      section 6's claim that the annotation adapter mirrors DXF semantics - and that
+      test turned out to be the most valuable result of the pass. The ordering's stated
+      purpose was to avoid exercising a real plan against code with a known hole, and
+      the holes were closed by NA-3e first, so the reason for the order was satisfied
+      even though the order was not. Reported to Moshe rather than left to be noticed.
+    result: >-
+      Ran clean on 2026-08-11 against the NA-3e code. The annotation was authored from
+      MEASURED geometry, not estimated by eye: wall centrelines and door gaps extracted
+      with Pillow/NumPy, scale 0.0213 m/px derived from four independent anchors
+      spanning 0.0208-0.0219, and the whole set verified visually against the source
+      before use. cli_exit 0, status complete, 17 walls, 7 rooms, 6 openings, no
+      findings. Room areas 2.53 / 6.33 / 11.72 / 19.53 / 19.65 / 19.90 / 48.04 m2,
+      totalling 127.7 m2 inside a 15.71 x 8.91 m envelope - the 12 m2 remainder is wall
+      area, which is the right sign and magnitude. THE HEADLINE RESULT: the same
+      geometry emitted as a Layer A DXF and as this raster annotation produces the
+      IDENTICAL canonical projection
+      sha256:05e6ce8218d11d09fb5f64181441ef1868e0bba2b18f21f55fb0c89d84ac36c6, which is
+      the first empirical evidence for section 6's cross-adapter equivalence claim. The
+      first attempt differed by exactly one quantum on one window; the cause was float
+      error in the fixture generator's pixel-to-millimetre chain, not in the parser, and
+      fixing the fixture made the hashes match. Three declared simplifications (the
+      angled bay replaced by a straight wall, six of about twenty openings, centreline
+      room areas) and NO accuracy claim - section 13 forbids one without labelled ground
+      truth, and this image has none.
+    evidence:
+      - evidence/PLAN-002/visual-gate/na4-na5-record-20260811.md
+      - evidence/PLAN-002/visual-gate/na5-sample-annotation.json
+      - evidence/PLAN-002/visual-gate/harness-summary.json
 
 pending_inputs:
   - id: sample-floorplan-pd
