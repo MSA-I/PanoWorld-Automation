@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from pwa.contracts import compute_content_hash
 from pwa.floorplan.builder import parse_run
 from pwa.intake import ingest_project
 from tests.integration.test_plan002_parse_run import _annotation_doc, _image, _source_run
@@ -42,6 +43,10 @@ def test_annotation_scale_mismatch_finalizes_failed_cli_3_run(tmp_path):
     annotation = _annotation_doc(tmp_path, copied_floorplan)
     document = json.loads(annotation.read_text(encoding="utf-8"))
     document["payload"]["scale_m_per_px"] = 0.006
+    # Recompute content_hash so this keeps exercising the intended
+    # PARSE_SCALE_UNKNOWN domain rejection rather than the (now separately
+    # verified, see GC-4) annotation content_hash check.
+    document["content_hash"] = compute_content_hash(document)
     annotation.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     result = parse_run(
@@ -172,6 +177,10 @@ def test_empty_annotation_geometry_finalizes_failed_cli_3_run(tmp_path):
     document = json.loads(annotation.read_text(encoding="utf-8"))
     document["payload"]["walls"] = []
     document["payload"]["rooms"] = []
+    # Recompute content_hash so this keeps exercising the intended
+    # PARSE_EMPTY_GEOMETRY domain rejection rather than the (now separately
+    # verified, see GC-4) annotation content_hash check.
+    document["content_hash"] = compute_content_hash(document)
     annotation.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     result = parse_run(

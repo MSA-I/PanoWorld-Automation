@@ -9,6 +9,7 @@ from pathlib import Path
 import ezdxf
 from PIL import Image
 
+from pwa.contracts import compute_content_hash
 from pwa.files import sha256_file
 
 
@@ -76,6 +77,10 @@ def build(out: Path) -> None:
             ],
         },
     }
+    # GC-4 (OpenAI cross-provider rework review, 2026-08-10): AnnotationSource
+    # now recomputes/verifies content_hash, so this generated fixture must
+    # carry a real one instead of the all-zero placeholder.
+    annotation["content_hash"] = compute_content_hash(annotation)
     (out / "layer-a-1.annotation.json").write_text(json.dumps(annotation, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 

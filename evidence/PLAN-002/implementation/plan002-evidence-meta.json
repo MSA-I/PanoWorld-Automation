@@ -21,13 +21,13 @@
     },
     "layer-a-1-dxf": {
       "canonical_projection_sha256": "sha256:e5041ddcf05eb02da0a07176d483ee4eaef311bf885204078710f07fe3b7e77e",
-      "overlay_sha256": "sha256:b92a328cd55522b5abd0a973a69ca687bc3007bbbbda5d3a69b472320297f20f",
-      "repeat_overlay_sha256": "sha256:b92a328cd55522b5abd0a973a69ca687bc3007bbbbda5d3a69b472320297f20f",
+      "overlay_sha256": "sha256:a181228d482540f37de457297b23e69c4154f47c12c5b49eb9ac98a32ff2fe54",
+      "repeat_overlay_sha256": "sha256:a181228d482540f37de457297b23e69c4154f47c12c5b49eb9ac98a32ff2fe54",
       "repeat_overlay_equal": true
     },
     "equal_projection_hashes": true,
     "canonical_projection_hash": "sha256:e5041ddcf05eb02da0a07176d483ee4eaef311bf885204078710f07fe3b7e77e",
-    "note": "overlay hashes changed from the pre-rework run because M-4/M-5/m-9 (spatial review) now render rooms/doors/ids/confidence in the DXF overlay and derive the raster media type from source bytes; canonical_projection_hash is unchanged."
+    "note": "overlay hashes changed from the pre-rework run because M-4/M-5/m-9 (spatial review) now render rooms/doors/ids/confidence in the DXF overlay and derive the raster media type from source bytes; canonical_projection_hash is unchanged. layer-a-1-dxf overlay_sha256/repeat_overlay_sha256 were regenerated again on 2026-08-10 by the second (OpenAI cross-provider review) rework's Finding D fix: the DXF opening-marker radius and id/confidence label font-size now scale with the geometry extent (config.OVERLAY_OPENING_RADIUS_FRACTION/OVERLAY_FONT_SIZE_FRACTION) instead of a fixed r=\"20\" source-unit magic number, and the viewBox bounds now also include normalized wall/room/opening geometry, not just source primitives. Re-verified byte-identical across two independent parse_run() calls; canonical_projection_hash is unchanged (Finding D touches overlay rendering only, not geometry)."
   },
   "paths": {
     "test_results": "evidence\\PLAN-002\\test-results\\RUN-PLAN002-REWORK-20260810",

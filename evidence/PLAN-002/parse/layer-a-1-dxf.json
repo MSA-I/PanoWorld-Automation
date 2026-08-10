@@ -4,7 +4,7 @@
   "artifact_id": "RUN-LAYER-A-DXF-PARSE-A:floorplan_parse",
   "project_id": "layer-a-fixture",
   "run_id": "RUN-LAYER-A-DXF-PARSE-A",
-  "created_at": "2026-08-10T01:43:53Z",
+  "created_at": "2026-08-10T08:02:56Z",
   "producer": {
     "agent": "plan002-floorplan-parser",
     "provider": "local",
@@ -14,14 +14,14 @@
   "inputs": [
     {
       "artifact_id": "RUN-LAYER-A-DXF-PARSE-A:project_manifest",
-      "content_hash": "sha256:832822d8fa2f343abeb6ece5739e33526584715557094f3d6dceac45931c2f86"
+      "content_hash": "sha256:d43b6026195d6e18d35f8dd96ad828140cb539b7c3b35d31ac7a7b6418db5ee6"
     },
     {
       "artifact_id": "RUN-LAYER-A-DXF-PARSE-A:input_quality_report",
-      "content_hash": "sha256:dbc8dd63bf2d67aa1f998a2cd87deebeb7d918c019930e643acdfb8b0e23ab85"
+      "content_hash": "sha256:b8bd632473e3bb26a9a8812395e4fe37c5335614953f8d35a8138e235b34e4e2"
     }
   ],
-  "content_hash": "sha256:6896d9d6a37011d577278d810414149b60368c8984af1fa9f22fc4241a3ebf63",
+  "content_hash": "sha256:afa14c3729957e0bc73bf4a20cd2f64a3c91bc10efd91d6257cd9c578eca0b37",
   "status": "complete",
   "errors": [],
   "payload": {
@@ -41,7 +41,7 @@
     },
     "overlay": {
       "path": "parse/overlay.svg",
-      "sha256": "sha256:b92a328cd55522b5abd0a973a69ca687bc3007bbbbda5d3a69b472320297f20f"
+      "sha256": "sha256:a181228d482540f37de457297b23e69c4154f47c12c5b49eb9ac98a32ff2fe54"
     },
     "rooms": [
       {

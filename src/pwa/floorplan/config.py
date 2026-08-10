@@ -20,6 +20,14 @@ MAX_OVERLAY_BYTES = 70 * 1024 * 1024
 MAX_WORKER_STDIO_BYTES = 1024 * 1024
 PARSER_TIMEOUT_S = 30
 OVERLAY_MARGIN_FRACTION = 0.05
+# D (OpenAI cross-provider rework review, 2026-08-10): the DXF overlay used a
+# fixed r="20" opening-marker radius in *source* coordinates. For a metre-unit
+# DXF that is a 20-metre circle -- over twice the width of a typical room's
+# viewBox. Both the marker radius and the id/confidence label font-size must
+# instead scale with the geometry extent, the same way OVERLAY_MARGIN_FRACTION
+# already scales the margin.
+OVERLAY_OPENING_RADIUS_FRACTION = 0.01
+OVERLAY_FONT_SIZE_FRACTION = 0.02
 DIMENSION_TIE_M = QUANTUM_M
 DXF_UNITS = {4: "mm", 5: "cm", 6: "m"}
 
@@ -44,6 +52,8 @@ def limits_snapshot() -> dict[str, object]:
         "MAX_WORKER_STDIO_BYTES": MAX_WORKER_STDIO_BYTES,
         "PARSER_TIMEOUT_S": PARSER_TIMEOUT_S,
         "OVERLAY_MARGIN_FRACTION": OVERLAY_MARGIN_FRACTION,
+        "OVERLAY_OPENING_RADIUS_FRACTION": OVERLAY_OPENING_RADIUS_FRACTION,
+        "OVERLAY_FONT_SIZE_FRACTION": OVERLAY_FONT_SIZE_FRACTION,
         "DIMENSION_TIE_M": DIMENSION_TIE_M,
         "DXF_UNITS": {str(key): value for key, value in DXF_UNITS.items()},
     }

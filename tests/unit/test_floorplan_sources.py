@@ -9,6 +9,7 @@ import ezdxf
 import pytest
 from PIL import Image
 
+from pwa.contracts import compute_content_hash
 from pwa.floorplan.annotation_source import AnnotationSource
 from pwa.floorplan.dxf_source import DxfSource
 from pwa.floorplan.findings import FloorplanError
@@ -66,6 +67,10 @@ def _write_annotation_fixture(root: Path) -> tuple[Path, Path]:
         "errors": [],
         "payload": payload,
     }
+    # GC-4 (OpenAI cross-provider rework review, 2026-08-10): AnnotationSource
+    # now recomputes/verifies content_hash, so fixtures must carry a real one
+    # instead of the all-zero placeholder.
+    doc["content_hash"] = compute_content_hash(doc)
     annotation_path = root / "annotation.json"
     annotation_path.write_text(json.dumps(doc, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return annotation_path, image_path

@@ -7,10 +7,20 @@ from pathlib import Path
 
 from PIL import Image
 
-from pwa.contracts import validate_artifact
+from pwa.contracts import compute_content_hash, validate_artifact
 from pwa.files import sha256_file
 from pwa.floorplan.findings import FloorplanError
 from pwa.floorplan.types import RawDimension, RawGeometry, RawOpening, RawRoom, RawWall, SourceFrame
+
+# GC-5 (OpenAI cross-provider rework review, 2026-08-10): section 6 permits
+# annotation image binding only to "the immutable PNG/JPEG floorplan input or
+# one explicitly selected intake-generated PDF page ... already listed in the
+# source manifest." The current source-inventory "kind" vocabulary
+# (src/pwa/intake.py) only distinguishes "floorplan" unambiguously -- PDF-page
+# derivatives and other generated artifacts are all tagged "other" alongside
+# each other, so there is no separate kind to safelist for them without a
+# manifest/contract change (out of bounded scope here; see rework report).
+_APPROVED_ANNOTATION_IMAGE_KINDS = {"floorplan"}
 
 
 class AnnotationSource:
@@ -28,10 +38,22 @@ class AnnotationSource:
         errors = validate_artifact(document)
         if errors:
             raise ValueError(errors[0].message)
+        # GC-4 (OpenAI cross-provider rework review, 2026-08-10): schema
+        # validation alone does not prove the payload was not tampered with
+        # after content_hash was computed -- recompute and verify it the
+        # same way every other source artifact's hash is checked (source
+        # manifest, quality report, inventory items).
+        if document.get("content_hash") != compute_content_hash(document):
+            raise FloorplanError("PARSE_SOURCE_HASH_MISMATCH", "annotation content_hash mismatch")
         payload = document["payload"]
         image_ref = payload["image"]["source_image_ref"]
         if source_inventory is not None and image_ref not in source_inventory:
             raise ValueError("annotation source image is not part of the source inventory")
+        # GC-5: membership and hash were checked, but not "kind" -- an
+        # annotation could bind to the style-reference image (or any other
+        # non-floorplan inventory entry) instead of the floorplan raster.
+        if source_inventory is not None and source_inventory[image_ref].get("kind") not in _APPROVED_ANNOTATION_IMAGE_KINDS:
+            raise ValueError("annotation source image is not an approved floorplan source artifact")
         image_path = (source_root / image_ref) if source_root is not None else (Path(path).parent / image_ref)
         if sha256_file(image_path) != payload["image"]["sha256"]:
             raise FloorplanError("PARSE_SOURCE_HASH_MISMATCH", "annotation image hash mismatch")

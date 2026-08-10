@@ -1,7 +1,7 @@
 project:
   id: panoworld-automation
   phase: implementation
-  overall_status: PLAN_002_REWORK_REVIEWED_NEEDS_SECOND_REWORK
+  overall_status: PLAN_002_SECOND_REWORK_DONE_AWAITING_MOSHE_ON_GC6_AND_GC7
   implementation_started: true
   updated_at: "2026-08-10"
   updated_by_session: PLAN-002-ORCHESTRATION-AND-REVIEW-DISPATCH
@@ -84,6 +84,20 @@ current_plan:
         minimum-span invariant.
       kind: retained_human_gate
       gate: "PLAN-002 section 20 Geometry/Contract - requires Moshe's explicit approval before implementation"
+    - id: GC-7
+      text: >-
+        Decide how the raster overlay handles source metadata. The OpenAI review
+        found that source bytes are embedded verbatim, so a JPEG's EXIF -
+        including GPS coordinates and an author name - is copied into
+        parse/overlay.svg, which PLAN-002 section 12 forbids. The two candidate
+        remedies are to reject metadata-bearing raster input outright, or to
+        embed a deterministic sanitised representation while separately binding
+        the original bytes by SHA-256.
+      kind: retained_human_gate
+      gate: >-
+        Changes the section 10 overlay contract, so it needs Moshe's decision
+        rather than an implementer's. Directly relevant to
+        samples/Sample_Floorplan.jpg, which carries 7 EXIF tags.
   status_note: >-
     Implementation exists as uncommitted working-tree state in the worktree and
     is not merged. Orchestrator re-verified it deterministically on 2026-08-10:
@@ -660,10 +674,29 @@ next_actions:
     action: second_rework_on_gate_conditions_GC1_to_GC5
     detail: >-
       Five bounded code fixes from the OpenAI cross-provider review, listed in
-      full under current_plan.open_gate_conditions. None of them touch a
-      contract, so no new PLAN is required.
+      full under current_plan.open_gate_conditions, plus five further confirmed
+      majors from the same review that are also bounded code fixes: copied
+      inventory not rehashed after copying; additional preflight inputs still
+      raising out of parse_run(); unsupported DXF findings discarded by an
+      earlier cardinality failure; the DXF overlay's fixed r=20 source-unit
+      radius and source-only bounds; and the non-exclusive, symlink-following
+      overlay write. None touch a contract, so no new PLAN is required.
+      Dispatched 2026-08-10 to claude-sonnet-5 HIGH (documented Codex fallback).
+      GC-6 and the JPEG-EXIF overlay question are explicitly excluded from this
+      dispatch and remain reserved for Moshe.
     blocked_by: null
-    status: READY
+    status: DONE
+    result: >-
+      All ten findings closed, no escalation. 306 tests pass (baseline 291),
+      exit 0. Independently re-verified by the orchestrator on 2026-08-10: full
+      suite green; git diff --check clean; pyproject.toml and uv.lock unchanged;
+      both containment proofs-of-concept re-run against the real parse_run(),
+      with eight hostile parse_run_id forms - absolute, forward- and
+      backslash-traversal, drive-relative, UNC, bare separator and empty - all
+      returning CLI 2 with nothing created outside runs_root. The fix is an
+      allowlist grammar applied before any path is constructed, which is the
+      shape the reviewer asked for rather than a blocklist.
+    evidence: evidence/PLAN-002/reviews/rework2-report-20260810.md
   - id: NA-2
     action: decide_GC6_opening_fit_semantics
     detail: >-

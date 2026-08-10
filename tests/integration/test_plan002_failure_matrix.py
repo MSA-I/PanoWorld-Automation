@@ -67,6 +67,13 @@ def _rewrite_envelope(path: Path, mutate) -> None:
 def _rewrite_annotation(annotation: Path, mutate) -> None:
     document = _read_json(annotation)
     mutate(document["payload"])
+    # GC-4 (OpenAI cross-provider rework review, 2026-08-10): AnnotationSource
+    # now recomputes/verifies content_hash. These fixtures intentionally
+    # mutate the annotation *payload* to reach a specific domain finding
+    # (e.g. PARSE_SCALE_UNKNOWN) -- they are not testing tampering -- so the
+    # hash must be recomputed to match, exactly like _rewrite_envelope()
+    # already does for the manifest/quality envelopes above.
+    document["content_hash"] = compute_content_hash(document)
     _write_json(annotation, document)
 
 

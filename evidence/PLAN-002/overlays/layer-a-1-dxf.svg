@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8800 6800">
-<metadata>{"adapter":"dxf","normalization":{"quantum_m":0.0001,"scale_m_per_px":null,"source_height_px":null,"source_unit_scale_m":0.001,"source_units":"mm","translation_m":[1.0,2.0],"y_axis":"up"},"quantum_m":0.0001,"source_sha256":"sha256:3707cc6c049a5cda7cd5eaaa295b75c3d63337de1b1d10a4a724be08c9c8db26"}</metadata>
+<metadata>{"adapter":"dxf","normalization":{"quantum_m":0.0001,"scale_m_per_px":null,"source_height_px":null,"source_unit_scale_m":0.001,"source_units":"mm","translation_m":[1.0,2.0],"y_axis":"up"},"quantum_m":0.0001,"source_sha256":"sha256:546ebea43f8cbce0c513848402bf687ac199111edc859802b64f95f147b79653"}</metadata>
 <g id="source">
 <polyline points="400,6400 8400,6400" stroke="#94a3b8" fill="none"/>
 <polyline points="8400,6400 8400,400" stroke="#94a3b8" fill="none"/>
@@ -25,38 +25,38 @@
 <polygon points="5400,6400 8400,6400 8400,400 5400,400" fill="none" stroke="#2563eb"/>
 </g>
 <g id="doors">
-<circle cx="2900" cy="6400" r="20" fill="#b45309" data-center="2900,6400"/>
-<circle cx="5400" cy="3400" r="20" fill="#b45309" data-center="5400,3400"/>
+<circle cx="2900" cy="6400" r="88" fill="#b45309" data-center="2900,6400"/>
+<circle cx="5400" cy="3400" r="88" fill="#b45309" data-center="5400,3400"/>
 </g>
 <g id="windows">
-<circle cx="2400" cy="400" r="20" fill="#0891b2" data-center="2400,400"/>
-<circle cx="8400" cy="1900" r="20" fill="#0891b2" data-center="8400,1900"/>
+<circle cx="2400" cy="400" r="88" fill="#0891b2" data-center="2400,400"/>
+<circle cx="8400" cy="1900" r="88" fill="#0891b2" data-center="8400,1900"/>
 </g>
 <g id="ids">
-<text x="400" y="3400">w-b38b11821642</text>
-<text x="4400" y="6400">w-8829e7c2d2cc</text>
-<text x="4400" y="400">w-0df3b64861a5</text>
-<text x="5400" y="3400">w-6e35a882252a</text>
-<text x="8400" y="3400">w-5e931339aa8f</text>
-<text x="2900" y="3400">r-ab354c288e8a</text>
-<text x="6900" y="3400">r-bea085b2f952</text>
-<text x="2400" y="400">o-13a46a7d32db</text>
-<text x="2900" y="6400">o-9585ee57fe3e</text>
-<text x="5400" y="3400">o-3a101c4fd203</text>
-<text x="8400" y="1900">o-378d46ae40f1</text>
+<text x="400" y="3400" font-size="176">w-b38b11821642</text>
+<text x="4400" y="6400" font-size="176">w-8829e7c2d2cc</text>
+<text x="4400" y="400" font-size="176">w-0df3b64861a5</text>
+<text x="5400" y="3400" font-size="176">w-6e35a882252a</text>
+<text x="8400" y="3400" font-size="176">w-5e931339aa8f</text>
+<text x="2900" y="3400" font-size="176">r-ab354c288e8a</text>
+<text x="6900" y="3400" font-size="176">r-bea085b2f952</text>
+<text x="2400" y="400" font-size="176">o-13a46a7d32db</text>
+<text x="2900" y="6400" font-size="176">o-9585ee57fe3e</text>
+<text x="5400" y="3400" font-size="176">o-3a101c4fd203</text>
+<text x="8400" y="1900" font-size="176">o-378d46ae40f1</text>
 </g>
 <g id="confidence">
-<text x="400" y="3400">1</text>
-<text x="4400" y="6400">1</text>
-<text x="4400" y="400">1</text>
-<text x="5400" y="3400">1</text>
-<text x="8400" y="3400">1</text>
-<text x="2900" y="3400">1</text>
-<text x="6900" y="3400">1</text>
-<text x="2400" y="400">1</text>
-<text x="2900" y="6400">1</text>
-<text x="5400" y="3400">1</text>
-<text x="8400" y="1900">1</text>
+<text x="400" y="3400" font-size="176">1</text>
+<text x="4400" y="6400" font-size="176">1</text>
+<text x="4400" y="400" font-size="176">1</text>
+<text x="5400" y="3400" font-size="176">1</text>
+<text x="8400" y="3400" font-size="176">1</text>
+<text x="2900" y="3400" font-size="176">1</text>
+<text x="6900" y="3400" font-size="176">1</text>
+<text x="2400" y="400" font-size="176">1</text>
+<text x="2900" y="6400" font-size="176">1</text>
+<text x="5400" y="3400" font-size="176">1</text>
+<text x="8400" y="1900" font-size="176">1</text>
 </g>
 <g id="legend"></g>
 </svg>

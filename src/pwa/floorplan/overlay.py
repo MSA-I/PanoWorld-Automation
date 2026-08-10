@@ -6,7 +6,15 @@ import base64
 import json
 from xml.sax.saxutils import escape, quoteattr
 
-from pwa.floorplan.config import MAX_OVERLAY_BYTES, MAX_SOURCE_PIXELS, MAX_SOURCE_RASTER_BYTES, OVERLAY_MARGIN_FRACTION, QUANTUM_M
+from pwa.floorplan.config import (
+    MAX_OVERLAY_BYTES,
+    MAX_SOURCE_PIXELS,
+    MAX_SOURCE_RASTER_BYTES,
+    OVERLAY_FONT_SIZE_FRACTION,
+    OVERLAY_MARGIN_FRACTION,
+    OVERLAY_OPENING_RADIUS_FRACTION,
+    QUANTUM_M,
+)
 from pwa.floorplan.types import NormalizedGeometry
 
 
@@ -57,7 +65,9 @@ def _legend_lines(source: dict) -> list[str]:
     return lines
 
 
-def _ids_and_confidence_lines(geometry: NormalizedGeometry, inverse) -> tuple[list[str], list[str]]:
+def _ids_and_confidence_lines(
+    geometry: NormalizedGeometry, inverse, *, font_size: float | None = None
+) -> tuple[list[str], list[str]]:
     """m-9 (spatial review, 2026-08-10): `#ids`/`#confidence` used to be
     unconditional empty placeholder groups in both renderers -- the letter
     of §10 ("layers distinguish ... IDs, confidence ...") was satisfied
@@ -65,23 +75,31 @@ def _ids_and_confidence_lines(geometry: NormalizedGeometry, inverse) -> tuple[li
     confidence as deterministically-ordered, XML-escaped <text> labels at
     the entity's own inverse-transformed anchor, so a human G1 reviewer can
     tell e.g. a 0.6-confidence annotated wall from a 1.0 DXF wall.
+
+    D (OpenAI cross-provider rework review, 2026-08-10): an explicit
+    ``font_size`` (source units) may be supplied so the DXF renderer -- whose
+    viewBox is real-world units, not pixels -- does not fall back to an
+    SVG-default text size that would dwarf a small metre-scale plan. The
+    raster renderer keeps passing ``None`` (unchanged, pixel viewBoxes make
+    the default size reasonable already).
     """
+    font_attr = f' font-size="{fmt(font_size)}"' if font_size is not None else ""
     id_lines = ['<g id="ids">']
     confidence_lines = ['<g id="confidence">']
     for wall in geometry.walls:
         anchor = inverse(((wall.start[0] + wall.end[0]) / 2, (wall.start[1] + wall.end[1]) / 2), geometry)
-        id_lines.append(f'<text x="{fmt(anchor[0])}" y="{fmt(anchor[1])}">{escape(wall.id)}</text>')
-        confidence_lines.append(f'<text x="{fmt(anchor[0])}" y="{fmt(anchor[1])}">{fmt(wall.confidence)}</text>')
+        id_lines.append(f'<text x="{fmt(anchor[0])}" y="{fmt(anchor[1])}"{font_attr}>{escape(wall.id)}</text>')
+        confidence_lines.append(f'<text x="{fmt(anchor[0])}" y="{fmt(anchor[1])}"{font_attr}>{fmt(wall.confidence)}</text>')
     for room in geometry.rooms:
         cx = sum(point[0] for point in room.polygon) / len(room.polygon)
         cy = sum(point[1] for point in room.polygon) / len(room.polygon)
         anchor = inverse((cx, cy), geometry)
-        id_lines.append(f'<text x="{fmt(anchor[0])}" y="{fmt(anchor[1])}">{escape(room.id)}</text>')
-        confidence_lines.append(f'<text x="{fmt(anchor[0])}" y="{fmt(anchor[1])}">{fmt(room.confidence)}</text>')
+        id_lines.append(f'<text x="{fmt(anchor[0])}" y="{fmt(anchor[1])}"{font_attr}>{escape(room.id)}</text>')
+        confidence_lines.append(f'<text x="{fmt(anchor[0])}" y="{fmt(anchor[1])}"{font_attr}>{fmt(room.confidence)}</text>')
     for opening in geometry.openings:
         anchor = inverse(opening.center, geometry)
-        id_lines.append(f'<text x="{fmt(anchor[0])}" y="{fmt(anchor[1])}">{escape(opening.id)}</text>')
-        confidence_lines.append(f'<text x="{fmt(anchor[0])}" y="{fmt(anchor[1])}">{fmt(opening.confidence)}</text>')
+        id_lines.append(f'<text x="{fmt(anchor[0])}" y="{fmt(anchor[1])}"{font_attr}>{escape(opening.id)}</text>')
+        confidence_lines.append(f'<text x="{fmt(anchor[0])}" y="{fmt(anchor[1])}"{font_attr}>{fmt(opening.confidence)}</text>')
     id_lines.append("</g>")
     confidence_lines.append("</g>")
     return id_lines, confidence_lines
@@ -158,6 +176,18 @@ def _dxf_svg(geometry: NormalizedGeometry, source: dict) -> bytes:
     primitives = source["primitives"]
     xs = [point[0] for primitive in primitives for point in _primitive_points(primitive)]
     ys = [point[1] for primitive in primitives for point in _primitive_points(primitive)]
+    # D (OpenAI cross-provider rework review, 2026-08-10): bounds used to come
+    # only from the source primitives, so a normalized detection that
+    # genuinely disagrees with the source enough to fall outside those bounds
+    # was silently clipped and invisible -- precisely the disagreement this
+    # overlay exists to reveal. Extend the bounds to also cover every
+    # normalized wall/room/opening point, inverse-transformed back into the
+    # same source-unit space the primitives are already in.
+    detected_points = [_inverse_dxf(point, geometry) for wall in geometry.walls for point in (wall.start, wall.end)]
+    detected_points.extend(_inverse_dxf(point, geometry) for room in geometry.rooms for point in room.polygon)
+    detected_points.extend(_inverse_dxf(opening.center, geometry) for opening in geometry.openings)
+    xs.extend(point[0] for point in detected_points)
+    ys.extend(point[1] for point in detected_points)
     min_x = min(xs)
     max_x = max(xs)
     min_y = min(ys)
@@ -165,6 +195,12 @@ def _dxf_svg(geometry: NormalizedGeometry, source: dict) -> bytes:
     margin = OVERLAY_MARGIN_FRACTION * max(max_x - min_x, max_y - min_y)
     width = (max_x - min_x) + (2 * margin)
     height = (max_y - min_y) + (2 * margin)
+    # D: the opening-marker radius and id/confidence label font-size used to
+    # be fixed source-unit magic numbers (r="20", SVG-default text size).
+    # For a metre-unit DXF that dwarfs the whole plan; scale both with the
+    # geometry extent instead, mirroring how the margin itself is computed.
+    opening_radius = OVERLAY_OPENING_RADIUS_FRACTION * max(width, height)
+    font_size = OVERLAY_FONT_SIZE_FRACTION * max(width, height)
 
     def map_source(point: tuple[float, float]) -> tuple[float, float]:
         return point[0] - (min_x - margin), (max_y + margin) - point[1]
@@ -205,7 +241,7 @@ def _dxf_svg(geometry: NormalizedGeometry, source: dict) -> bytes:
             continue
         center = map_source(_inverse_dxf(opening.center, geometry))
         lines.append(
-            f'<circle cx="{fmt(center[0])}" cy="{fmt(center[1])}" r="20" fill="#b45309" data-center="{fmt(center[0])},{fmt(center[1])}"/>'
+            f'<circle cx="{fmt(center[0])}" cy="{fmt(center[1])}" r="{fmt(opening_radius)}" fill="#b45309" data-center="{fmt(center[0])},{fmt(center[1])}"/>'
         )
     lines.append("</g>")
     lines.append('<g id="windows">')
@@ -214,11 +250,11 @@ def _dxf_svg(geometry: NormalizedGeometry, source: dict) -> bytes:
             continue
         center = map_source(_inverse_dxf(opening.center, geometry))
         lines.append(
-            f'<circle cx="{fmt(center[0])}" cy="{fmt(center[1])}" r="20" fill="#0891b2" data-center="{fmt(center[0])},{fmt(center[1])}"/>'
+            f'<circle cx="{fmt(center[0])}" cy="{fmt(center[1])}" r="{fmt(opening_radius)}" fill="#0891b2" data-center="{fmt(center[0])},{fmt(center[1])}"/>'
         )
     lines.append("</g>")
     id_lines, confidence_lines = _ids_and_confidence_lines(
-        geometry, lambda point, geom: map_source(_inverse_dxf(point, geom))
+        geometry, lambda point, geom: map_source(_inverse_dxf(point, geom)), font_size=font_size
     )
     lines.extend(id_lines)
     lines.extend(confidence_lines)
