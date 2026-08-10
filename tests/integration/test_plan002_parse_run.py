@@ -5,6 +5,7 @@ import os
 import shutil
 import stat
 import subprocess
+import warnings
 from pathlib import Path
 
 import ezdxf
@@ -12,7 +13,8 @@ import pytest
 from PIL import Image
 
 from pwa.contracts import compute_content_hash, validate_artifact
-from pwa.floorplan.builder import parse_run
+from pwa.files import sha256_file
+from pwa.floorplan.builder import ParseRunResult, parse_run
 from pwa.floorplan.config import MAX_OVERLAY_BYTES, limits_snapshot
 from pwa.floorplan.findings import FloorplanError
 from pwa.intake import ingest_project
@@ -120,6 +122,14 @@ def _source_run_dxf(root: Path, run_id: str = "RUN-20260809-source-dxf") -> Path
     return run_root
 
 
+def _rewrite_artifact(path: Path, mutate) -> dict:
+    document = json.loads(path.read_text(encoding="utf-8"))
+    mutate(document)
+    document["content_hash"] = compute_content_hash(document)
+    path.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return document
+
+
 def test_parse_run_finalizes_complete_derived_run(tmp_path):
     source_run, copied_floorplan = _source_run(tmp_path)
     annotation = _annotation_doc(tmp_path, copied_floorplan)
@@ -150,6 +160,35 @@ def test_parse_run_finalizes_complete_derived_run(tmp_path):
     assert parse_report["cli_exit"] == 0
     assert parse_report["limits"] == limits_snapshot()
     assert (result.final_run / "parse" / "overlay.svg").is_file()
+    for item in manifest["payload"]["inputs"]:
+        declared_path = result.final_run / item["path"]
+        assert declared_path.is_file()
+        assert sha256_file(declared_path) == item["sha256"]
+
+
+def test_post_finalization_inventory_hash_drift_is_not_reported_complete(tmp_path, monkeypatch):
+    """GC3-2: the finalized paths are opened and re-hashed after rename."""
+    source_run, copied_floorplan = _source_run(tmp_path, "RUN-20260810-source-post-final-hash")
+    annotation = _annotation_doc(tmp_path, copied_floorplan)
+    real_replace = os.replace
+
+    def replace_then_corrupt(source, destination):
+        real_replace(source, destination)
+        copied = next((Path(destination) / "project" / "inputs" / "originals").glob("floorplan.*"))
+        with copied.open("ab") as stream:
+            stream.write(b"post-finalization-drift")
+
+    monkeypatch.setattr("pwa.floorplan.runs.os.replace", replace_then_corrupt)
+
+    result = parse_run(
+        runs_root=tmp_path / "runs",
+        source_run=source_run,
+        parse_run_id="RUN-20260810-parse-post-final-hash",
+        annotation=annotation,
+    )
+
+    assert result.cli_exit == 2
+    assert result.diagnostic["outcome"] == "operational_failure"
 
 
 def test_operational_failure_retains_staging_and_no_finalized_run(tmp_path, monkeypatch):
@@ -174,7 +213,147 @@ def test_operational_failure_retains_staging_and_no_finalized_run(tmp_path, monk
     assert (result.staging_run / "parse" / "parse-report.json").is_file()
 
 
-def test_source_inventory_hash_mismatch_fails_preflight_without_staging(tmp_path):
+def test_unreadable_source_input_returns_cli2_result_instead_of_raising(tmp_path, monkeypatch):
+    """GC3-7: an unreadable inventory input is an operational API result."""
+    source_run, copied_floorplan = _source_run(tmp_path, "RUN-20260810-source-unreadable")
+    annotation = _annotation_doc(tmp_path, copied_floorplan)
+    from pwa.files import copy_immutable as real_copy_immutable
+
+    def unreadable_source(source, destination):
+        if Path(source) == copied_floorplan:
+            raise PermissionError("input is unreadable")
+        return real_copy_immutable(source, destination)
+
+    monkeypatch.setattr("pwa.floorplan.runs.copy_immutable", unreadable_source)
+
+    result = parse_run(
+        runs_root=tmp_path / "runs",
+        source_run=source_run,
+        parse_run_id="RUN-20260810-parse-unreadable",
+        annotation=annotation,
+    )
+
+    assert result.cli_exit == 2
+    assert result.diagnostic["outcome"] == "operational_failure"
+    assert not result.final_run.exists()
+
+
+def test_pillow_decompression_bomb_is_operational_cli2(tmp_path, monkeypatch):
+    """GC3-11: an untrusted oversized raster cannot escape parse_run()."""
+    source_run, copied_floorplan = _source_run(tmp_path, "RUN-20260810-source-decompression-bomb")
+    annotation = _annotation_doc(tmp_path, copied_floorplan)
+    monkeypatch.setattr(Image, "MAX_IMAGE_PIXELS", 1_000_000)
+
+    result = parse_run(
+        runs_root=tmp_path / "runs",
+        source_run=source_run,
+        parse_run_id="RUN-20260810-parse-decompression-bomb",
+        annotation=annotation,
+    )
+
+    assert isinstance(result, ParseRunResult)
+    assert result.cli_exit == 2
+    assert result.diagnostic["outcome"] == "operational_failure"
+    assert not result.final_run.exists()
+
+
+def test_pillow_decompression_bomb_warning_as_error_is_operational_cli2(tmp_path, monkeypatch):
+    """GC3-11: warnings-as-errors cannot reopen the same Pillow escape."""
+    source_run, copied_floorplan = _source_run(tmp_path, "RUN-20260810-source-decompression-warning")
+    annotation = _annotation_doc(tmp_path, copied_floorplan)
+    monkeypatch.setattr(Image, "MAX_IMAGE_PIXELS", 2_000_000)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", Image.DecompressionBombWarning)
+        result = parse_run(
+            runs_root=tmp_path / "runs",
+            source_run=source_run,
+            parse_run_id="RUN-20260810-parse-decompression-warning",
+            annotation=annotation,
+        )
+
+    assert isinstance(result, ParseRunResult)
+    assert result.cli_exit == 2
+    assert result.diagnostic["outcome"] == "operational_failure"
+    assert not result.final_run.exists()
+
+
+@pytest.mark.parametrize(
+    ("invalid_json", "case"),
+    [
+        ("[]", "non-object"),
+        ("[" * 2_000 + "]" * 2_000, "recursive"),
+        ('{"value":' + "1" * 5_000 + "}", "integer-limit"),
+    ],
+    ids=lambda value: value if value in {"non-object", "recursive", "integer-limit"} else None,
+)
+def test_annotation_json_input_failures_are_operational_cli2(tmp_path, invalid_json, case):
+    """GC3-11: decoder/type failures are classified at the input boundary."""
+    source_run, copied_floorplan = _source_run(tmp_path, f"RUN-20260810-source-annotation-{case}")
+    annotation = _annotation_doc(tmp_path, copied_floorplan)
+    annotation.write_text(invalid_json, encoding="utf-8")
+
+    result = parse_run(
+        runs_root=tmp_path / "runs",
+        source_run=source_run,
+        parse_run_id=f"RUN-20260810-parse-annotation-{case}",
+        annotation=annotation,
+    )
+
+    assert isinstance(result, ParseRunResult)
+    assert result.cli_exit == 2
+    assert not result.final_run.exists()
+    assert not result.staging_run.exists()
+
+
+@pytest.mark.parametrize(
+    ("artifact_name", "invalid_json"),
+    [
+        ("project_manifest.json", "[]"),
+        ("input_quality_report.json", "[]"),
+        ("project_manifest.json", "[" * 2_000 + "]" * 2_000),
+    ],
+    ids=("manifest-non-object", "quality-non-object", "manifest-recursive"),
+)
+def test_source_artifact_json_input_failures_are_operational_cli2(tmp_path, artifact_name, invalid_json):
+    """GC3-11: malformed manifest/quality JSON never leaks input exceptions."""
+    source_run, copied_floorplan = _source_run(tmp_path, "RUN-20260810-source-artifact-json")
+    annotation = _annotation_doc(tmp_path, copied_floorplan)
+    (source_run / "project" / artifact_name).write_text(invalid_json, encoding="utf-8")
+
+    result = parse_run(
+        runs_root=tmp_path / "runs",
+        source_run=source_run,
+        parse_run_id="RUN-20260810-parse-artifact-json",
+        annotation=annotation,
+    )
+
+    assert isinstance(result, ParseRunResult)
+    assert result.cli_exit == 2
+    assert not result.final_run.exists()
+    assert not result.staging_run.exists()
+
+
+def test_programming_error_is_not_hidden_as_operational_cli2(tmp_path, monkeypatch):
+    """GC3-7: genuine programming errors remain distinguishable."""
+    source_run, copied_floorplan = _source_run(tmp_path, "RUN-20260810-source-programming-error")
+    annotation = _annotation_doc(tmp_path, copied_floorplan)
+
+    def programming_error(*args, **kwargs):
+        raise RuntimeError("simulated programming defect")
+
+    monkeypatch.setattr("pwa.floorplan.builder.render_overlay", programming_error)
+
+    with pytest.raises(RuntimeError, match="programming defect"):
+        parse_run(
+            runs_root=tmp_path / "runs",
+            source_run=source_run,
+            parse_run_id="RUN-20260810-parse-programming-error",
+            annotation=annotation,
+        )
+
+
+def test_source_inventory_hash_mismatch_fails_snapshot_before_parsing(tmp_path):
     source_run, copied_floorplan = _source_run(tmp_path, "RUN-20260809-source-hash-mismatch")
     annotation = _annotation_doc(tmp_path, copied_floorplan)
     with copied_floorplan.open("ab") as stream:
@@ -189,7 +368,8 @@ def test_source_inventory_hash_mismatch_fails_preflight_without_staging(tmp_path
 
     assert result.cli_exit == 2
     assert not result.final_run.exists()
-    assert not result.staging_run.exists()
+    assert result.staging_run.is_dir()
+    assert result.diagnostic["terminal_finding"]["code"] == "PARSE_SOURCE_HASH_MISMATCH"
 
 
 def test_worker_garbage_is_operational_and_retains_staging(tmp_path, monkeypatch):
@@ -242,6 +422,106 @@ def test_timeout_after_valid_preflight_finalizes_failed_run(tmp_path, monkeypatc
     assert parse_report["overlay"]["overlay_omitted_reason"] == "no_normalized_geometry"
 
 
+def test_cumulative_paperspace_entity_overflow_is_resource_limit_cli3(tmp_path, monkeypatch):
+    """GC3-5: the DXF cap includes modelspace and every other layout."""
+    floorplan = tmp_path / "paperspace-overflow.dxf"
+
+    def add_paperspace(document):
+        paperspace = document.layout("Layout1")
+        paperspace.add_line((0, 0), (1, 0))
+        paperspace.add_line((0, 1), (1, 1))
+
+    _write_dxf_fixture(floorplan, mutate=add_paperspace)
+    style = tmp_path / "style-paperspace-overflow.png"
+    _image(style)
+    source_run = tmp_path / "runs" / "RUN-20260810-source-paperspace-overflow"
+    ingest_project(
+        source_run,
+        project_id="demo-project",
+        run_id=source_run.name,
+        floorplan=floorplan,
+        style_reference=style,
+        goal="precise",
+        units="mm",
+        m_per_px=None,
+    )
+
+    from pwa.floorplan import dxf_worker
+
+    monkeypatch.setattr(dxf_worker, "MAX_DXF_ENTITIES", 12)
+
+    def in_process_extract(_self, path):
+        try:
+            dxf_worker.extract_dxf(path)
+        except ValueError as exc:
+            if str(exc) == "PARSE_RESOURCE_LIMIT":
+                raise FloorplanError("PARSE_RESOURCE_LIMIT", "PARSE_RESOURCE_LIMIT") from exc
+            raise
+        raise AssertionError("expected cumulative paperspace overflow")
+
+    monkeypatch.setattr("pwa.floorplan.builder.DxfSource.extract", in_process_extract)
+
+    result = parse_run(
+        runs_root=tmp_path / "runs",
+        source_run=source_run,
+        parse_run_id="RUN-20260810-parse-paperspace-overflow",
+        annotation=None,
+    )
+
+    assert result.cli_exit == 3
+    assert result.final_run.is_dir()
+    parse_report = json.loads((result.final_run / "parse" / "parse-report.json").read_text(encoding="utf-8"))
+    floorplan_parse = json.loads((result.final_run / "parse" / "floorplan_parse.json").read_text(encoding="utf-8"))
+    assert parse_report["terminal_finding"]["code"] == "PARSE_RESOURCE_LIMIT"
+    assert floorplan_parse["errors"][0]["code"] == "PARSE_RESOURCE_LIMIT"
+
+
+def test_unknown_dxf_layout_and_layer_names_are_opaque_in_all_artifacts(tmp_path):
+    """GC3-6: client-controlled DXF names never reach runtime artifacts."""
+    secret_layers = ("Alice_SecretClient_Layer", "Carol_Confidential_Notes")
+    secret_layouts = ("Bob_Private_Project_Layout", "Dave_Restricted_Sheet")
+    floorplan = tmp_path / "private-dxf-names.dxf"
+
+    def add_private_names(document):
+        for index, layer in enumerate(secret_layers):
+            document.modelspace().add_line((0, index), (1000, index), dxfattribs={"layer": layer})
+        for index, layout in enumerate(secret_layouts):
+            document.layouts.new(layout).add_line((0, index), (1000, index), dxfattribs={"layer": "PWA-WALL"})
+
+    _write_dxf_fixture(floorplan, mutate=add_private_names)
+    style = tmp_path / "style-private-dxf-names.png"
+    _image(style)
+    source_run = tmp_path / "runs" / "RUN-20260810-source-private-dxf-names"
+    ingest_project(
+        source_run,
+        project_id="demo-project",
+        run_id=source_run.name,
+        floorplan=floorplan,
+        style_reference=style,
+        goal="precise",
+        units="mm",
+        m_per_px=None,
+    )
+
+    result = parse_run(
+        runs_root=tmp_path / "runs",
+        source_run=source_run,
+        parse_run_id="RUN-20260810-parse-private-dxf-names",
+        annotation=None,
+    )
+
+    assert result.cli_exit == 3
+    artifact_text = "\n".join(
+        (result.final_run / relative).read_text(encoding="utf-8")
+        for relative in ("parse/parse-report.json", "parse/floorplan_parse.json", "parse/overlay.svg")
+    )
+    assert all(name not in artifact_text for name in (*secret_layers, *secret_layouts))
+    assert "unknown-layer-0001" in artifact_text
+    assert "unknown-layer-0002" in artifact_text
+    assert "unknown-layout-0001" in artifact_text
+    assert "unknown-layout-0002" in artifact_text
+
+
 def test_source_run_traversal_is_rejected_without_staging(tmp_path):
     source_run, copied_floorplan = _source_run(tmp_path, "RUN-20260809-source-traversal")
     annotation = _annotation_doc(tmp_path, copied_floorplan)
@@ -250,6 +530,118 @@ def test_source_run_traversal_is_rejected_without_staging(tmp_path):
         runs_root=tmp_path / "runs",
         source_run=Path("..") / source_run.name,
         parse_run_id="RUN-20260809-parse-traversal",
+        annotation=annotation,
+    )
+
+    assert result.cli_exit == 2
+    assert not result.final_run.exists()
+    assert not result.staging_run.exists()
+
+
+def test_source_run_under_staging_is_not_accepted_as_finalized(tmp_path):
+    """GC3-4: a source run must be a direct finalized child of runs_root."""
+    source_run, _ = _source_run(tmp_path, "RUN-20260810-source-finality")
+    staged_source = tmp_path / "runs" / ".staging" / source_run.name
+    staged_source.parent.mkdir()
+    shutil.copytree(source_run, staged_source)
+    copied_floorplan = next((staged_source / "project" / "inputs" / "originals").glob("floorplan.*"))
+    annotation = _annotation_doc(tmp_path, copied_floorplan)
+
+    result = parse_run(
+        runs_root=tmp_path / "runs",
+        source_run=staged_source,
+        parse_run_id="RUN-20260810-parse-source-finality",
+        annotation=annotation,
+    )
+
+    assert result.cli_exit == 2
+    assert not result.final_run.exists()
+    assert not result.staging_run.exists()
+
+
+def test_source_manifest_and_quality_project_identity_must_match(tmp_path):
+    """GC3-4: independently valid source artifacts cannot cross projects."""
+    source_run, copied_floorplan = _source_run(tmp_path, "RUN-20260810-source-project-identity")
+    annotation = _annotation_doc(tmp_path, copied_floorplan)
+    quality_path = source_run / "project" / "input_quality_report.json"
+    _rewrite_artifact(quality_path, lambda document: document.update(project_id="other-project"))
+
+    result = parse_run(
+        runs_root=tmp_path / "runs",
+        source_run=source_run,
+        parse_run_id="RUN-20260810-parse-project-identity",
+        annotation=annotation,
+    )
+
+    assert result.cli_exit == 2
+    assert not result.final_run.exists()
+    assert not result.staging_run.exists()
+
+
+def test_source_artifact_run_identity_must_match_source_directory(tmp_path):
+    """GC3-4: manifest/quality run_id must also equal the directory name."""
+    source_run, copied_floorplan = _source_run(tmp_path, "RUN-20260810-source-run-identity")
+    annotation = _annotation_doc(tmp_path, copied_floorplan)
+    for name in ("project_manifest.json", "input_quality_report.json"):
+        _rewrite_artifact(
+            source_run / "project" / name,
+            lambda document: document.update(run_id="RUN-20260810-other-source"),
+        )
+
+    result = parse_run(
+        runs_root=tmp_path / "runs",
+        source_run=source_run,
+        parse_run_id="RUN-20260810-parse-run-identity",
+        annotation=annotation,
+    )
+
+    assert result.cli_exit == 2
+    assert not result.final_run.exists()
+    assert not result.staging_run.exists()
+
+
+def test_source_manifest_requires_exactly_one_floorplan_input(tmp_path):
+    """GC3-4: ambiguous floorplan inventory is rejected before staging."""
+    source_run, copied_floorplan = _source_run(tmp_path, "RUN-20260810-source-floorplan-cardinality")
+    annotation = _annotation_doc(tmp_path, copied_floorplan)
+    manifest_path = source_run / "project" / "project_manifest.json"
+
+    def add_second_floorplan(document):
+        style = next(item for item in document["payload"]["inputs"] if item["kind"] == "style_reference")
+        style["kind"] = "floorplan"
+
+    _rewrite_artifact(manifest_path, add_second_floorplan)
+
+    result = parse_run(
+        runs_root=tmp_path / "runs",
+        source_run=source_run,
+        parse_run_id="RUN-20260810-parse-floorplan-cardinality",
+        annotation=annotation,
+    )
+
+    assert result.cli_exit == 2
+    assert not result.final_run.exists()
+    assert not result.staging_run.exists()
+
+
+def test_source_manifest_requires_unique_inventory_paths(tmp_path):
+    """GC3-4: duplicate declared input paths are rejected before staging."""
+    source_run, copied_floorplan = _source_run(tmp_path, "RUN-20260810-source-unique-paths")
+    annotation = _annotation_doc(tmp_path, copied_floorplan)
+    manifest_path = source_run / "project" / "project_manifest.json"
+
+    def duplicate_path(document):
+        floorplan = next(item for item in document["payload"]["inputs"] if item["kind"] == "floorplan")
+        style = next(item for item in document["payload"]["inputs"] if item["kind"] == "style_reference")
+        style["path"] = floorplan["path"]
+        style["sha256"] = floorplan["sha256"]
+
+    _rewrite_artifact(manifest_path, duplicate_path)
+
+    result = parse_run(
+        runs_root=tmp_path / "runs",
+        source_run=source_run,
+        parse_run_id="RUN-20260810-parse-unique-paths",
         annotation=annotation,
     )
 
@@ -576,6 +968,45 @@ def test_runs_root_itself_as_a_junction_is_rejected(tmp_path):
 
 
 @pytest.mark.skipif(os.name != "nt", reason="Windows junction coverage")
+def test_destination_staging_junction_is_rejected_before_any_external_write(tmp_path):
+    """GC3-1: a destination junction must be rejected before staging writes.
+
+    The stale annotation content hash makes an unfixed parse fail only after
+    copying the source inventory, leaving those copies in the junction target.
+    """
+    runs_root = tmp_path / "runs"
+    source_run, copied_floorplan = _source_run(tmp_path, "RUN-20260810-source-destination-junction")
+    annotation = _annotation_doc(tmp_path, copied_floorplan)
+    annotation_document = json.loads(annotation.read_text(encoding="utf-8"))
+    annotation_document["payload"]["walls"][0]["end_px"] = [1750, 1400]
+    annotation.write_text(json.dumps(annotation_document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+    external_target = tmp_path / "outside-staging-target"
+    external_target.mkdir()
+    staging_junction = runs_root / ".staging"
+    subprocess.run(
+        ["cmd.exe", "/d", "/c", "mklink", "/J", str(staging_junction), str(external_target)],
+        check=True,
+        capture_output=True,
+    )
+    try:
+        assert staging_junction.lstat().st_file_attributes & stat.FILE_ATTRIBUTE_REPARSE_POINT
+        result = parse_run(
+            runs_root=runs_root,
+            source_run=source_run,
+            parse_run_id="RUN-20260810-parse-destination-junction",
+            annotation=annotation,
+        )
+
+        assert result.cli_exit == 2
+        assert not result.final_run.exists()
+        assert list(external_target.iterdir()) == []
+    finally:
+        if staging_junction.exists():
+            staging_junction.rmdir()
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows junction coverage")
 def test_manifest_project_ancestor_junction_is_rejected(tmp_path):
     """GC-3 (OpenAI cross-provider rework review, 2026-08-10): parse_run()
     used to read project_manifest.json/input_quality_report.json directly
@@ -665,34 +1096,20 @@ def test_missing_annotation_file_returns_operational_cli2(tmp_path):
 
 
 def test_copied_inventory_hash_drift_before_copy_is_rejected(tmp_path, monkeypatch):
-    """A (OpenAI cross-provider rework review, 2026-08-10): preflight hashes
-    the source, then copy_source_inventory() copies -- but no destination
-    hash was reverified against the manifest-declared value before the
-    derived manifest finalized. Simulate a file that changes on disk
-    between the preflight hash check and the copy: bypass only the
-    preflight comparison (by making builder.sha256_file lie for this one
-    file) while the real bytes on disk are already tampered -- exactly what
-    an intervening external write would look like from parse_run()'s point
-    of view.
-    """
-    from pwa.files import sha256_file as real_sha256_file
-
+    """The one-read snapshot must still match the preflight declaration."""
     source_run, copied_floorplan = _source_run(tmp_path, "RUN-20260809-source-hash-drift")
     annotation = _annotation_doc(tmp_path, copied_floorplan)
     style_reference = next((source_run / "project" / "inputs" / "originals").glob("style_reference.*"))
-    manifest = json.loads((source_run / "project" / "project_manifest.json").read_text(encoding="utf-8"))
-    style_entry = next(item for item in manifest["payload"]["inputs"] if item["kind"] == "style_reference")
-    original_hash = style_entry["sha256"]
+    from pwa.floorplan.runs import create_contained_directory as real_create_contained_directory
 
-    with style_reference.open("ab") as stream:
-        stream.write(b"tampered-after-preflight-hash-check")
+    def create_then_swap(root, relpath):
+        created = real_create_contained_directory(root, relpath)
+        if Path(relpath) == Path("parse"):
+            with style_reference.open("ab") as stream:
+                stream.write(b"tampered-after-manifest-snapshot")
+        return created
 
-    def fake_sha256_file(path):
-        if Path(path) == style_reference:
-            return original_hash
-        return real_sha256_file(path)
-
-    monkeypatch.setattr("pwa.floorplan.builder.sha256_file", fake_sha256_file)
+    monkeypatch.setattr("pwa.floorplan.builder.create_contained_directory", create_then_swap)
 
     result = parse_run(
         runs_root=tmp_path / "runs",
@@ -703,6 +1120,69 @@ def test_copied_inventory_hash_drift_before_copy_is_rejected(tmp_path, monkeypat
 
     assert result.cli_exit == 2
     assert not result.final_run.exists()
+    assert result.staging_run.is_dir()
+    assert result.diagnostic["terminal_finding"]["code"] == "PARSE_SOURCE_HASH_MISMATCH"
+
+
+def test_dxf_is_parsed_from_verified_staging_snapshot_after_source_swap(tmp_path, monkeypatch):
+    """GC3-3: replacing the source DXF after copy cannot change parsing."""
+    source_run = _source_run_dxf(tmp_path, "RUN-20260810-source-dxf-snapshot")
+    manifest = json.loads((source_run / "project" / "project_manifest.json").read_text(encoding="utf-8"))
+    floorplan_entry = next(item for item in manifest["payload"]["inputs"] if item["kind"] == "floorplan")
+    source_floorplan = source_run / floorplan_entry["path"]
+
+    from pwa.floorplan.runs import copy_source_inventory as real_copy_source_inventory
+
+    def copy_then_swap(source, staging, source_manifest):
+        real_copy_source_inventory(source, staging, source_manifest)
+        replacement = ezdxf.new("R2013")
+        replacement.header["$INSUNITS"] = 0
+        replacement.modelspace().add_line((0, 0), (1000, 0), dxfattribs={"layer": "PWA-WALL"})
+        replacement.saveas(source_floorplan)
+
+    monkeypatch.setattr("pwa.floorplan.builder.copy_source_inventory", copy_then_swap)
+
+    result = parse_run(
+        runs_root=tmp_path / "runs",
+        source_run=source_run,
+        parse_run_id="RUN-20260810-parse-dxf-snapshot",
+        annotation=None,
+    )
+
+    assert result.cli_exit == 0
+    assert result.final_run.is_dir()
+
+
+def test_annotation_lineage_uses_the_same_staged_snapshot_that_is_parsed(tmp_path, monkeypatch):
+    """GC3-3: an annotation swapped after preflight cannot retain stale lineage."""
+    source_run, copied_floorplan = _source_run(tmp_path, "RUN-20260810-source-annotation-snapshot")
+    annotation = _annotation_doc(tmp_path, copied_floorplan)
+
+    from pwa.floorplan.runs import copy_source_inventory as real_copy_source_inventory
+
+    def copy_then_swap(source, staging, source_manifest):
+        real_copy_source_inventory(source, staging, source_manifest)
+        replacement = json.loads(annotation.read_text(encoding="utf-8"))
+        replacement["artifact_id"] = "annotation-swapped-002"
+        replacement["content_hash"] = compute_content_hash(replacement)
+        annotation.write_text(json.dumps(replacement, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+    monkeypatch.setattr("pwa.floorplan.builder.copy_source_inventory", copy_then_swap)
+
+    result = parse_run(
+        runs_root=tmp_path / "runs",
+        source_run=source_run,
+        parse_run_id="RUN-20260810-parse-annotation-snapshot",
+        annotation=annotation,
+    )
+
+    assert result.cli_exit == 0
+    copied_annotation = json.loads((result.final_run / "parse" / "annotation.json").read_text(encoding="utf-8"))
+    floorplan_parse = json.loads((result.final_run / "parse" / "floorplan_parse.json").read_text(encoding="utf-8"))
+    assert {
+        "artifact_id": copied_annotation["artifact_id"],
+        "content_hash": copied_annotation["content_hash"],
+    } in floorplan_parse["inputs"]
 
 
 def test_overlay_write_is_exclusive_and_rejects_preexisting_path(tmp_path, monkeypatch):

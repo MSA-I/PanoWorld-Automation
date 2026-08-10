@@ -23,6 +23,14 @@ _SECURITY_UNSUPPORTED_KINDS = {"ARC", "SPLINE", "INSERT", "IMAGE", "OLE2FRAME"}
 _LAYER_SCOPED_UNSUPPORTED_KINDS = {"TEXT", "MTEXT"}
 
 
+def _opaque_name(value: str, tokens: dict[str, str], prefix: str) -> str:
+    token = tokens.get(value)
+    if token is None:
+        token = f"{prefix}-{len(tokens) + 1:04d}"
+        tokens[value] = token
+    return token
+
+
 def _finding_dict(code: str, message: str, *, source_ref: str | None = None) -> dict[str, object]:
     finding = make_finding(code, message, source_ref=source_ref)
     return {
@@ -58,14 +66,37 @@ def _room_has_bulge(entity) -> bool:
     return any(abs(point[2]) > 0 for point in entity.get_points("xyb"))
 
 
-def _scan_layout(layout, *, include_geometry: bool, units: str, walls: list[dict], rooms: list[dict], openings: list[dict], errors: list[dict], unmapped: list[dict]) -> int:
+def _scan_layout(
+    layout,
+    *,
+    include_geometry: bool,
+    units: str,
+    walls: list[dict],
+    rooms: list[dict],
+    openings: list[dict],
+    errors: list[dict],
+    unmapped: list[dict],
+    scanned_before: int = 0,
+    layout_tokens: dict[str, str] | None = None,
+    layer_tokens: dict[str, str] | None = None,
+) -> int:
+    layout_tokens = layout_tokens if layout_tokens is not None else {}
+    layer_tokens = layer_tokens if layer_tokens is not None else {}
     scanned = 0
     for entity in layout:
+        if scanned_before + scanned >= MAX_DXF_ENTITIES:
+            raise ValueError("PARSE_RESOURCE_LIMIT")
         scanned += 1
         layer = entity.dxf.layer
         kind = entity.dxftype()
         handle = entity.dxf.handle
-        source_ref = f"dxf:{layout.name}/{layer}#{handle}"
+        safe_layout = (
+            layout.name
+            if layout.name == "Model"
+            else _opaque_name(layout.name, layout_tokens, "unknown-layout")
+        )
+        safe_layer = layer if layer in _KNOWN_LAYERS else _opaque_name(layer, layer_tokens, "unknown-layer")
+        source_ref = f"dxf:{safe_layout}/{safe_layer}#{handle}"
         if layout.name != "Model":
             errors.append(_unsupported(source_ref, "paperspace or additional layout entities are unsupported"))
             continue
@@ -75,16 +106,16 @@ def _scan_layout(layout, *, include_geometry: bool, units: str, walls: list[dict
         # 0 (the overwhelmingly common real-world convention) cannot
         # downgrade to a silently-ignored warning.
         if kind in _SECURITY_UNSUPPORTED_KINDS:
-            errors.append(_unsupported(source_ref, f"{kind} is unsupported on layer {layer}"))
+            errors.append(_unsupported(source_ref, f"{kind} is unsupported on layer {safe_layer}"))
             continue
         if layer not in _KNOWN_LAYERS:
-            unmapped.append(_unmapped(source_ref, layer))
+            unmapped.append(_unmapped(source_ref, safe_layer))
             continue
         if layer == "PWA-DIM":
             errors.append(_unsupported(source_ref, "reserved PWA-DIM entities are unsupported"))
             continue
         if kind in _LAYER_SCOPED_UNSUPPORTED_KINDS:
-            errors.append(_unsupported(source_ref, f"{kind} is unsupported on layer {layer}"))
+            errors.append(_unsupported(source_ref, f"{kind} is unsupported on layer {safe_layer}"))
             continue
         if layer == "PWA-WALL":
             if kind != "LINE" or _has_nonzero_line_z(entity):
@@ -155,6 +186,8 @@ def extract_dxf(path: Path) -> dict:
     openings: list[dict[str, object]] = []
     errors: list[dict[str, object]] = []
     unmapped: list[dict[str, object]] = []
+    layout_tokens: dict[str, str] = {}
+    layer_tokens: dict[str, str] = {}
     scanned_entities = _scan_layout(
         modelspace,
         include_geometry=True,
@@ -164,6 +197,8 @@ def extract_dxf(path: Path) -> dict:
         openings=openings,
         errors=errors,
         unmapped=unmapped,
+        layout_tokens=layout_tokens,
+        layer_tokens=layer_tokens,
     )
 
     for layout in document.layouts:
@@ -179,6 +214,9 @@ def extract_dxf(path: Path) -> dict:
                 openings=openings,
                 errors=errors,
                 unmapped=unmapped,
+                scanned_before=scanned_entities,
+                layout_tokens=layout_tokens,
+                layer_tokens=layer_tokens,
             )
 
     return {

@@ -330,4 +330,5 @@ def test_dxf_worker_records_unmapped_source_entities(tmp_path):
     payload = extract_dxf(dxf_path)
 
     assert payload["unmapped"][0]["code"] == "PARSE_UNMAPPED_SOURCE_ENTITY"
-    assert "NOTES-UNMAPPED" in payload["unmapped"][0]["source_ref"]
+    assert "NOTES-UNMAPPED" not in json.dumps(payload["unmapped"])
+    assert "unknown-layer-0001" in payload["unmapped"][0]["source_ref"]
