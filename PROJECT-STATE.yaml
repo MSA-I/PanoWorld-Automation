@@ -45,6 +45,44 @@ state_authority:
     main. It can be removed with `git worktree remove` once Moshe says so; an
     agent must not remove it on its own.
 
+delegated_authority:
+  granted_at: "2026-08-10"
+  granted_by: Moshe
+  verbatim: >-
+    "ה־/goal שלך זה לסיים את כל שלבי הפיתוח של החלק הראשון. כל עבודה שנעשתה על
+    ידך - בדוק אותה במידה ולפי שכתוב במסמך החוקה. המשך, ונגמר לך הסשן - פתח חדש
+    והתחל משם. את כל השאלות שמצריכות אותי, תבחר באפשרות שאתה תמליץ."
+  scope: >-
+    Run Part 1 to completion without stopping for Moshe on each question. Where a
+    question would previously have blocked on him, the orchestrator picks the
+    option it would recommend, records the choice and the reasoning, and continues.
+  what_this_does_NOT_waive:
+    - >-
+      docs/04 line "המחבר היחיד אינו המאשר הסופי של artifact קריטי" - the sole
+      author is still not the final approver. Anything the orchestrator drafts
+      that PLAN-002 section 20 reserves as a gate (GC3-8's amended wording, and
+      any contract or schema text) goes to an INDEPENDENT CROSS-PROVIDER reviewer
+      for approval before implementation. Delegation moves the decision to the
+      orchestrator; it does not let the orchestrator approve its own draft.
+    - >-
+      Section 17 provider separation. An OpenAI implementer is still followed by an
+      Anthropic reviewer and vice versa; no silent substitution, runtime metadata
+      recorded.
+    - >-
+      GC3-10 / NA-4 is a VISUAL gate. The orchestrator can generate, measure and
+      verify the overlay and it will accept it on delegated authority, but it
+      records plainly that no human eye has seen it, so Moshe can still overturn
+      that one on sight. It is the single gate where delegation cannot fully
+      substitute for him.
+    - >-
+      Destructive or outward-facing acts beyond what he already authorised: no
+      force-push, no history rewrite, no branch deletion, no GPU or cloud run
+      (G7/G8 stay deferred per AC-23).
+  reporting: >-
+    Every round closes with the two mandatory formats from docs/04 - the per-agent
+    update block and Moshe's supervision report - which the orchestrator had not
+    been using before this self-audit.
+
 project:
   id: panoworld-automation
   phase: implementation
@@ -1386,7 +1424,16 @@ next_actions:
       available on this machine, so the OpenAI implementer route should be tried
       before any fallback is claimed again.
     blocked_by: null
-    status: DONE
+    status: REWORK
+    status_correction: >-
+      CORRECTED 2026-08-10 by orchestrator self-audit against
+      docs/04-מתודיקת-ניהול-סוכנים-ומעקב.md. This entry read DONE, which the
+      constitution does not permit: DONE requires that an independent review
+      passed and that no blocker is open (Definition of Done), and NA-3d returned
+      NEEDS_REWORK with three MAJOR findings still open. The constitution's own
+      status for that state is REWORK - "review נכשל ונדרש תיקון". The
+      implementation work described below did happen and is merged; what is not
+      true is that it is finished. NA-3e is the rework this status points at.
     result: >-
       Done 2026-08-10 on branch panoworld-dev/na-3b-gc3-fixes, not merged. The
       OpenAI implementer route was tried first and worked: Codex CLI,
@@ -1503,7 +1550,14 @@ next_actions:
       zero-byte files with non-identifier names, since that class has now recurred
       five times in two rounds.
     blocked_by: null
-    status: BLOCKED_ON_MOSHE
+    status: READY
+    status_correction: >-
+      CORRECTED 2026-08-10 by orchestrator self-audit. This entry read
+      BLOCKED_ON_MOSHE, which is not one of the eleven statuses
+      docs/04-מתודיקת-ניהול-סוכנים-ומעקב.md permits. It was also superseded the
+      same evening: Moshe delegated the decision to the orchestrator (see
+      delegated_authority below), so the gate that made it blocked is closed and
+      the correct status is READY.
   - id: NA-4
     action: layer_A_overlay_visual_geometry_gate
     detail: >-
