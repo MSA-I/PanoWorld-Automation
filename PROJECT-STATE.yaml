@@ -24,6 +24,22 @@ state_authority:
   merged_branch: panoworld-dev/t_b7ade39e-p1-02-floorplan-parsing
   merge_authorised_by: "Moshe, 2026-08-10"
   merge_means: "preservation of reviewed work, NOT acceptance of PLAN-002"
+  second_merge:
+    merged_at: "2026-08-10 (later the same day)"
+    merged_branch: panoworld-dev/na-3b-gc3-fixes
+    merge_commit: 31c08e4
+    contained_commits: "6eaef17 (NA-3b third bounded rework), 25a5bfa (NA-3d review evidence)"
+    merge_authorised_by: "Moshe, 2026-08-10 - 'tekamet ve-dchof le-git ha-rashi ve-temzeg ma she-tzarich'"
+    merge_means: >-
+      Same as the first merge: preservation of reviewed work and its evidence on
+      main, NOT acceptance of PLAN-002 and NOT a G1 claim. Main now carries code
+      whose GC3-2 and GC3-3 gates are only PARTIALLY_CLOSED and three open MAJOR
+      findings scoped as NA-3e. Do not read the presence of this code on main as
+      approval; read current_plan.status_note and next_actions.NA-3e.
+    pushed_to_origin: true
+    branch_ref_kept: >-
+      panoworld-dev/na-3b-gc3-fixes is pushed and retained rather than deleted,
+      so the review subject the NA-3d evidence names by commit stays reachable.
   worktree_note: >-
     .worktrees/t_b7ade39e still exists and its branch is now fully contained in
     main. It can be removed with `git worktree remove` once Moshe says so; an
@@ -32,10 +48,10 @@ state_authority:
 project:
   id: panoworld-automation
   phase: implementation
-  overall_status: PLAN_002_NA3B_THIRD_REWORK_DONE_PENDING_ANTHROPIC_REVIEW
+  overall_status: PLAN_002_NA3D_REVIEWED_NEEDS_FOURTH_REWORK
   implementation_started: true
   updated_at: "2026-08-10"
-  updated_by_session: PLAN-002-NA3B-THIRD-REWORK
+  updated_by_session: PLAN-002-NA3D-REVIEW
 
 model_policy:
   id: MODEL-ROUTING-v1
