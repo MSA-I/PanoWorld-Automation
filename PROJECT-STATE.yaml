@@ -433,9 +433,10 @@ current_plan:
         the subprocess fatal_error_code mapping are proven separately rather than
         in one end-to-end run. The orchestrator PoC covers the worker half.
       - >-
-        Two zero-byte junk files (`1`, `CLI`) were created in the repository root
-        by the follow-up run's shell quoting and were deleted by the orchestrator
-        before committing.
+        Three zero-byte junk files were created in the repository root by broken
+        shell quoting - `1` and `CLI` by the follow-up run, `-,+` by an
+        orchestrator verification command - and all three were deleted before
+        committing, with git status confirmed clean of them.
   status_note: >-
     Implementation is COMMITTED on this branch (HEAD ad4830c at the start of the
     NA-3 session) and is NOT merged into main. Merging still requires Moshe's
@@ -461,6 +462,23 @@ current_plan:
     ACs the NA-3 reviewer marked NOT MET are the ones these fixes target, but
     re-assessing them is the NA-3d reviewer's job, not the orchestrator's, and no
     AC verdict is changed here. Still no G1 claim, still not merged to main.
+
+    UPDATE 2026-08-10, NA-3d: the fourth independent review ran and returned
+    NEEDS_REWORK, so NA-3b is NOT accepted. Six of the eight gates are closed on
+    the evidence; GC3-2 and GC3-3 are PARTIALLY_CLOSED, in both cases because the
+    gate's literal text was satisfied while the invariant it exists to protect was
+    not. Three MAJOR findings define the fourth bounded rework, now queued as NA-3e
+    and awaiting Moshe's go: a post-rename verification failure publishes a run
+    that self-reports "complete" while returning CLI 2 (confirmed by an executed
+    probe); the annotation raster is still read three times with the hash-checked
+    read separate from the embedded read; and a Windows drive-relative path
+    component defeats the write-side containment walk, which is the GC-1 CRITICAL
+    defect class surviving inside the helpers GC3-1 created, latent today only
+    because of a call ordering no test asserts. AC-17 and AC-18 rise to MET; AC-4
+    stays NOT MET for a new reason; AC-15 does not match the accepted GC3-9
+    deviation and should be reconciled by amending the AC or recording a deviation,
+    not by code. Still no G1 claim, still not merged to main, and NA-4's visual gate
+    stays blocked behind NA-3e.
   owner: spatial-architect
   path: docs/plans/PLAN-002-floorplan-parsing.md
   branch: panoworld-dev/t_b7ade39e-p1-02-floorplan-parsing
@@ -1011,6 +1029,68 @@ agents:
     dispatch_brief: evidence/PLAN-002/reviews/na3b-rework3-dispatch-20260810.md
     evidence: evidence/PLAN-002/reviews/rework3-report-20260810.md
     orchestrator_verification: evidence/PLAN-002/reviews/orchestrator-verification-na3b-20260810.md
+  - name: na3d-reviewer-pass1
+    role: PLAN-002 fourth independent review, first pass (code/spatial, read-only)
+    plan_id: PLAN-002
+    task_id: NA-3d
+    provider: anthropic
+    requested_model: "opus / claude-opus-5"
+    actual_model_id: "claude-sonnet-5"
+    normalized_effort: "not exposed by the CLI as a parameter separate from the model tag"
+    provider_effort: "n/a"
+    fallback: >-
+      yes - DOCUMENTED SUBSTITUTION, not silent. The Opus 5 route was attempted
+      first and returned HTTP 429 (rate limit, reset after 59m 54s) with zero
+      tokens and no review. Sonnet 5 ran so the round could proceed, and the Opus
+      pass was queued for after the window; it ran and is recorded separately as
+      na3d-reviewer-pass2.
+    model_reason: "PLAN-002 section 17 row 3 staffs review of an OpenAI implementer to an Anthropic reviewer"
+    runtime_metadata: >-
+      From the harness, not from model self-description. claude CLI 2.1.226,
+      headless (-p), --strict-mcp-config, read-only tool allowlist. Session
+      be8ca90e-f567-4832-a000-94e30ca271de; 70 turns; 24.9 min; tokens in/out
+      864,601 / 122,725; USD 11.25; 7 permission denials.
+    status: DONE
+    verdict: >-
+      ACCEPT with 2 MINOR and 2 INFO findings; GC3-3 judged PARTIALLY_CLOSED.
+      SUPERSEDED ON EVIDENCE by pass 2, and the reason is an orchestrator error
+      recorded in the archived header: the read-only allowlist was written as
+      Bash(git diff:*), which matches neither "git --no-pager diff" nor a
+      "cd ... && git diff" compound, so all 7 of this reviewer's diff attempts
+      were denied. It judged the current code, never the change set, and did not
+      read src/pwa/files.py, the failure-matrix test or the two unit test files.
+    evidence: evidence/PLAN-002/reviews/independent-anthropic-rework3-review-20260810.md
+  - name: na3d-reviewer-pass2
+    role: PLAN-002 fourth independent review, queued Opus pass with diff access (read-only)
+    plan_id: PLAN-002
+    task_id: NA-3d
+    provider: anthropic
+    requested_model: "opus / claude-opus-5"
+    actual_model_id: "claude-opus-5"
+    normalized_effort: "not exposed by the CLI as a parameter separate from the model tag"
+    provider_effort: "n/a"
+    fallback: "no - the requested route was honoured once the rate-limit window reopened"
+    model_reason: "PLAN-002 section 17 row 3; this is the pass that closes the diff-access gap pass 1 suffered"
+    runtime_metadata: >-
+      From the harness, not from model self-description. claude CLI headless (-p),
+      --strict-mcp-config, read-only allowlist with NO Bash tool at all, plus a
+      workspace directory added outside the repository holding the pre-materialised
+      patch (diffstat and the full src/+tests/ diff 11ef553 -> 6eaef17). Session
+      5d392e28-1a97-43ff-b3dc-8b19c6f67133; 37 turns; 19.2 min; tokens in/out
+      818,905 / 63,875; cache read/creation 1,255,235 / 602,942; USD 13.56;
+      0 permission denials.
+    status: DONE
+    verdict: >-
+      NEEDS_REWORK. 3 MAJOR, 5 MINOR, 5 INFO. GC3-1, GC3-4, GC3-5, GC3-6, GC3-7
+      and GC3-11 CLOSED; GC3-2 and GC3-3 PARTIALLY_CLOSED. AC-17 and AC-18 raised
+      to MET; AC-4 stays NOT MET for a new reason (F-1); AC-20 PARTIALLY MET;
+      AC-13/AC-14 CANNOT_VERIFY; AC-15 NOT MET as written because the accepted
+      GC3-9 deviation contradicts its second clause; AC-23 still WEAK. It
+      independently reproduced both defects the orchestrator had found by
+      experiment (its F-3 = O-NA3D-1, its F-7 = O-NA3D-2) without access to that
+      document, and its F-1 has since been confirmed by an executed probe.
+    evidence: evidence/PLAN-002/reviews/independent-anthropic-rework3-review-opus-20260810.md
+    orchestrator_verification: evidence/PLAN-002/reviews/orchestrator-verification-na3d-findings-20260810.md
 
 blockers:
   - id: BLOCK-0001
@@ -1037,6 +1117,46 @@ open_decisions:
   - D-011 style_spec reference cardinality
 
 recent_runs:
+  - id: PLAN-002-NA3D-REVIEW-20260810
+    kind: NA-3d fourth independent review (Anthropic, two passes) and orchestrator verification
+    result: >-
+      VERDICT: NEEDS_REWORK. Two Anthropic passes ran and both are archived
+      unedited. Pass 1 (Sonnet 5, after Opus returned HTTP 429) said ACCEPT with 2
+      MINOR and 2 INFO. Pass 2 (Opus 5, once the window reopened, with the diff
+      pre-materialised as a readable patch and no Bash tool) said NEEDS_REWORK with
+      3 MAJOR, 5 MINOR, 5 INFO. NEEDS_REWORK governs, and not as a matter of taste:
+      an orchestrator error in pass 1's allowlist - Bash(git diff:*) matches
+      neither "git --no-pager diff" nor a "cd ... && git diff" compound - denied all
+      7 of its diff attempts, so it judged the current code and never the change
+      set, and it did not read src/pwa/files.py, the failure-matrix test or the two
+      unit test files. Pass 2 read all of them plus the full diff. THE THREE MAJORS.
+      F-1 (runs.py:221): a post-rename inventory hash drift raises after
+      os.replace has already published the run, the caller gets CLI 2, and
+      builder.py:450 skips writing the failure report because staging no longer
+      exists - CONFIRMED BY EXECUTED PROBE: cli_exit 2, staging gone, a 15-file
+      finalized run present, and its own parse-report.json reading outcome
+      "complete" / cli_exit 0. F-2 (annotation_source.py:60): the staged raster is
+      read three times and the hash-verified read is not the read whose pixels are
+      embedded in overlay.svg or recorded as source_sha256, so GC3-3's defect moved
+      from the source run into staging rather than being eliminated. F-3
+      (runs.py:14): _contained_parts accepts a Windows drive-relative component
+      such as "C:sub", and root / "C:" discards the root, while the four write-side
+      helpers lack the resolve()/relative_to check their read-side sibling has -
+      the GC-1 CRITICAL defect class surviving in the write-side family, latent
+      today only because of call ordering that no test asserts. The orchestrator had
+      independently found F-3 and F-7 by running the Windows aliasing experiment
+      pass 1 requested, with a working proof-of-concept that wrote a file outside
+      the containment root; pass 2 reproduced both from code alone, without access
+      to that document. The experiment also answered pass 1's open question in the
+      NEGATIVE: trailing dots, trailing spaces, case folding and NTFS 8.3 aliases
+      do NOT defeat the reparse check - lstat reports reparse=True with identical
+      st_ino/st_dev through every alias form, and resolve() normalizes aliases
+      before the containment test. Verifications pass 2 asked for and could not run
+      itself, all executed: 338 passed exit 0 in 60 s; the golden canonical
+      projection hash test passed; git diff --stat 6eaef17 -- src tests empty, so
+      the tree it read is the reviewed commit; pyproject.toml, uv.lock, schemas,
+      contracts and docs diffs empty. Still NOT merged, NOT pushed, NOT a G1 claim.
+    evidence: evidence/PLAN-002/reviews/orchestrator-verification-na3d-findings-20260810.md
   - id: PLAN-002-NA3B-REWORK-20260810
     kind: NA-3b third bounded rework (OpenAI implementer) and orchestrator verification
     result: >-
@@ -1311,7 +1431,63 @@ next_actions:
       challenged, not a finding to be trusted - in particular GC3-3 and GC3-4,
       which have no orchestrator proof-of-concept behind them.
     blocked_by: null
-    status: READY
+    status: DONE
+    result: >-
+      Done 2026-08-10. VERDICT: NEEDS_REWORK, so NA-3b is not accepted and NA-4
+      stays blocked. Two Anthropic passes, both archived unedited: pass 1 Sonnet 5
+      (documented substitution after Opus returned HTTP 429) said ACCEPT; pass 2
+      Opus 5, run once the window reopened with the diff pre-materialised and no
+      Bash tool, said NEEDS_REWORK with 3 MAJOR, 5 MINOR, 5 INFO. Pass 2 governs
+      because pass 1 was denied all 7 of its diff attempts by an orchestrator error
+      in the allowlist and never saw the change set. Gates: GC3-1, GC3-4, GC3-5,
+      GC3-6, GC3-7, GC3-11 CLOSED; GC3-2 and GC3-3 PARTIALLY_CLOSED. The three
+      MAJORs are F-1 (a post-rename verification failure publishes a run that says
+      "complete" while the caller is told CLI 2 - confirmed by executed probe), F-2
+      (the raster is read three times and the hash-checked read is not the embedded
+      read, so GC3-3's defect moved into staging), and F-3 (a drive-relative
+      component defeats the write-side containment walk - the GC-1 CRITICAL class
+      surviving in the write-side helpers, latent only because of call ordering).
+      The orchestrator found F-3 and F-7 independently via the Windows aliasing
+      experiment pass 1 requested, with a proof-of-concept that wrote outside the
+      root; that experiment also answered the trailing-dot and 8.3-alias question
+      NEGATIVE - neither defeats the reparse check. Suite re-verified at 338 passed
+      exit 0 with the golden hash test green, and the working tree proven identical
+      to 6eaef17 for src/ and tests/.
+    evidence:
+      - evidence/PLAN-002/reviews/na3d-anthropic-review-dispatch-20260810.md
+      - evidence/PLAN-002/reviews/independent-anthropic-rework3-review-20260810.md
+      - evidence/PLAN-002/reviews/independent-anthropic-rework3-review-opus-20260810.md
+      - evidence/PLAN-002/reviews/orchestrator-verification-na3d-findings-20260810.md
+  - id: NA-3e
+    action: fourth_bounded_rework_on_the_NA3D_findings
+    detail: >-
+      AWAITING MOSHE'S GO - not dispatched. Scope, in the reviewer's own priority
+      order, all bounded code fixes with no contract, schema, error-code or
+      dependency change: (1) F-1, finalize_run must not leave a published run when
+      the post-rename inventory check fails - rename back, quarantine, or treat it
+      as a hard failure, and the report must land somewhere on disk; (2) F-2, give
+      the annotation raster a single snapshot so the hash-checked bytes are the
+      bytes whose dimensions are validated and whose pixels are embedded; (3) F-3
+      plus F-7 together, reject any path component containing ":" in
+      _contained_parts and add the resolve()/relative_to(root) check to
+      validate_contained_destination - two lines that close both the drive-relative
+      escape and the ADS channel, with a failure-matrix test per mechanism; (4)
+      F-4, route the six staged write sites through the checked helpers instead of
+      mkdir(parents=True, exist_ok=True); (5) F-5, extend the finalisation check to
+      the derived envelopes and overlay.svg, not only payload.inputs; (6) F-6, bound
+      the annotation read so MAX_ANNOTATION_BYTES limits the read it names and
+      MemoryError stops being reachable out of parse_run(); (7) F-8, check
+      source_image_ref for containment before extract() opens it rather than after.
+      Also worth taking: a direct unit test for the overlay XML escaping path that
+      disclosure 2 retired, and one end-to-end test spanning the real DXF worker
+      subprocess for GC3-5 that disclosure 3 admits is missing. Section 17 staffing
+      for this round: the implementer must be OPENAI (Codex CLI, gpt-5.6-sol) and
+      the follow-up reviewer ANTHROPIC, same as NA-3b/NA-3d. F-9 through F-13 are
+      records, not work items. F-13 is worth a cheap guard: a pre-commit check for
+      zero-byte files with non-identifier names, since that class has now recurred
+      five times in two rounds.
+    blocked_by: null
+    status: BLOCKED_ON_MOSHE
   - id: NA-4
     action: layer_A_overlay_visual_geometry_gate
     detail: >-
@@ -1320,7 +1496,7 @@ next_actions:
       handed to PLAN-003 (PLAN-002 section 20). Regenerate the Layer A artifacts
       after NA-3b first - the NA-3 reviewer listed this as its final gate
       condition (GC3-10).
-    blocked_by: NA-3d
+    blocked_by: NA-3e
     status: BLOCKED
   - id: NA-5
     action: annotate_the_downloaded_public_domain_floorplan
