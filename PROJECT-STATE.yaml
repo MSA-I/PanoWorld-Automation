@@ -335,9 +335,14 @@ current_plan:
         unaffected and remains a required bounded fix, because that one leaks
         into runtime ARTIFACTS, not just into historical evidence.
       note_on_public_visibility: >-
-        The repository has a GitHub remote, so this data is published, not merely
-        local. Moshe made the acceptance decision on 2026-08-10 with the leak's
-        scope in front of him.
+        VERIFIED 2026-08-10 AFTER the decision was taken: the GitHub remote
+        github.com/MSA-I/PanoWorld-Automation is PUBLIC. The accepted deviation
+        is therefore public exposure of the OS account name "art1" and local
+        absolute Windows paths, not a local-only artifact. Moshe decided
+        "accept and document" knowing the scope (53 occurrences, 29 files) but
+        the public visibility was confirmed only afterwards and was reported to
+        him. If he wants to revisit, the options are unchanged: history rewrite
+        or in-place redaction, both of which now also require a force-push.
       recorded_by_session: PLAN-002-NA3-CROSS-PROVIDER-RE-REVIEW
     - id: GC3-10
       text: >-
