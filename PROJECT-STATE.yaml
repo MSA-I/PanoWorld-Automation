@@ -1,10 +1,63 @@
+# =============================================================================
+# STOP - READ THIS BEFORE ANYTHING ELSE
+#
+# This file describes the state of branch `main` ONLY, and `main` is BEHIND.
+# Everything below the `active_work` block is the PLAN-001 picture and is STALE.
+#
+# The live state of the project is the PROJECT-STATE.yaml inside the worktree
+# named under `active_work.live_state`. Read THAT file, not this one, to find out
+# what is done and what to do next.
+#
+# A previous orchestrator session read this file, saw "M1_PLAN_001_DONE", and
+# reported to Moshe that PLAN-002 implementation had not started - when in fact a
+# complete implementation, three independent reviews and a rework already existed
+# in the worktree. Do not repeat that mistake.
+# =============================================================================
+
+active_work:
+  live_state: .worktrees/t_b7ade39e/PROJECT-STATE.yaml
+  branch: panoworld-dev/t_b7ade39e-p1-02-floorplan-parsing
+  worktree: .worktrees/t_b7ade39e
+  plan: docs/plans/PLAN-002-floorplan-parsing.md
+  as_of: "2026-08-10"
+  summary: >-
+    PLAN-002 (floorplan parsing) is implemented and COMMITTED on that branch, and
+    NOT merged into main. 316 tests pass. Four independent review rounds are
+    complete: two Anthropic Opus 5 reviews of the original implementation (both
+    NEEDS_REWORK, one CRITICAL each, both fixed), one OpenAI gpt-5.6-sol review
+    of the first rework (NEEDS_REWORK, a new CRITICAL the Anthropic reviewers
+    missed), and one OpenAI gpt-5.6-sol review of the second rework on 2026-08-10
+    (NA-3) which returned NEEDS_REWORK again with another CRITICAL. That fourth
+    round ran through the Codex CLI with direct read-only filesystem access
+    rather than a hand-assembled package, which is why it found things the
+    earlier rounds structurally could not.
+  what_is_open: >-
+    Seven bounded code fixes (GC3-1..GC3-7, one of them CRITICAL) plus two
+    decisions reserved for Moshe: GC3-8 (PDF-page annotation contract, PLAN-002
+    section 6) and GC3-9 (absolute paths and the OS user name already committed
+    in tracked evidence versus the append-only policy, section 12). The ordered
+    roadmap is `next_actions` NA-3b..NA-5 in the live state file. Moshe chose on
+    2026-08-10 to complete the fixes BEFORE running any real floorplan through
+    the pipeline; that decision still stands.
+  do_not: >-
+    Do not merge into main, do not commit, and do not `git restore`/`git clean`
+    in that worktree without Moshe's explicit authorisation. (The original
+    rationale - that an uncommitted implementation would be destroyed - no longer
+    applies now that the branch is committed, but the authorisation requirement
+    is Moshe's to relax, not an agent's.) Do not annotate or parse
+    samples/Sample_Floorplan.jpg yet; it is deliberately parked as NA-5. Do not
+    repeat the "Codex CLI is unavailable" claim without checking - it is
+    installed, authenticated and configured for the approved model, and NA-3
+    used it.
+
 project:
   id: panoworld-automation
   phase: implementation
-  overall_status: M1_PLAN_001_DONE
+  overall_status: M1_PLAN_001_DONE   # STALE - see active_work above
   implementation_started: true
   updated_at: "2026-08-09"
   updated_by_session: PLAN-001-CLOSEOUT
+  stale_warning: "This block reflects branch main only. Live state: .worktrees/t_b7ade39e/PROJECT-STATE.yaml"
 
 model_policy:
   id: MODEL-ROUTING-v1
@@ -299,9 +352,14 @@ evidence:
     - evidence/SESSION-001/agent-reports/plan-reviewer.md
 
 next_actions:
-  - dispatch_P1_02_floorplan_parsing_planning_only
-  - write_bounded_PLAN_with_contracts_fixtures_security_acceptance_tests_and_rollback
-  - block_for_Moshe_approval_before_floorplan_parsing_implementation
+  # SUPERSEDED. All three items below were completed on 2026-08-09.
+  # The current roadmap is `next_actions` (NA-1..NA-5) in
+  # .worktrees/t_b7ade39e/PROJECT-STATE.yaml - see the active_work block at the
+  # top of this file.
+  - "[DONE 2026-08-09] dispatch_P1_02_floorplan_parsing_planning_only"
+  - "[DONE 2026-08-09] write_bounded_PLAN_with_contracts_fixtures_security_acceptance_tests_and_rollback"
+  - "[DONE 2026-08-09] block_for_Moshe_approval_before_floorplan_parsing_implementation - Moshe approved PLAN-002"
+  - "[CURRENT] see .worktrees/t_b7ade39e/PROJECT-STATE.yaml next_actions NA-1..NA-5"
 
 human_gates:
   plan_000_approval: "approved 2026-08-05 (Moshe; internal reviews accepted as documented one-time exception, D-009 remains open)"
