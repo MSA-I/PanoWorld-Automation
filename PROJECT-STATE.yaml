@@ -1550,7 +1550,18 @@ next_actions:
       zero-byte files with non-identifier names, since that class has now recurred
       five times in two rounds.
     blocked_by: null
-    status: READY
+    status: IN_PROGRESS
+    ownership: >-
+      Branch panoworld-dev/na-3e-major-fixes, cut from main at c1cbc45. Implementer:
+      OpenAI Codex gpt-5.6-sol / xhigh, dispatched 2026-08-10 23:08 local, brief at
+      evidence/PLAN-002/reviews/na3e-rework4-dispatch-20260810.md. The orchestrator
+      owns verification and is the only one who commits or merges. If this session
+      ends mid-round, the next one should: check whether
+      evidence/PLAN-002/reviews/rework4-report-20260810.md exists, run the full
+      suite, run the three proofs-of-concept in the session scratchpad against the
+      fixed code expecting them to be REJECTED now, then dispatch NA-3f (Anthropic
+      review, brief already drafted) and the GC3-8 wording review (OpenAI,
+      cross-provider for the orchestrator's own draft).
     status_correction: >-
       CORRECTED 2026-08-10 by orchestrator self-audit. This entry read
       BLOCKED_ON_MOSHE, which is not one of the eleven statuses

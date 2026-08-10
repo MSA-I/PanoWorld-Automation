@@ -109,6 +109,24 @@ def test_source_binding_hash_and_pixels_come_from_one_raster_read(tmp_path, monk
     assert Image.open(io.BytesIO(binding["image_bytes"])).getpixel((0, 0)) == (0, 0, 255)
 
 
+def test_source_binding_uses_supplied_verified_raster_snapshot(tmp_path, monkeypatch):
+    path = tmp_path / "floorplan.png"
+    _write_png_with_text(path, color="blue")
+    verified_snapshot = path.read_bytes()
+    verified_hash = "sha256:" + hashlib.sha256(verified_snapshot).hexdigest()
+    _write_png_with_text(path, color="red")
+
+    def unexpected_reopen(*args, **kwargs):
+        raise AssertionError("verified raster path was reopened")
+
+    monkeypatch.setattr(path.__class__, "read_bytes", unexpected_reopen)
+
+    binding = _source_binding(path, _raw_raster(), source_bytes=verified_snapshot)
+
+    assert binding["source_sha256"] == verified_hash
+    assert Image.open(io.BytesIO(binding["image_bytes"])).getpixel((0, 0)) == (0, 0, 255)
+
+
 def test_source_binding_is_byte_deterministic_across_repeated_calls(tmp_path):
     """GC-7: sanitized embedding must be byte-deterministic across repeated
     runs on the same source bytes -- Pillow's encoder settings must be

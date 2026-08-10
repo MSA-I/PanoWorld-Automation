@@ -2,16 +2,25 @@
 
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 
+from pwa.contracts import compute_content_hash, validate_artifact
 from pwa.files import copy_immutable, is_link_or_reparse, sha256_file
 from pwa.floorplan.findings import FloorplanError
 
 
+class FinalizedRunLeftBehindError(OSError):
+    """Finalization failed and the published directory could not be rolled back."""
+
+
 def _contained_parts(relpath: str | Path) -> tuple[str, ...]:
     candidate = Path(relpath)
-    invalid_component = any(part in {"", ".", ".."} for part in candidate.parts)
+    invalid_component = any(
+        part in {"", ".", ".."} or ":" in part
+        for part in candidate.parts
+    )
     if candidate.is_absolute() or not candidate.parts or invalid_component:
         raise ValueError("path must be a contained relative path")
     return candidate.parts
@@ -33,6 +42,12 @@ def validate_contained_destination(root: Path, relpath: str | Path) -> Path:
         if cursor.exists() or cursor.is_symlink():
             if is_link_or_reparse(cursor):
                 raise ValueError("destination traverses a link or reparse point")
+    root_resolved = root.resolve(strict=True)
+    resolved = cursor.resolve(strict=False)
+    try:
+        resolved.relative_to(root_resolved)
+    except ValueError as exc:
+        raise ValueError("path escapes containment root") from exc
     return cursor
 
 
@@ -182,7 +197,7 @@ def copy_source_inventory(source_run: Path, staging_run: Path, manifest: dict) -
     for item in manifest["payload"]["inputs"]:
         source_item = resolve_contained_relpath(source_run, item["path"])
         destination_item = resolve_contained_output(staging_run, item["path"])
-        copied_hash = copy_immutable(source_item, destination_item)
+        copied_hash = copy_immutable(source_item, destination_item, create_parents=False)
         # The source manifest is the preflight declaration. copy_immutable()
         # proves the staged bytes match its one source read; this comparison
         # also proves that snapshot matches the immutable declared hash.
@@ -194,8 +209,21 @@ def copy_source_inventory(source_run: Path, staging_run: Path, manifest: dict) -
             )
 
 
-def write_bytes_contained(root: Path, relpath: str | Path, data: bytes) -> Path:
-    destination = resolve_contained_output(root, relpath)
+def write_bytes_contained(
+    root: Path,
+    relpath: str | Path,
+    data: bytes,
+    *,
+    create_parents: bool = True,
+) -> Path:
+    if create_parents:
+        destination = resolve_contained_output(root, relpath)
+    else:
+        destination = validate_contained_destination(root, relpath)
+        if not destination.parent.is_dir() or is_link_or_reparse(destination.parent):
+            raise ValueError("destination parent must be an existing regular directory")
+        if destination.exists() or destination.is_symlink():
+            raise FileExistsError(str(destination))
     with destination.open("xb") as stream:
         stream.write(data)
         stream.flush()
@@ -210,6 +238,70 @@ def verify_run_inventory(run_root: Path, manifest: dict) -> None:
             raise ValueError("finalized inventory hash mismatch")
 
 
+_REQUIRED_ENVELOPE_PATHS = (
+    "project/source-manifest.json",
+    "project/source-quality-report.json",
+    "project/project_manifest.json",
+    "project/input_quality_report.json",
+    "parse/floorplan_parse.json",
+    "parse/assumptions.json",
+)
+
+
+def _load_json_document(run_root: Path, relpath: str) -> dict:
+    path = resolve_contained_relpath(run_root, relpath)
+    try:
+        document = json.loads(path.read_bytes().decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError, RecursionError) as exc:
+        raise ValueError("finalized JSON document is unreadable") from exc
+    if not isinstance(document, dict):
+        raise ValueError("finalized JSON document must be an object")
+    return document
+
+
+def _verify_envelope(document: dict, message: str) -> None:
+    try:
+        errors = validate_artifact(document)
+        content_hash_matches = document.get("content_hash") == compute_content_hash(document)
+    except (KeyError, TypeError, ValueError, RecursionError) as exc:
+        raise ValueError(message) from exc
+    if errors or not content_hash_matches:
+        raise ValueError(message)
+
+
+def verify_run_derived_artifacts(run_root: Path) -> None:
+    envelopes: dict[str, dict] = {}
+    for relpath in _REQUIRED_ENVELOPE_PATHS:
+        document = _load_json_document(run_root, relpath)
+        _verify_envelope(document, "finalized envelope content hash mismatch")
+        envelopes[relpath] = document
+
+    annotation_path = resolve_contained_relpath(
+        run_root,
+        "parse/annotation.json",
+        must_exist=False,
+    )
+    if annotation_path.exists():
+        annotation = _load_json_document(run_root, "parse/annotation.json")
+        _verify_envelope(annotation, "finalized annotation content hash mismatch")
+
+    parse_report = _load_json_document(run_root, "parse/parse-report.json")
+    overlay_declarations = [
+        envelopes["parse/floorplan_parse.json"].get("payload", {}).get("overlay"),
+        parse_report.get("overlay"),
+    ]
+    for declaration in overlay_declarations:
+        if not isinstance(declaration, dict) or "path" not in declaration:
+            continue
+        overlay_relpath = declaration["path"]
+        overlay_sha256 = declaration.get("sha256")
+        if not isinstance(overlay_relpath, str) or not isinstance(overlay_sha256, str):
+            raise ValueError("finalized overlay declaration is invalid")
+        overlay_path = resolve_contained_relpath(run_root, overlay_relpath)
+        if sha256_file(overlay_path) != overlay_sha256:
+            raise ValueError("finalized overlay hash mismatch")
+
+
 def finalize_run(staging_run: Path, final_run: Path, manifest: dict) -> None:
     runs_root = final_run.parent
     staging_relative = staging_run.relative_to(runs_root)
@@ -218,5 +310,16 @@ def finalize_run(staging_run: Path, final_run: Path, manifest: dict) -> None:
     if final_run.exists() or final_run.is_symlink():
         raise FileExistsError(str(final_run))
     verify_run_inventory(staging_run, manifest)
+    verify_run_derived_artifacts(staging_run)
     os.replace(staging_run, final_run)
-    verify_run_inventory(final_run, manifest)
+    try:
+        verify_run_inventory(final_run, manifest)
+        verify_run_derived_artifacts(final_run)
+    except (OSError, ValueError):
+        try:
+            os.replace(final_run, staging_run)
+        except OSError as rollback_error:
+            raise FinalizedRunLeftBehindError(
+                "finalized directory left behind after rollback failure"
+            ) from rollback_error
+        raise

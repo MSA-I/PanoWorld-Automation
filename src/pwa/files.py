@@ -24,11 +24,14 @@ def sha256_file(path: Path) -> str:
     return "sha256:" + digest.hexdigest()
 
 
-def copy_immutable(source: Path, destination: Path) -> str:
+def copy_immutable(source: Path, destination: Path, *, create_parents: bool = True) -> str:
     source = Path(source)
     if not source.is_file() or is_link_or_reparse(source):
         raise ValueError("input must be a regular file, not a link or reparse point")
-    destination.parent.mkdir(parents=True, exist_ok=True)
+    if create_parents:
+        destination.parent.mkdir(parents=True, exist_ok=True)
+    elif not destination.parent.is_dir() or is_link_or_reparse(destination.parent):
+        raise ValueError("destination parent must be an existing regular directory")
     digest = hashlib.sha256()
     with source.open("rb") as src, destination.open("xb") as dst:
         for chunk in iter(lambda: src.read(1024 * 1024), b""):
@@ -42,8 +45,11 @@ def copy_immutable(source: Path, destination: Path) -> str:
     return result
 
 
-def write_json_exclusive(path: Path, document: dict) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
+def write_json_exclusive(path: Path, document: dict, *, create_parents: bool = True) -> None:
+    if create_parents:
+        path.parent.mkdir(parents=True, exist_ok=True)
+    elif not path.parent.is_dir() or is_link_or_reparse(path.parent):
+        raise ValueError("destination parent must be an existing regular directory")
     with path.open("x", encoding="utf-8", newline="\n") as stream:
         json.dump(document, stream, ensure_ascii=False, indent=2)
         stream.write("\n")
