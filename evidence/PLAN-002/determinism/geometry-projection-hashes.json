@@ -1,0 +1,16 @@
+{
+  "layer-a-1-raster": {
+    "canonical_projection_sha256": "sha256:e5041ddcf05eb02da0a07176d483ee4eaef311bf885204078710f07fe3b7e77e",
+    "overlay_sha256": "sha256:1a782e448594dcbdd9326a9ecbc194ed2b0a163343cf1b1cf65f605cf7c9a789",
+    "repeat_overlay_sha256": "sha256:1a782e448594dcbdd9326a9ecbc194ed2b0a163343cf1b1cf65f605cf7c9a789",
+    "repeat_overlay_equal": true
+  },
+  "layer-a-1-dxf": {
+    "canonical_projection_sha256": "sha256:e5041ddcf05eb02da0a07176d483ee4eaef311bf885204078710f07fe3b7e77e",
+    "overlay_sha256": "sha256:a181228d482540f37de457297b23e69c4154f47c12c5b49eb9ac98a32ff2fe54",
+    "repeat_overlay_sha256": "sha256:a181228d482540f37de457297b23e69c4154f47c12c5b49eb9ac98a32ff2fe54",
+    "repeat_overlay_equal": true
+  },
+  "equal_projection_hashes": true,
+  "canonical_projection_hash": "sha256:e5041ddcf05eb02da0a07176d483ee4eaef311bf885204078710f07fe3b7e77e"
+}

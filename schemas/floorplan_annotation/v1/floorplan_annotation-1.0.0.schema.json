@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoworld-automation.local/schemas/floorplan_annotation/v1/floorplan_annotation-1.0.0.schema.json",
+  "title": "floorplan_annotation",
+  "$defs": {
+    "point2": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "relpath": {
+      "type": "string",
+      "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|/)\\.\\.(?:/|$)).+"
+    }
+  },
+  "allOf": [
+    { "$ref": "https://panoworld-automation.local/schemas/envelope/v1/envelope-1.0.0.schema.json" },
+    {
+      "properties": {
+        "schema_id": { "const": "floorplan_annotation" },
+        "schema_version": { "const": "1.0.0" },
+        "payload": {
+          "type": "object",
+          "required": ["image", "scale_m_per_px", "walls", "rooms", "openings", "declared_dimensions"],
+          "properties": {
+            "image": {
+              "type": "object",
+              "required": ["source_image_ref", "sha256", "width_px", "height_px"],
+              "properties": {
+                "source_image_ref": {
+                  "$ref": "https://panoworld-automation.local/schemas/floorplan_annotation/v1/floorplan_annotation-1.0.0.schema.json#/$defs/relpath"
+                },
+                "sha256": {
+                  "$ref": "https://panoworld-automation.local/schemas/floorplan_annotation/v1/floorplan_annotation-1.0.0.schema.json#/$defs/sha256"
+                },
+                "width_px": { "type": "integer", "minimum": 1 },
+                "height_px": { "type": "integer", "minimum": 1 }
+              },
+              "additionalProperties": false
+            },
+            "scale_m_per_px": { "type": "number", "exclusiveMinimum": 0 },
+            "walls": {
+              "type": "array",
+              "minItems": 0,
+              "items": {
+                "type": "object",
+                "required": ["start_px", "end_px"],
+                "properties": {
+                  "start_px": {
+                    "$ref": "https://panoworld-automation.local/schemas/floorplan_annotation/v1/floorplan_annotation-1.0.0.schema.json#/$defs/point2"
+                  },
+                  "end_px": {
+                    "$ref": "https://panoworld-automation.local/schemas/floorplan_annotation/v1/floorplan_annotation-1.0.0.schema.json#/$defs/point2"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "rooms": {
+              "type": "array",
+              "minItems": 0,
+              "items": {
+                "type": "object",
+                "required": ["polygon_px"],
+                "properties": {
+                  "polygon_px": {
+                    "type": "array",
+                    "minItems": 3,
+                    "items": {
+                      "$ref": "https://panoworld-automation.local/schemas/floorplan_annotation/v1/floorplan_annotation-1.0.0.schema.json#/$defs/point2"
+                    }
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "openings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["type", "wall_index", "center_px", "width_m"],
+                "properties": {
+                  "type": { "enum": ["door", "window"] },
+                  "wall_index": { "type": "integer", "minimum": 0 },
+                  "center_px": {
+                    "$ref": "https://panoworld-automation.local/schemas/floorplan_annotation/v1/floorplan_annotation-1.0.0.schema.json#/$defs/point2"
+                  },
+                  "width_m": { "type": "number", "exclusiveMinimum": 0 }
+                },
+                "additionalProperties": false
+              }
+            },
+            "declared_dimensions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["a_px", "b_px", "length_m"],
+                "properties": {
+                  "a_px": {
+                    "$ref": "https://panoworld-automation.local/schemas/floorplan_annotation/v1/floorplan_annotation-1.0.0.schema.json#/$defs/point2"
+                  },
+                  "b_px": {
+                    "$ref": "https://panoworld-automation.local/schemas/floorplan_annotation/v1/floorplan_annotation-1.0.0.schema.json#/$defs/point2"
+                  },
+                  "length_m": { "type": "number", "exclusiveMinimum": 0 }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  ]
+}

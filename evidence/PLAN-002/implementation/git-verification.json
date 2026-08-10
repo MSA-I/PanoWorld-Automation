@@ -1,0 +1,12 @@
+{
+  "git_diff_check": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "dependency_diff": {
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}

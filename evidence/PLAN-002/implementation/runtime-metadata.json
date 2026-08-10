@@ -1,0 +1,20 @@
+{
+  "requested": {
+    "provider": "openai",
+    "requested_model": "gpt-5.4",
+    "effort": "high",
+    "fallback": "none",
+    "model_reason": "approved bounded implementation model",
+    "reviewer_model": "claude-opus-5",
+    "cross_provider_review": "pending/required"
+  },
+  "runtime": {
+    "actual_model_id": "gpt-5.4",
+    "runtime_provider": "headroom",
+    "session_id": "019fe716-d621-7881-b2b9-f23978c760c0",
+    "source_file": "<home>/.codex/sessions/2026/08/09/rollout-2026-08-09T18-14-21-019fe716-d621-7881-b2b9-f23978c760c0.jsonl",
+    "_redaction_note": "M-10 (code review 2026-08-10): absolute path and OS user name redacted per §12; session_id/line numbers keep the claim verifiable.",
+    "source_line_session_meta": 1,
+    "source_line_turn_context": 6
+  }
+}

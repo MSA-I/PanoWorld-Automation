@@ -1,0 +1,337 @@
+{
+  "schema_id": "floorplan_parse",
+  "schema_version": "1.1.0",
+  "artifact_id": "RUN-LAYER-A-RASTER-PARSE-A:floorplan_parse",
+  "project_id": "layer-a-fixture",
+  "run_id": "RUN-LAYER-A-RASTER-PARSE-A",
+  "created_at": "2026-08-10T01:43:52Z",
+  "producer": {
+    "agent": "plan002-floorplan-parser",
+    "provider": "local",
+    "model": "deterministic-python",
+    "effort": "HIGH"
+  },
+  "inputs": [
+    {
+      "artifact_id": "RUN-LAYER-A-RASTER-PARSE-A:project_manifest",
+      "content_hash": "sha256:ac3b40a83020fe26c483e577bc353daae4c80923f1d8b4117bd663365c77bf5c"
+    },
+    {
+      "artifact_id": "RUN-LAYER-A-RASTER-PARSE-A:input_quality_report",
+      "content_hash": "sha256:8258ff788e30003644d7d7ea2fe50d0e0a2ed33b7f6308941908c9bd4ed59a9f"
+    }
+  ],
+  "content_hash": "sha256:81305028e594b31edd790f018548618afe74c8e6a80db371cb5093653eee5f06",
+  "status": "complete",
+  "errors": [],
+  "payload": {
+    "units": "m",
+    "scale_m_per_px": 0.005,
+    "normalization": {
+      "quantum_m": 0.0001,
+      "source_units": "px",
+      "source_unit_scale_m": 0.005,
+      "translation_m": [
+        1.0,
+        2.0
+      ],
+      "y_axis": "flipped_from_raster",
+      "source_height_px": 1800,
+      "scale_m_per_px": 0.005
+    },
+    "overlay": {
+      "path": "parse/overlay.svg",
+      "sha256": "sha256:1a782e448594dcbdd9326a9ecbc194ed2b0a163343cf1b1cf65f605cf7c9a789"
+    },
+    "rooms": [
+      {
+        "id": "r-ab354c288e8a",
+        "polygon": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            5.0,
+            0.0
+          ],
+          [
+            5.0,
+            6.0
+          ],
+          [
+            0.0,
+            6.0
+          ]
+        ],
+        "confidence": 0.9,
+        "provenance": {
+          "source_kind": "annotation",
+          "source_ref": "annotation:rooms[0]",
+          "source_polygon": [
+            [
+              200,
+              1400
+            ],
+            [
+              1200,
+              1400
+            ],
+            [
+              1200,
+              200
+            ],
+            [
+              200,
+              200
+            ]
+          ]
+        }
+      },
+      {
+        "id": "r-bea085b2f952",
+        "polygon": [
+          [
+            5.0,
+            0.0
+          ],
+          [
+            8.0,
+            0.0
+          ],
+          [
+            8.0,
+            6.0
+          ],
+          [
+            5.0,
+            6.0
+          ]
+        ],
+        "confidence": 0.6,
+        "provenance": {
+          "source_kind": "annotation",
+          "source_ref": "annotation:rooms[1]",
+          "source_polygon": [
+            [
+              1200,
+              1400
+            ],
+            [
+              1800,
+              1400
+            ],
+            [
+              1800,
+              200
+            ],
+            [
+              1200,
+              200
+            ]
+          ]
+        }
+      }
+    ],
+    "walls": [
+      {
+        "id": "w-b38b11821642",
+        "start": [
+          0.0,
+          0.0
+        ],
+        "end": [
+          0.0,
+          6.0
+        ],
+        "confidence": 0.9,
+        "provenance": {
+          "source_kind": "annotation",
+          "source_ref": "annotation:walls[3]",
+          "source_start": [
+            200,
+            1400
+          ],
+          "source_end": [
+            200,
+            200
+          ]
+        }
+      },
+      {
+        "id": "w-8829e7c2d2cc",
+        "start": [
+          0.0,
+          0.0
+        ],
+        "end": [
+          8.0,
+          0.0
+        ],
+        "confidence": 0.9,
+        "provenance": {
+          "source_kind": "annotation",
+          "source_ref": "annotation:walls[0]",
+          "source_start": [
+            200,
+            1400
+          ],
+          "source_end": [
+            1800,
+            1400
+          ]
+        }
+      },
+      {
+        "id": "w-0df3b64861a5",
+        "start": [
+          0.0,
+          6.0
+        ],
+        "end": [
+          8.0,
+          6.0
+        ],
+        "confidence": 0.6,
+        "provenance": {
+          "source_kind": "annotation",
+          "source_ref": "annotation:walls[2]",
+          "source_start": [
+            200,
+            200
+          ],
+          "source_end": [
+            1800,
+            200
+          ]
+        }
+      },
+      {
+        "id": "w-6e35a882252a",
+        "start": [
+          5.0,
+          0.0
+        ],
+        "end": [
+          5.0,
+          6.0
+        ],
+        "confidence": 0.6,
+        "provenance": {
+          "source_kind": "annotation",
+          "source_ref": "annotation:walls[4]",
+          "source_start": [
+            1200,
+            1400
+          ],
+          "source_end": [
+            1200,
+            200
+          ]
+        }
+      },
+      {
+        "id": "w-5e931339aa8f",
+        "start": [
+          8.0,
+          0.0
+        ],
+        "end": [
+          8.0,
+          6.0
+        ],
+        "confidence": 0.6,
+        "provenance": {
+          "source_kind": "annotation",
+          "source_ref": "annotation:walls[1]",
+          "source_start": [
+            1800,
+            1400
+          ],
+          "source_end": [
+            1800,
+            200
+          ]
+        }
+      }
+    ],
+    "openings": [
+      {
+        "id": "o-13a46a7d32db",
+        "type": "window",
+        "wall_id": "w-0df3b64861a5",
+        "center": [
+          2.0,
+          6.0
+        ],
+        "width_m": 1.2,
+        "confidence": 0.6,
+        "provenance": {
+          "source_kind": "annotation",
+          "source_ref": "annotation:openings[2]",
+          "source_center": [
+            600,
+            200
+          ]
+        }
+      },
+      {
+        "id": "o-9585ee57fe3e",
+        "type": "door",
+        "wall_id": "w-8829e7c2d2cc",
+        "center": [
+          2.5,
+          0.0
+        ],
+        "width_m": 0.9,
+        "confidence": 0.9,
+        "provenance": {
+          "source_kind": "annotation",
+          "source_ref": "annotation:openings[0]",
+          "source_center": [
+            700,
+            1400
+          ]
+        }
+      },
+      {
+        "id": "o-3a101c4fd203",
+        "type": "door",
+        "wall_id": "w-6e35a882252a",
+        "center": [
+          5.0,
+          3.0
+        ],
+        "width_m": 0.9,
+        "confidence": 0.6,
+        "provenance": {
+          "source_kind": "annotation",
+          "source_ref": "annotation:openings[1]",
+          "source_center": [
+            1200,
+            800
+          ]
+        }
+      },
+      {
+        "id": "o-378d46ae40f1",
+        "type": "window",
+        "wall_id": "w-5e931339aa8f",
+        "center": [
+          8.0,
+          4.5
+        ],
+        "width_m": 1.2,
+        "confidence": 0.6,
+        "provenance": {
+          "source_kind": "annotation",
+          "source_ref": "annotation:openings[3]",
+          "source_center": [
+            1800,
+            500
+          ]
+        }
+      }
+    ]
+  }
+}

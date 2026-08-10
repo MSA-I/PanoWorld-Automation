@@ -1,0 +1,59 @@
+"""Central PLAN-002 limits and tolerances."""
+
+from __future__ import annotations
+
+QUANTUM_M = 1e-4
+DEGENERATE_WALL_M = 0.05
+OPENING_OFFSET_M = 0.02
+LOW_CONFIDENCE_THRESHOLD = 0.5
+MAX_DXF_BYTES = 50 * 1024 * 1024
+MAX_DXF_ENTITIES = 200_000
+MAX_ANNOTATION_BYTES = 5 * 1024 * 1024
+MAX_WALLS = 20_000
+MAX_ROOMS = 5_000
+MAX_OPENINGS = 20_000
+MAX_POLYGON_VERTICES = 10_000
+MAX_COORDINATE_MAGNITUDE_M = 100_000
+MAX_SOURCE_RASTER_BYTES = 50 * 1024 * 1024
+MAX_SOURCE_PIXELS = 100_000_000
+MAX_OVERLAY_BYTES = 70 * 1024 * 1024
+MAX_WORKER_STDIO_BYTES = 1024 * 1024
+PARSER_TIMEOUT_S = 30
+OVERLAY_MARGIN_FRACTION = 0.05
+# D (OpenAI cross-provider rework review, 2026-08-10): the DXF overlay used a
+# fixed r="20" opening-marker radius in *source* coordinates. For a metre-unit
+# DXF that is a 20-metre circle -- over twice the width of a typical room's
+# viewBox. Both the marker radius and the id/confidence label font-size must
+# instead scale with the geometry extent, the same way OVERLAY_MARGIN_FRACTION
+# already scales the margin.
+OVERLAY_OPENING_RADIUS_FRACTION = 0.01
+OVERLAY_FONT_SIZE_FRACTION = 0.02
+DIMENSION_TIE_M = QUANTUM_M
+DXF_UNITS = {4: "mm", 5: "cm", 6: "m"}
+
+
+def limits_snapshot() -> dict[str, object]:
+    return {
+        "QUANTUM_M": QUANTUM_M,
+        "DEGENERATE_WALL_M": DEGENERATE_WALL_M,
+        "OPENING_OFFSET_M": OPENING_OFFSET_M,
+        "LOW_CONFIDENCE_THRESHOLD": LOW_CONFIDENCE_THRESHOLD,
+        "MAX_DXF_BYTES": MAX_DXF_BYTES,
+        "MAX_DXF_ENTITIES": MAX_DXF_ENTITIES,
+        "MAX_ANNOTATION_BYTES": MAX_ANNOTATION_BYTES,
+        "MAX_WALLS": MAX_WALLS,
+        "MAX_ROOMS": MAX_ROOMS,
+        "MAX_OPENINGS": MAX_OPENINGS,
+        "MAX_POLYGON_VERTICES": MAX_POLYGON_VERTICES,
+        "MAX_COORDINATE_MAGNITUDE_M": MAX_COORDINATE_MAGNITUDE_M,
+        "MAX_SOURCE_RASTER_BYTES": MAX_SOURCE_RASTER_BYTES,
+        "MAX_SOURCE_PIXELS": MAX_SOURCE_PIXELS,
+        "MAX_OVERLAY_BYTES": MAX_OVERLAY_BYTES,
+        "MAX_WORKER_STDIO_BYTES": MAX_WORKER_STDIO_BYTES,
+        "PARSER_TIMEOUT_S": PARSER_TIMEOUT_S,
+        "OVERLAY_MARGIN_FRACTION": OVERLAY_MARGIN_FRACTION,
+        "OVERLAY_OPENING_RADIUS_FRACTION": OVERLAY_OPENING_RADIUS_FRACTION,
+        "OVERLAY_FONT_SIZE_FRACTION": OVERLAY_FONT_SIZE_FRACTION,
+        "DIMENSION_TIE_M": DIMENSION_TIE_M,
+        "DXF_UNITS": {str(key): value for key, value in DXF_UNITS.items()},
+    }

@@ -3,19 +3,36 @@
     "valid": {
       "goal": "conceptual",
       "units": "m",
-      "scale": { "known": true, "m_per_px": 0.01 },
+      "scale": {
+        "known": true,
+        "m_per_px": 0.01
+      },
       "inputs": [
-        { "path": "inputs/floorplan.png", "sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "kind": "floorplan" },
-        { "path": "inputs/style.jpg", "sha256": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "kind": "style_reference" }
+        {
+          "path": "inputs/floorplan.png",
+          "sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "kind": "floorplan"
+        },
+        {
+          "path": "inputs/style.jpg",
+          "sha256": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "kind": "style_reference"
+        }
       ],
       "contracts_bundle_version": "1.0.0"
     },
     "invalid": {
       "goal": "artistic",
       "units": "m",
-      "scale": { "known": true },
+      "scale": {
+        "known": true
+      },
       "inputs": [
-        { "path": "inputs/floorplan.png", "sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "kind": "floorplan" }
+        {
+          "path": "inputs/floorplan.png",
+          "sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "kind": "floorplan"
+        }
       ],
       "contracts_bundle_version": "1.0.0"
     }
@@ -23,7 +40,13 @@
   "input_quality_report": {
     "valid": {
       "scale_known": true,
-      "checks": [ { "check": "readability", "result": "pass", "details": "clean scan" } ],
+      "checks": [
+        {
+          "check": "readability",
+          "result": "pass",
+          "details": "clean scan"
+        }
+      ],
       "blockers": []
     },
     "invalid": {
@@ -31,17 +54,119 @@
       "checks": []
     }
   },
+  "floorplan_annotation": {
+    "valid": {
+      "image": {
+        "source_image_ref": "project/inputs/originals/layer-a-1.png",
+        "sha256": "sha256:1212121212121212121212121212121212121212121212121212121212121212",
+        "width_px": 2000,
+        "height_px": 1800
+      },
+      "scale_m_per_px": 0.005,
+      "walls": [
+        {
+          "start_px": [200, 1400],
+          "end_px": [1800, 1400]
+        }
+      ],
+      "rooms": [
+        {
+          "polygon_px": [[200, 1400], [1200, 1400], [1200, 200], [200, 200]]
+        }
+      ],
+      "openings": [
+        {
+          "type": "door",
+          "wall_index": 0,
+          "center_px": [700, 1400],
+          "width_m": 0.9
+        }
+      ],
+      "declared_dimensions": [
+        {
+          "a_px": [200, 1400],
+          "b_px": [1800, 1400],
+          "length_m": 8.0
+        }
+      ]
+    },
+    "invalid": {
+      "image": {
+        "source_image_ref": "../secret.png",
+        "sha256": "sha256:1212121212121212121212121212121212121212121212121212121212121212",
+        "width_px": 2000,
+        "height_px": 1800
+      },
+      "scale_m_per_px": 0,
+      "walls": [
+        {
+          "start_px": [200, 1400],
+          "end_px": [1800, 1400]
+        }
+      ],
+      "rooms": [
+        {
+          "polygon_px": [[200, 1400], [1200, 1400]]
+        }
+      ],
+      "openings": [
+        {
+          "type": "door",
+          "wall_index": -1,
+          "center_px": [700, 1400],
+          "width_m": 0.9
+        }
+      ],
+      "declared_dimensions": [
+        {
+          "a_px": [200, 1400],
+          "b_px": [1800, 1400],
+          "length_m": 8.0
+        }
+      ]
+    }
+  },
   "floorplan_parse": {
     "valid": {
       "units": "m",
       "scale_m_per_px": 0.01,
-      "rooms": [ { "id": "r1", "name": "living", "polygon": [[0, 0], [4, 0], [4, 3]], "confidence": 0.9 } ],
-      "walls": [ { "id": "w1", "start": [0, 0], "end": [4, 0], "thickness_m": 0.1, "confidence": 0.95 } ],
-      "openings": [ { "id": "d1", "type": "door", "wall_id": "w1", "center": [2, 0], "width_m": 0.9, "confidence": 0.8 } ]
+      "rooms": [
+        {
+          "id": "r1",
+          "name": "living",
+          "polygon": [[0, 0], [4, 0], [4, 3]],
+          "confidence": 0.9
+        }
+      ],
+      "walls": [
+        {
+          "id": "w1",
+          "start": [0, 0],
+          "end": [4, 0],
+          "thickness_m": 0.1,
+          "confidence": 0.95
+        }
+      ],
+      "openings": [
+        {
+          "id": "d1",
+          "type": "door",
+          "wall_id": "w1",
+          "center": [2, 0],
+          "width_m": 0.9,
+          "confidence": 0.8
+        }
+      ]
     },
     "invalid": {
       "units": "m",
-      "rooms": [ { "id": "r1", "polygon": [[0, 0], [4, 0]], "confidence": 0.9 } ],
+      "rooms": [
+        {
+          "id": "r1",
+          "polygon": [[0, 0], [4, 0]],
+          "confidence": 0.9
+        }
+      ],
       "walls": [],
       "openings": []
     }
@@ -51,43 +176,115 @@
       "units": "m",
       "up_axis": "z",
       "default_ceiling_height_m": 2.6,
-      "rooms": [ { "id": "r1", "polygon": [[0, 0], [4, 0], [4, 3]], "floor_z": 0, "ceiling_z": 2.6 } ],
-      "walls": [ { "id": "w1", "start": [0, 0], "end": [4, 0], "height_m": 2.6, "thickness_m": 0.1 } ],
-      "openings": [ { "id": "d1", "type": "door", "wall_id": "w1", "center": [2, 0], "width_m": 0.9, "height_m": 2.0, "sill_m": 0 } ],
-      "exports": { "blend": null, "glb": null }
+      "rooms": [
+        {
+          "id": "r1",
+          "polygon": [[0, 0], [4, 0], [4, 3]],
+          "floor_z": 0,
+          "ceiling_z": 2.6
+        }
+      ],
+      "walls": [
+        {
+          "id": "w1",
+          "start": [0, 0],
+          "end": [4, 0],
+          "height_m": 2.6,
+          "thickness_m": 0.1
+        }
+      ],
+      "openings": [
+        {
+          "id": "d1",
+          "type": "door",
+          "wall_id": "w1",
+          "center": [2, 0],
+          "width_m": 0.9,
+          "height_m": 2.0,
+          "sill_m": 0
+        }
+      ],
+      "exports": {
+        "blend": null,
+        "glb": null
+      }
     },
     "invalid": {
       "units": "m",
       "up_axis": "y",
       "default_ceiling_height_m": 2.6,
-      "rooms": [ { "id": "r1", "polygon": [[0, 0], [4, 0], [4, 3]] } ],
-      "walls": [ { "id": "w1", "start": [0, 0], "end": [4, 0], "height_m": 2.6, "thickness_m": 0.1 } ]
+      "rooms": [
+        {
+          "id": "r1",
+          "polygon": [[0, 0], [4, 0], [4, 3]]
+        }
+      ],
+      "walls": [
+        {
+          "id": "w1",
+          "start": [0, 0],
+          "end": [4, 0],
+          "height_m": 2.6,
+          "thickness_m": 0.1
+        }
+      ]
     }
   },
   "assumptions": {
     "valid": {
       "stage": "geometry",
       "entries": [
-        { "key": "ceiling_height_m", "value": "2.6", "reason": "not present in floorplan", "source": "default", "requires_human_ack": true }
+        {
+          "key": "ceiling_height_m",
+          "value": "2.6",
+          "reason": "not present in floorplan",
+          "source": "default",
+          "requires_human_ack": true
+        }
       ]
     },
     "invalid": {
       "stage": "geometry",
-      "entries": [ { "key": "ceiling_height_m", "value": "2.6", "source": "default", "requires_human_ack": true } ]
+      "entries": [
+        {
+          "key": "ceiling_height_m",
+          "value": "2.6",
+          "source": "default",
+          "requires_human_ack": true
+        }
+      ]
     }
   },
   "camera_plan": {
     "valid": {
-      "resolution": { "width": 2048, "height": 1024 },
+      "resolution": {
+        "width": 2048,
+        "height": 1024
+      },
       "camera_height_m": 1.35,
-      "viewpoints": [ { "id": "0000", "position": [1.0, 1.0, 1.35], "yaw_deg": 0, "room_id": "r1" } ],
+      "viewpoints": [
+        {
+          "id": "0000",
+          "position": [1.0, 1.0, 1.35],
+          "yaw_deg": 0,
+          "room_id": "r1"
+        }
+      ],
       "edges": [],
       "start_viewpoint": "0000",
       "max_views_per_lrm_batch": 8
     },
     "invalid": {
-      "resolution": { "width": 2047, "height": 1024 },
-      "viewpoints": [ { "id": "0000", "position": [1.0, 1.0, 1.35] } ],
+      "resolution": {
+        "width": 2047,
+        "height": 1024
+      },
+      "viewpoints": [
+        {
+          "id": "0000",
+          "position": [1.0, 1.0, 1.35]
+        }
+      ],
       "edges": [],
       "start_viewpoint": "0000",
       "max_views_per_lrm_batch": 8
@@ -95,76 +292,172 @@
   },
   "style_spec": {
     "valid": {
-      "palette": [ { "hex": "#aabbcc", "role": "primary" } ],
-      "materials": [ { "surface": "floor", "material": "oak", "confidence": 0.7 } ],
-      "lighting": { "temperature": "warm", "intensity": "medium" },
+      "palette": [
+        {
+          "hex": "#aabbcc",
+          "role": "primary"
+        }
+      ],
+      "materials": [
+        {
+          "surface": "floor",
+          "material": "oak",
+          "confidence": 0.7
+        }
+      ],
+      "lighting": {
+        "temperature": "warm",
+        "intensity": "medium"
+      },
       "density": "medium",
       "negative_constraints": ["no neon colors"],
       "not_inferable": ["bedroom textile colors"]
     },
     "invalid": {
-      "palette": [ { "hex": "blue" } ],
+      "palette": [
+        {
+          "hex": "blue"
+        }
+      ],
       "materials": [],
-      "lighting": { "temperature": "warm", "intensity": "medium" }
+      "lighting": {
+        "temperature": "warm",
+        "intensity": "medium"
+      }
     }
   },
   "panoworld_manifest": {
     "valid": {
       "scene_dir": "scenes/demo01",
       "maps": [
-        { "file": "map_panoworld0.json", "entries": [ { "key": "0000", "values": ["0001"] } ] }
+        {
+          "file": "map_panoworld0.json",
+          "entries": [
+            {
+              "key": "0000",
+              "values": ["0001"]
+            }
+          ]
+        }
       ],
       "viewpoints": [
         {
           "id": "0000",
-          "files": { "place_image": "place_image.png", "place_depth": "place_depth.png", "place_depth_scale": "place_depth_scale.txt", "extrinsics": "extrinsics.txt" },
+          "files": {
+            "place_image": "place_image.png",
+            "place_depth": "place_depth.png",
+            "place_depth_scale": "place_depth_scale.txt",
+            "extrinsics": "extrinsics.txt"
+          },
           "has_style_pano": true
         }
       ],
-      "start": { "panoworld_start_image": "panoImage_2048_test.png", "pano_image_name": "panoImage_2048.png" },
+      "start": {
+        "panoworld_start_image": "panoImage_2048_test.png",
+        "pano_image_name": "panoImage_2048.png"
+      },
       "package_hash": null
     },
     "invalid": {
       "scene_dir": "scenes/demo01",
       "maps": [
-        { "file": "floorplan.json", "entries": [ { "key": "0000", "values": ["0001"] } ] }
+        {
+          "file": "floorplan.json",
+          "entries": [
+            {
+              "key": "0000",
+              "values": ["0001"]
+            }
+          ]
+        }
       ],
       "viewpoints": [
         {
           "id": "0000",
-          "files": { "place_image": "place_image.png", "place_depth": "place_depth.png", "place_depth_scale": "place_depth_scale.txt", "extrinsics": "extrinsics.txt" }
+          "files": {
+            "place_image": "place_image.png",
+            "place_depth": "place_depth.png",
+            "place_depth_scale": "place_depth_scale.txt",
+            "extrinsics": "extrinsics.txt"
+          }
         }
       ],
-      "start": { "panoworld_start_image": "panoImage_2048_test.png", "pano_image_name": "panoImage_2048.png" }
+      "start": {
+        "panoworld_start_image": "panoImage_2048_test.png",
+        "pano_image_name": "panoImage_2048.png"
+      }
     }
   },
   "run_manifest": {
     "valid": {
       "package_hash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
-      "models": [ { "name": "panoworld_lrm", "source": "hf:JiaJinrang/PanoWorld", "hash_or_version": "ckpt_panoworld_lrm_2048_1024.pt" } ],
-      "config": { "config_hash": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "seed": 42, "resolution": { "width": 2048, "height": 1024 } },
-      "timings": { "started_at": "2026-08-05T10:00:00Z", "finished_at": "2026-08-05T11:00:00Z" },
-      "cost": { "gpu_minutes": 60, "usd": 10.5 },
+      "models": [
+        {
+          "name": "panoworld_lrm",
+          "source": "hf:JiaJinrang/PanoWorld",
+          "hash_or_version": "ckpt_panoworld_lrm_2048_1024.pt"
+        }
+      ],
+      "config": {
+        "config_hash": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "seed": 42,
+        "resolution": {
+          "width": 2048,
+          "height": 1024
+        }
+      },
+      "timings": {
+        "started_at": "2026-08-05T10:00:00Z",
+        "finished_at": "2026-08-05T11:00:00Z"
+      },
+      "cost": {
+        "gpu_minutes": 60,
+        "usd": 10.5
+      },
       "env_capture": "env.json",
       "contracts_bundle_version": "1.0.0"
     },
     "invalid": {
       "package_hash": "md5:1234",
-      "models": [ { "name": "panoworld_lrm", "source": "hf:JiaJinrang/PanoWorld", "hash_or_version": "x" } ],
-      "config": { "config_hash": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd" },
-      "timings": { "started_at": "2026-08-05T10:00:00Z", "finished_at": "2026-08-05T11:00:00Z" },
+      "models": [
+        {
+          "name": "panoworld_lrm",
+          "source": "hf:JiaJinrang/PanoWorld",
+          "hash_or_version": "x"
+        }
+      ],
+      "config": {
+        "config_hash": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+      },
+      "timings": {
+        "started_at": "2026-08-05T10:00:00Z",
+        "finished_at": "2026-08-05T11:00:00Z"
+      },
       "contracts_bundle_version": "1.0.0"
     }
   },
   "qa_report": {
     "valid": {
-      "scores": { "geometry": 0.9, "style": 0.8, "cross_view_consistency": 0.85 },
-      "checks": [ { "name": "doorway_consistency", "result": "pass" } ],
+      "scores": {
+        "geometry": 0.9,
+        "style": 0.8,
+        "cross_view_consistency": 0.85
+      },
+      "checks": [
+        {
+          "name": "doorway_consistency",
+          "result": "pass"
+        }
+      ],
       "decision": "approve",
       "reason_codes": []
     },
     "invalid": {
-      "scores": { "geometry": 0.9, "style": 0.8, "cross_view_consistency": 0.85 },
+      "scores": {
+        "geometry": 0.9,
+        "style": 0.8,
+        "cross_view_consistency": 0.85
+      },
       "decision": "MAYBE"
     }
   },
@@ -189,14 +482,22 @@
     "valid": {
       "target_state": "RUN:CAMERAS_PLANNED",
       "reason_code": "RENDER_DEPTH_EMPTY",
-      "changed_parameter": { "name": "resolution_height", "old_value": "1024", "new_value": "512" },
+      "changed_parameter": {
+        "name": "resolution_height",
+        "old_value": "1024",
+        "new_value": "512"
+      },
       "attempt": 1,
       "max_attempts": 3
     },
     "invalid": {
       "target_state": "CAMERAS_PLANNED",
       "reason_code": "RENDER_DEPTH_EMPTY",
-      "changed_parameter": { "name": "resolution_height", "old_value": "1024", "new_value": "512" },
+      "changed_parameter": {
+        "name": "resolution_height",
+        "old_value": "1024",
+        "new_value": "512"
+      },
       "attempt": 0,
       "max_attempts": 3
     }

@@ -23,6 +23,7 @@ MAX_INPUT_BYTES = 250 * 1024 * 1024
 _ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]{1,63}$")
 _DWG_HEADER_RE = re.compile(rb"^AC10\d{2}")
 _DXF_UNITS = {4: "mm", 5: "cm", 6: "m"}
+CONTRACTS_BUNDLE_VERSION = "1.1.0"
 
 
 def _artifact(
@@ -215,7 +216,7 @@ def ingest_project(
             "units": units,
             "scale": {"known": scale_known, "m_per_px": m_per_px},
             "inputs": inputs,
-            "contracts_bundle_version": "1.0.0",
+            "contracts_bundle_version": CONTRACTS_BUNDLE_VERSION,
         },
         project_id=project_id,
         run_id=run_id,

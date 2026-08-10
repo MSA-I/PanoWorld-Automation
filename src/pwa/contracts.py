@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from pathlib import Path
 
 from jsonschema import Draft202012Validator
@@ -15,6 +16,7 @@ from referencing import Registry, Resource
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCHEMAS_DIR = REPO_ROOT / "schemas"
+_SEMVER_RE = re.compile(r"-(\d+)\.(\d+)\.(\d+)\.schema\.json$")
 
 
 def compute_content_hash(doc: dict) -> str:
@@ -29,43 +31,104 @@ def compute_content_hash(doc: dict) -> str:
     return "sha256:" + hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
-def load_all_schemas(schemas_dir: Path | None = None) -> dict[str, dict]:
-    """Return ``{schema_id: schema}`` for every schema file on disk.
+def _semver_tuple(value: str) -> tuple[int, int, int]:
+    major, minor, patch = value.split(".")
+    return int(major), int(minor), int(patch)
 
-    ponytail: exactly one version exists per schema today; when a second version
-    appears, pick latest per major here and add a compatibility matrix test.
-    """
+
+def _schema_const(schema: dict, field: str) -> str:
+    if field == "schema_id" and isinstance(schema.get("title"), str) and schema["title"] == "Artifact envelope":
+        return "envelope"
+    if field == "schema_version" and isinstance(schema.get("title"), str) and schema["title"] == "Artifact envelope":
+        return "1.0.0"
+    for entry in schema.get("allOf", ()):
+        if not isinstance(entry, dict):
+            continue
+        properties = entry.get("properties")
+        if not isinstance(properties, dict):
+            continue
+        field_schema = properties.get(field)
+        if isinstance(field_schema, dict) and isinstance(field_schema.get("const"), str):
+            return field_schema["const"]
+    raise ValueError(f"Schema missing {field!r} const")
+
+
+def load_schema_catalog(schemas_dir: Path | None = None) -> dict[tuple[str, str], dict]:
+    """Return every schema version keyed by ``(schema_id, schema_version)``."""
     schemas_dir = Path(schemas_dir or SCHEMAS_DIR)
-    out: dict[str, dict] = {}
+    out: dict[tuple[str, str], dict] = {}
+    ids_seen: set[str] = set()
     for path in sorted(schemas_dir.rglob("*.schema.json")):
+        match = _SEMVER_RE.search(path.name)
+        if match is None:
+            raise ValueError(f"Schema filename does not end with a semantic version: {path}")
         schema = json.loads(path.read_text(encoding="utf-8"))
-        name = path.parent.parent.name  # schemas/<name>/v<major>/<file>
-        out[name] = schema
+        schema_id = _schema_const(schema, "schema_id")
+        schema_version = _schema_const(schema, "schema_version")
+        if path.parent.parent.name != schema_id:
+            raise ValueError(f"Schema path/name mismatch for {path}")
+        if schema_version != ".".join(match.groups()):
+            raise ValueError(f"Schema version does not match filename for {path}")
+        key = (schema_id, schema_version)
+        if key in out:
+            raise ValueError(f"Duplicate schema version pair: {key}")
+        if schema["$id"] in ids_seen:
+            raise ValueError(f"Duplicate schema $id: {schema['$id']}")
+        out[key] = schema
+        ids_seen.add(schema["$id"])
     return out
 
 
-def build_registry(schemas: dict[str, dict] | None = None) -> Registry:
-    schemas = schemas or load_all_schemas()
+def load_all_schemas(schemas_dir: Path | None = None) -> dict[str, dict]:
+    """Return the latest schema per ``schema_id`` by semantic version."""
+    out: dict[str, dict] = {}
+    for (schema_id, schema_version), schema in load_schema_catalog(schemas_dir).items():
+        current = out.get(schema_id)
+        if current is None or _semver_tuple(schema_version) > _semver_tuple(_schema_const(current, "schema_version")):
+            out[schema_id] = schema
+    return out
+
+
+def build_registry(catalog: dict[tuple[str, str], dict] | None = None) -> Registry:
+    catalog = catalog or load_schema_catalog()
     return Registry().with_resources(
-        (s["$id"], Resource.from_contents(s)) for s in schemas.values()
+        (schema["$id"], Resource.from_contents(schema)) for schema in catalog.values()
     )
 
 
-def validator_for(schema_id: str, schemas: dict[str, dict] | None = None) -> Draft202012Validator:
-    schemas = schemas or load_all_schemas()
-    if schema_id not in schemas:
-        raise KeyError(f"Unknown schema_id: {schema_id!r}")
-    return Draft202012Validator(schemas[schema_id], registry=build_registry(schemas))
+def validator_for(
+    schema_id: str,
+    schema_version: str | None = None,
+    catalog: dict[tuple[str, str], dict] | None = None,
+) -> Draft202012Validator:
+    catalog = catalog or load_schema_catalog()
+    if schema_version is None:
+        latest = load_all_schemas()
+        if schema_id not in latest:
+            raise KeyError(f"Unknown schema_id: {schema_id!r}")
+        schema = latest[schema_id]
+    else:
+        key = (schema_id, schema_version)
+        if key not in catalog:
+            raise KeyError(f"Unknown schema/version pair: {key!r}")
+        schema = catalog[key]
+    return Draft202012Validator(schema, registry=build_registry(catalog))
 
 
-def validate_artifact(doc: dict, schemas: dict[str, dict] | None = None) -> list:
+def validate_artifact(
+    doc: dict,
+    catalog: dict[tuple[str, str], dict] | None = None,
+) -> list:
     """Validate a full artifact document against its declared ``schema_id``.
 
     Returns the (possibly empty) list of jsonschema errors, all of them —
     detailed multi-error reporting is a stage-0 gate requirement (doc 03).
     """
     schema_id = doc.get("schema_id")
+    schema_version = doc.get("schema_version")
     if not isinstance(schema_id, str):
         raise ValueError("Artifact document has no string schema_id field")
-    validator = validator_for(schema_id, schemas)
+    if not isinstance(schema_version, str):
+        raise ValueError("Artifact document has no string schema_version field")
+    validator = validator_for(schema_id, schema_version, catalog)
     return sorted(validator.iter_errors(doc), key=lambda e: e.json_path)

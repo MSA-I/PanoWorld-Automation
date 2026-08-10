@@ -1,0 +1,37 @@
+============================= test session starts =============================
+platform win32 -- Python 3.11.15, pytest-9.1.1, pluggy-1.6.0
+rootdir: <repo-root>
+configfile: pyproject.toml
+testpaths: tests
+plugins: cov-7.1.0
+collected 291 items
+
+tests\golden\test_floorplan_golden.py ..                                 [  0%]
+tests\golden\test_validator_golden.py .......                            [  3%]
+tests\integration\test_plan001_intake.py .........                       [  6%]
+tests\integration\test_plan001_packager.py ....                          [  7%]
+tests\integration\test_plan002_cli.py ..                                 [  8%]
+tests\integration\test_plan002_failure_matrix.py ....................... [ 16%]
+....................................                                     [ 28%]
+tests\integration\test_plan002_failures.py .......                       [ 30%]
+tests\integration\test_plan002_parse_run.py ...............              [ 36%]
+tests\integration\test_validator_failures.py .....................       [ 43%]
+tests\unit\test_contract_versions.py ......                              [ 45%]
+tests\unit\test_extrinsics_checks.py ..................                  [ 51%]
+tests\unit\test_floorplan_normalize.py .........                         [ 54%]
+tests\unit\test_floorplan_normalize_matrix.py ..                         [ 55%]
+tests\unit\test_floorplan_overlay.py .......                             [ 57%]
+tests\unit\test_floorplan_sources.py ............                        [ 61%]
+tests\unit\test_floorplan_sources_matrix.py .............                [ 66%]
+tests\unit\test_floorplan_validate.py ...........                        [ 70%]
+tests\unit\test_floorplan_validate_matrix.py .....................       [ 77%]
+tests\unit\test_schemas_roundtrip.py ................................... [ 89%]
+..................                                                       [ 95%]
+tests\unit\test_state_machine.py .............                           [100%]
+
+- generated xml file: <repo-root>\evidence\PLAN-002\test-results\RUN-PLAN002-REWORK-20260810\junit.xml -
+=============================== tests coverage ================================
+______________ coverage: platform win32, python 3.11.15-final-0 _______________
+
+Coverage XML written to file evidence/PLAN-002/test-results/RUN-PLAN002-REWORK-20260810/coverage.xml
+======================= 291 passed in 67.55s (0:01:07) ========================

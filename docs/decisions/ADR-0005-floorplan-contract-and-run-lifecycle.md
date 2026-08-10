@@ -1,0 +1,16 @@
+# ADR-0005 — Floorplan contract evolution, immutable parse runs and fail-closed G1
+
+- Status: ACCEPTED (Moshe, 2026-08-09, explicit PLAN-002 approval; resolves D-012, D-013 and D-014)
+- Context: `floorplan_parse` 1.0.0 cannot carry the entity provenance and normalization metadata required by G1, and appending parser output to a finalized PLAN-001 intake run would violate immutability. Partial/low-confidence output also must not advance through the non-human G1 transition.
+- Decision:
+  1. Add additive `floorplan_parse` 1.1.0 and `floorplan_annotation` 1.0.0. Add an exact-version schema catalog keyed by `(schema_id, schema_version)` while preserving a latest-version compatibility view. Build the reference registry from every catalog version.
+  2. New and derived manifests declare contracts bundle 1.1. Existing finalized manifests and all historical 1.0.0 schemas/artifacts remain unchanged.
+  3. Every parse attempt creates a fresh immutable derived run under `runs/.staging/<parse-run-id>` and atomically finalizes to `runs/<parse-run-id>`. It byte-copies and re-verifies the complete source inventory and source audit artifacts, records cross-run lineage, and never mutates or appends to the source run.
+  4. Existing final/staging IDs, traversal, ancestor symlink/reparse points, invalid source contracts and unsafe overwrite attempts fail closed. Stale staging is retained for diagnosis and is never silently resumed or deleted; every retry uses a new parse-run ID.
+  5. Parser outcomes may be `complete`, `partial` or `failed`, but only `complete` outputs with no error finding, low-confidence finding or unresolved `requires_human_ack` satisfy G1. Correction or acknowledgement is represented only by corrected input and a fresh derived run; finalized artifacts are never mutated.
+  6. `parse-report.json` is deterministic raw evidence rather than an envelope artifact. Envelope artifacts remain schema-valid with recomputable content hashes.
+  7. Any pre-parse source manifest, source quality-report or inventory hash mismatch is an operational preflight failure: report the exact `PARSE_SOURCE_HASH_MISMATCH` code, return CLI 2 and create no finalized derived run.
+  8. A source quality report that is not `complete` or has blockers is likewise an operational preflight failure (CLI 2, no finalized derived run). Only a complete, blocker-free source that later exposes missing or contradictory scale reaches `PARSE_SCALE_UNKNOWN`, finalizes a failed diagnostic set and returns CLI 3.
+- Consequences: traceability and rollback are explicit, exact historical schema validation remains possible, and G1 fails closed. Derived runs duplicate source bytes and retries consume new IDs/storage. Published schema/error-code history is append-only and may be deprecated but not deleted during rollback.
+- Residual boundaries: no portable hard RSS limit is claimed on Windows; byte, pixel, entity, vertex, output and timeout caps bound normal operation. G7/G8, H200/GPU, remote/cloud execution and the production raster parser remain DEFERRED TO PART 2 or a later approved PLAN.
+- Evidence: `docs/plans/PLAN-002-floorplan-parsing.md` sections 4, 5, 7–12, 14, 18 and 20; Kanban task `t_b7ade39e` approval comments dated 2026-08-09, including the explicit hash Option A and source-quality/scale decisions.
