@@ -1,5 +1,19 @@
 # PROGRESS — PanoWorld Automation
 
+## PLAN-002 IMPLEMENTATION ו־ארבעה סבבי review — REWORK — 2026-08-10
+
+- **הפרסר מיושם ומוזג ל־main, אבל אינו מאושר.** שני merges בהרשאת משה באותו יום: `8248814` (המימוש) ו־`31c08e4` (סבב NA-3b ו־ראיות NA-3d). בשניהם המשמעות זהה ומתועדת ב־`state_authority`: **שמירת עבודה שנבדקה, לא קבלה שלה**. אין claim ל־G1.
+- ארבעה סבבי review בלתי־תלויים, כל אחד מצא פגמים אמיתיים מאחורי suite ירוק: NA-1 (עשרה ממצאים, נסגרו), NA-3 (OpenAI `gpt-5.6-sol`/xhigh — CRITICAL אחד ו־6 MAJOR), NA-3d pass 1 (Anthropic `claude-sonnet-5`, החלפה מתועדת אחרי 429 — ACCEPT), NA-3d pass 2 (Anthropic `claude-opus-5` עם ה־diff מוכן מראש — **NEEDS_REWORK**).
+- **pass 2 גובר על pass 1 מטעמי ראיות, לא טעם:** טעות של ה־orchestrator ב־allowlist (`Bash(git diff:*)` אינו תופס `git --no-pager diff` ולא `cd ... && git diff`) דחתה את כל 7 נסיונות ה־diff של pass 1, כך שהוא שפט את הקוד הקיים ולא את השינוי, ולא קרא את `src/pwa/files.py` ואת שלושת קבצי הטסטים שהסבב נגע בהם.
+- שערי הסבב: GC3-1 (ה־CRITICAL של כתיבה מחוץ ל־`runs_root`), GC3-4, GC3-5, GC3-6, GC3-7 ו־GC3-11 **סגורים**; GC3-2 ו־GC3-3 **PARTIALLY_CLOSED** — בשניהם נוסח השער קוים והאינווריאנט שהוא קיים בשבילו לא.
+- שלושת ה־MAJOR הפתוחים, שהם תחום NA-3e: כשל אימות אחרי `os.replace` משאיר ריצה מפורסמת שמדווחת על עצמה `complete` בזמן שה־API מחזיר CLI 2 (**אומת בפרוב שהורץ**); הראסטר של האנוטציה נקרא שלוש פעמים וה־bytes שנבדק להם hash אינם ה־bytes שנטמעים ב־overlay; ורכיב נתיב drive-relative מנצח את הליכת ההכלה בצד הכותב — מחלקת הפגם של ה־CRITICAL של GC-1 ששרדה בתוך העוזרים שנוצרו כדי לסגור אותה.
+- ה־orchestrator לא קיבל דוח כלשהו כנתון: חמישה שערים הוכחו מחדש מול עץ קדם־תיקון משוחזר, נמצאה רגרסיה שהסבב עצמו יצר (GC3-11) והוחזרה למבצע, והרצתי את ניסוי הכינויים של Windows ש־pass 1 ביקש — **התוצאה שלילית**: נקודה/רווח בסוף שם, case-folding ו־8.3 aliases אינם מנצחים את בדיקת ה־reparse. אותו ניסוי חשף את שני הפגמים ש־pass 2 מצא במקביל ובאופן בלתי־תלוי.
+- verification טרי על main הממוזג: **338 tests עברו, exit 0**, ה־golden canonical projection hash לא זז, ו־`git diff --stat 6eaef17 -- src tests` ריק (כלומר העץ שנבדק הוא הקומיט שנסקר). `pyproject.toml`, `uv.lock`, `schemas/`, `contracts/` ו־`docs/` — ללא שינוי בסבב.
+- AC: ‏AC-17 ו־AC-18 עלו ל־MET; ‏AC-4 נשאר NOT MET מסיבה חדשה; ‏AC-20 PARTIALLY MET; ‏AC-13/AC-14 CANNOT_VERIFY; ‏AC-15 אינו מתאים לסטייה שאושרה ב־GC3-9 וצריך יישוב בנוסח ה־AC ולא בקוד; ‏AC-23 נשאר WEAK.
+- evidence: [dispatch NA-3b](../evidence/PLAN-002/reviews/na3b-rework3-dispatch-20260810.md) · [דוח המבצע](../evidence/PLAN-002/reviews/rework3-report-20260810.md) · [אימות orchestrator ל־NA-3b](../evidence/PLAN-002/reviews/orchestrator-verification-na3b-20260810.md) · [pass 1](../evidence/PLAN-002/reviews/independent-anthropic-rework3-review-20260810.md) · [pass 2](../evidence/PLAN-002/reviews/independent-anthropic-rework3-review-opus-20260810.md) · [אימות orchestrator ל־NA-3d](../evidence/PLAN-002/reviews/orchestrator-verification-na3d-findings-20260810.md) · [dispatch NA-3e](../evidence/PLAN-002/reviews/na3e-rework4-dispatch-20260810.md).
+- הפעולה הבאה: NA-3e — סבב מתוחם רביעי, מבצע OpenAI וסוקר Anthropic אחריו לפי §17. אחריו GC3-8 (טיוטת תיקון החוזה קיימת וממתינה ל־review חוצה־ספקים), ואז NA-4 (שער ויזואלי) ו־NA-5 (smoke על הדוגמה הציבורית).
+- אין H200/GPU/remote/cloud בסבב הזה; ‏G7/G8 נשארים **DEFERRED TO PART 2**.
+
 ## PLAN-002 PLANNING — PLANNED — 2026-08-09
 
 - Moshe explicitly approved the bounded local Floorplan Parsing PLAN and all eight PLAN gate items; D-004 is recorded in ADR-0004 and D-012/D-013/D-014 in ADR-0005.
