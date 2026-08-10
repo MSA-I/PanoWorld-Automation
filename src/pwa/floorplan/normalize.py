@@ -153,6 +153,36 @@ def _resolve_wall_id(
     return candidates[0][1]
 
 
+def _projected_opening_width_m(
+    span: tuple[tuple[Decimal, Decimal], tuple[Decimal, Decimal]],
+    wall: NormWall,
+) -> Decimal:
+    """GC-6 (PLAN-002 revision 2, 2026-08-10): §6 now requires opening width
+    to be the span projected onto the matched wall's direction, computed
+    AFTER wall resolution succeeds -- not the raw span length. The
+    independent OpenAI review showed the raw length diverges without bound
+    as the span shortens (a 0.05 m span within the OPENING_OFFSET_M=0.02
+    endpoint tolerance projects to 0.03 m, a 67% excess) and can even flip
+    PARSE_OPENING_WIDTH_EXCEEDS_WALL at a realistic 0.9 m opening. Project
+    each span endpoint onto the wall's unit direction vector (the same "t"
+    parameter used to resolve/validate the wall match) and take the
+    difference -- this is exactly the wall-parallel extent of the opening,
+    independent of any perpendicular offset noise in the raw span.
+    """
+    sx, sy = wall.start
+    ex, ey = wall.end
+    vx = ex - sx
+    vy = ey - sy
+    length = math.hypot(vx, vy)
+    ux = vx / length
+    uy = vy / length
+    p0x, p0y = emit(span[0][0]), emit(span[0][1])
+    p1x, p1y = emit(span[1][0]), emit(span[1][1])
+    t0 = (p0x - sx) * ux + (p0y - sy) * uy
+    t1 = (p1x - sx) * ux + (p1y - sy) * uy
+    return q(abs(t1 - t0))
+
+
 def _points_match(left: tuple[float, float], right: tuple[float, float], *, tolerance: float = DIMENSION_TIE_M) -> bool:
     return abs(left[0] - right[0]) <= tolerance and abs(left[1] - right[1]) <= tolerance
 
@@ -243,7 +273,6 @@ def normalize(raw: RawGeometry) -> NormalizedGeometry:
         if not math.isfinite(opening.width_m) or opening.width_m <= 0:
             raise FloorplanError("PARSE_RESOURCE_LIMIT", "opening width must be finite and positive", source_ref=opening.source_ref)
         center = _normalize_point(_to_metric(opening.center, raw.frame), tx, ty)
-        width_m = q(opening.width_m)
         span_decimal: tuple[tuple[Decimal, Decimal], tuple[Decimal, Decimal]] | None = None
         if opening.span is not None:
             span_decimal = (
@@ -265,6 +294,36 @@ def normalize(raw: RawGeometry) -> NormalizedGeometry:
                     raise
         else:
             wall_id = raw_wall_ids.get(opening.wall_index, f"__missing_wall_index__:{opening.wall_index}")
+
+        # GC-6: width is derived from the span projected onto the matched
+        # wall, computed only now that wall resolution has succeeded. This
+        # only applies to adapters that carry a raw span (DXF); annotation
+        # openings have no span geometry to project and keep their declared
+        # metre width, as do DXF openings whose wall resolution is still
+        # pending (validate() will re-check and raise the appropriate
+        # PARSE_UNKNOWN_WALL_REF/PARSE_AMBIGUOUS_WALL_REF finding for those).
+        matched_wall = (
+            next((wall for wall in normalized_walls if wall.id == wall_id), None)
+            if span_decimal is not None and wall_id != _PENDING_DXF_WALL_ID
+            else None
+        )
+        if matched_wall is not None:
+            width_m = _projected_opening_width_m(span_decimal, matched_wall)
+        else:
+            width_m = q(opening.width_m)
+        if width_m <= 0:
+            # A span that is collinear-enough to resolve to a wall but has
+            # (near-)zero extent along that wall's direction (e.g. a line
+            # drawn perpendicular to, and centred on, the wall) is a
+            # degenerate opening, not a valid zero/negative-width one. Reuse
+            # the same finding already used above for a non-finite/
+            # non-positive declared width rather than emitting a degenerate
+            # opening or inventing a new error code.
+            raise FloorplanError(
+                "PARSE_RESOURCE_LIMIT",
+                "opening width must be finite and positive",
+                source_ref=opening.source_ref,
+            )
         normalized_openings.append(
             NormOpening(
                 id=_opening_identity(opening.kind, wall_id, center, width_m),

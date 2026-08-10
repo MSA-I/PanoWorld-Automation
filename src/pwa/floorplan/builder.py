@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import re
 from dataclasses import dataclass
@@ -286,6 +287,28 @@ def _failed_scale_artifacts(
 
 _MEDIA_TYPES = {"PNG": "image/png", "JPEG": "image/jpeg"}
 
+# GC-7 (PLAN-002 revision 2, 2026-08-10): §10 now requires the raster overlay
+# to embed only the decoded pixel data of the verified source raster,
+# stripped of EXIF and every other metadata block (GPS, author, camera
+# model, ICC profile, PNG text chunks, ...). Pillow never forwards
+# `image.info`/EXIF back out of save() unless a caller explicitly passes
+# `exif=`/`pnginfo=`/`icc_profile=`, so re-encoding the already-decoded
+# image through Pillow -- without forwarding any of that -- is sufficient
+# sanitization. The encoder settings are pinned (not left at whatever
+# Pillow's current default happens to be) so two runs over the same source
+# bytes produce byte-identical sanitized output.
+_SANITIZED_JPEG_QUALITY = 95
+_SANITIZED_PNG_COMPRESS_LEVEL = 6
+
+
+def _sanitize_raster_bytes(image: Image.Image, media_type: str) -> bytes:
+    buffer = io.BytesIO()
+    if media_type == "image/jpeg":
+        image.save(buffer, format="JPEG", quality=_SANITIZED_JPEG_QUALITY)
+    else:
+        image.save(buffer, format="PNG", compress_level=_SANITIZED_PNG_COMPRESS_LEVEL)
+    return buffer.getvalue()
+
 
 def _source_binding(source_path: Path, raw) -> dict:
     if raw.frame.kind == "raster":
@@ -296,12 +319,17 @@ def _source_binding(source_path: Path, raw) -> dict:
             # though intake.py accepts JPEG floorplans too. Derive the media
             # type from the decoded bytes instead.
             media_type = _MEDIA_TYPES.get(image.format)
-        if media_type is None:
-            raise FloorplanError("PARSE_SOURCE_UNSUPPORTED", "raster source image format is unsupported")
+            if media_type is None:
+                raise FloorplanError("PARSE_SOURCE_UNSUPPORTED", "raster source image format is unsupported")
+            sanitized_bytes = _sanitize_raster_bytes(image, media_type)
         return {
             "kind": "raster",
+            # GC-7: bind the ORIGINAL source file's hash, never the
+            # sanitized copy's -- the sanitized bytes differ from the
+            # original whenever metadata was present, and the hash exists
+            # to prove which verified input produced this overlay.
             "source_sha256": sha256_file(source_path),
-            "image_bytes": source_path.read_bytes(),
+            "image_bytes": sanitized_bytes,
             "media_type": media_type,
             "width_px": width,
             "height_px": height,

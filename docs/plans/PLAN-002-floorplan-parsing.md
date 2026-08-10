@@ -1,7 +1,10 @@
 # PLAN-002 — Floorplan Parsing
 
 - Plan ID: `PLAN-002-floorplan-parsing`
-- Status: **`PLANNED`** — explicitly approved by Moshe on 2026-08-09; the later AC-20 source-hash and source-quality/scale clarifications were also explicitly approved on Kanban `t_b7ade39e`. Implementation remains bounded by this PLAN and ADR-0004/ADR-0005.
+- Status: **`PLANNED (revision 2)`** — explicitly approved by Moshe on 2026-08-09; the later AC-20 source-hash and source-quality/scale clarifications were also explicitly approved on Kanban `t_b7ade39e`. Implementation remains bounded by this PLAN and ADR-0004/ADR-0005.
+- Revision 2 (2026-08-10) — two §20 retained Geometry/Contract clauses amended, each with Moshe's explicit approval of the changed wording, following the independent OpenAI `gpt-5.6-sol` review of the rework:
+  1. §6 DXF table, `PWA-DOOR`/`PWA-WINDOW`: opening width is now the span **projected onto the matched wall direction**, computed after wall resolution succeeds, rather than the raw drawn span length. The reviewer showed the raw length diverges without bound as the span shortens — a 0.05 m span within the 0.02 m endpoint tolerance projects to 0.03 m, a 67% excess — and can flip `PARSE_OPENING_WIDTH_EXCEEDS_WALL` even at 0.9 m. Because `width_m` feeds canonical geometry and stable entity IDs, this is a §20 gate, approved by Moshe on 2026-08-10.
+  2. §10 overlay contract: the raster overlay now embeds only decoded pixel data, stripped of EXIF and every other metadata block, while binding the SHA-256 of the **original** source bytes. Previously the source bytes were embedded verbatim, so a JPEG's EXIF — including GPS coordinates and author name — reached `parse/overlay.svg`, which §12 forbids. Approved by Moshe on 2026-08-10.
 - Kanban: `t_b7ade39e` (`P1-02 floorplan parsing`, board `panoworld-dev`)
 - Policy: `MODEL-ROUTING-v1`
 - Consumes: `HANDOFF-PLAN-001-to-PLAN-002-001`, contracts bundle `1.0.0`
@@ -175,8 +178,8 @@ Only modelspace, 2D entities, Z/elevation 0 and these mappings are accepted:
 |---|---|---|
 | `PWA-WALL` | `LINE` | wall centerline; endpoints are geometry |
 | `PWA-ROOM` | closed `LWPOLYLINE` | one room polygon; `closed=true`, at least 3 unique vertices, every bulge exactly 0 |
-| `PWA-DOOR` | `LINE` | door span; midpoint is center, segment length is width |
-| `PWA-WINDOW` | `LINE` | window span; midpoint is center, segment length is width |
+| `PWA-DOOR` | `LINE` | door span; midpoint is center, width is the span projected onto the matched wall direction, computed after wall resolution succeeds; the raw span length is not used |
+| `PWA-WINDOW` | `LINE` | window span; midpoint is center, width is the span projected onto the matched wall direction, computed after wall resolution succeeds; the raw span length is not used |
 
 - `$INSUNITS` must map to mm/cm/m and must equal the verified project-manifest units. Unknown or mismatched units fail with `PARSE_UNITS_MISMATCH`; user-supplied intake units never silently override contradictory DXF metadata at parse time.
 - Every opening line must be collinear with exactly one wall segment within tolerance. Zero or multiple matches fail.
@@ -290,7 +293,7 @@ Low confidence is aggregated with `any(entity.confidence < 0.5)`. It creates `pa
 
 The primary overlay is mandatory and source-aligned:
 
-- raster annotation: self-contained SVG embeds the verified source raster as a data URI and binds its SHA-256 in metadata;
+- raster annotation: self-contained SVG embeds only the decoded pixel data of the verified source raster as a data URI, stripped of EXIF and all other metadata blocks, and binds the SHA-256 of the **original** source bytes in metadata (never the hash of the sanitized copy, which would break the proof of which input produced the overlay);
 - DXF: self-contained SVG renders the accepted source primitives and normalized detections in aligned groups from the same source coordinates;
 - no external URL, script, `foreignObject` or arbitrary filesystem reference;
 - untrusted labels are XML-escaped;

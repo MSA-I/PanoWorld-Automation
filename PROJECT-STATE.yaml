@@ -84,6 +84,38 @@ current_plan:
         minimum-span invariant.
       kind: retained_human_gate
       gate: "PLAN-002 section 20 Geometry/Contract - requires Moshe's explicit approval before implementation"
+      decision: PROJECTED_WIDTH
+      decided_by: Moshe
+      decided_at: "2026-08-10"
+      decision_detail: >-
+        Option B. width_m is the length of the opening span projected onto the
+        direction of the matched wall, computed after wall resolution succeeds.
+        The raw drawn span length is not used. Rationale accepted: an opening
+        sits inside its wall, so the real gap in the wall is exactly the
+        projection; a crooked drawn line is annotation imprecision, not
+        building geometry, and using the raw length reports an opening wider
+        than the one that physically exists.
+      first_asked_wrong: >-
+        The orchestrator's first question used the Hebrew word for "width"
+        ambiguously and Moshe answered about wall thickness and door depth
+        instead - captured separately as DR-001. The question was re-asked with
+        a diagram distinguishing opening width along the wall from wall
+        thickness across it, and this decision is the answer to the re-asked
+        question.
+      implementation_status: IMPLEMENTED
+      clause_approved_at: "2026-08-10"
+      implemented_note: >-
+        PLAN-002 amended to revision 2 with Moshe's explicit approval of the
+        changed section 6 wording, then implemented. width_m is now computed in
+        normalize.py after wall resolution by projecting the span onto the
+        matched wall's unit direction. A degenerate zero/negative projected
+        width fails through the existing PARSE_RESOURCE_LIMIT code - no new
+        error code was invented, so contracts/error_codes.md stays append-only.
+        Golden canonical projection hash
+        sha256:e5041ddcf05eb02da0a07176d483ee4eaef311bf885204078710f07fe3b7e77e
+        is UNCHANGED, as predicted, because every Layer A opening is drawn
+        parallel to its wall. Verified by the orchestrator against the evidence
+        file rather than taken on report.
     - id: GC-7
       text: >-
         Decide how the raster overlay handles source metadata. The OpenAI review
@@ -98,6 +130,43 @@ current_plan:
         Changes the section 10 overlay contract, so it needs Moshe's decision
         rather than an implementer's. Directly relevant to
         samples/Sample_Floorplan.jpg, which carries 7 EXIF tags.
+      decision: SANITISE_AND_EMBED
+      decided_by: Moshe
+      decided_at: "2026-08-10"
+      decision_detail: >-
+        Option B. The overlay embeds only the decoded pixel data, stripped of
+        EXIF and every other metadata block, while the SHA-256 of the original
+        verified source bytes stays bound in overlay metadata so the audit chain
+        to the immutable input is unbroken. Metadata-bearing rasters are not
+        rejected. Rationale accepted: rejection would block almost every real
+        photograph or scan, including the downloaded sample, and would push
+        manual cleanup onto the user for no benefit.
+      implementation_status: IMPLEMENTED
+      clause_approved_at: "2026-08-10"
+      implemented_note: >-
+        PLAN-002 amended to revision 2 with Moshe's explicit approval of the
+        changed section 10 wording, then implemented. _source_binding() now
+        re-encodes the decoded image through Pillow with pinned encoder settings
+        and forwards no exif/pnginfo/icc_profile, so no metadata block survives.
+        No dependency was added - Pillow was already in the locked set.
+        Orchestrator verification used the real downloaded
+        samples/Sample_Floorplan.jpg: 7 EXIF tags before, 0 after; the literals
+        "Exif", "Adobe" and "Photoshop" all absent from the sanitised bytes;
+        pixel dimensions preserved; two runs byte-identical; and the original
+        file hash differs from the sanitised hash, confirming the binding is to
+        the original bytes rather than the copy.
+      residual_property: >-
+        JPEG sanitisation is a second lossy encode (quality pinned at 95), so
+        the embedded image is not bit-identical to the source - the real sample
+        went from 235,297 to 171,352 bytes. PNG sanitisation is lossless and the
+        implementer covered it with a pixel-perfect round-trip test. This is
+        acceptable for an overlay whose purpose is human visual review, and the
+        SHA-256 binding still ties it to the exact original bytes, but it is a
+        genuine property change and is recorded rather than left implicit.
+      followup_minor: >-
+        tests/unit/test_floorplan_builder.py uses PIL Image.getdata(), which
+        Pillow deprecates for removal in Pillow 14 (2027-10-15). Not urgent and
+        not a correctness issue; switch to get_flattened_data() when convenient.
   status_note: >-
     Implementation exists as uncommitted working-tree state in the worktree and
     is not merged. Orchestrator re-verified it deterministically on 2026-08-10:
@@ -705,8 +774,15 @@ next_actions:
       projection-ratio plus minimum-span invariant. Width feeds canonical
       geometry and stable entity IDs, so PLAN-002 section 20 makes this a
       retained Geometry/Contract gate.
-    blocked_by: "Moshe's explicit decision - must not be decided by an agent"
-    status: AWAITING_MOSHE
+    blocked_by: null
+    status: DONE
+    result: >-
+      Moshe chose projection on 2026-08-10 and separately approved the exact
+      amended section 6 wording, as section 20 requires. GC-7 (raster overlay
+      metadata) was decided in the same exchange and its section 10 wording
+      approved too. PLAN-002 is now revision 2 and both are implemented. 316
+      tests pass, up from 306. The golden canonical projection hash did not
+      move.
   - id: NA-3
     action: repackage_and_rerun_cross_provider_review
     detail: >-
@@ -714,9 +790,14 @@ next_actions:
       tests/unit/test_contract_versions.py and
       tests/integration/test_plan002_failure_matrix.py, which left code findings
       M-8 and M-9 as CANNOT_VERIFY. That was an orchestrator packaging error,
-      not an implementation defect - include both files next time.
-    blocked_by: NA-1, NA-2
-    status: BLOCKED
+      not an implementation defect - include both files next time, plus
+      src/pwa/files.py, whose absence stopped the reviewer from assessing
+      copy_immutable() and is_link_or_reparse(). Send to gpt-5.6-sol via
+      OmniRoute with stream=True; a non-streaming request of this size returns
+      HTTP 504 from the gateway, and cap output well below the token limit or
+      the final section is truncated mid-sentence.
+    blocked_by: null
+    status: READY
   - id: NA-4
     action: layer_A_overlay_visual_geometry_gate
     detail: >-
@@ -755,7 +836,28 @@ pending_inputs:
       own. It is a raster with 7 EXIF tags, so the open OpenAI finding about the
       raster overlay embedding source bytes verbatim applies to it directly.
 
-review_finding_dispositions:
+moshe_domain_rules:
+  # Domain knowledge stated by Moshe. Captured verbatim in meaning so it is not
+  # lost, even where it cannot be applied yet.
+  - id: DR-001
+    stated_at: "2026-08-10"
+    rule: >-
+      Interior wall thickness is always 10 cm. Exterior door depth follows the
+      thickness of the exterior wall it sits in - i.e. a door's depth equals the
+      thickness of its host wall, and interior walls are a fixed 10 cm.
+    applies_to: wall_thickness_and_door_depth
+    status: RECORDED_NOT_YET_APPLICABLE
+    why_not_yet: >-
+      PLAN-002 Part 1 deliberately excludes wall thickness. Section 3 forbids a
+      wall-thickness default outright, section 6 states thickness stays absent
+      unless a future approved contract represents it, and section 19 assigns it
+      to PLAN-003. The parse contract carries wall centrelines only, with no
+      thickness field, so this rule cannot be implemented without a contract
+      change and a new approved PLAN.
+    consume_in: >-
+      PLAN-003 geometry compilation, where centrelines are extruded into a white
+      model and thickness first becomes real. Carry DR-001 into that PLAN's
+      inputs rather than rediscovering it.
   - id: M-12
     summary: >-
       The approved post-approval spatial brief
