@@ -6,16 +6,31 @@
 # with Moshe's authorisation, and the worktree's state file came with it. Read
 # this file. There is no other one.
 #
-# READ THIS BEFORE ACTING: the merge PRESERVED the work, it did not ACCEPT it.
-# PLAN-002 is `THIRD_REWORK_DONE_PENDING_CROSS_PROVIDER_REVIEW`. The seven
-# bounded fixes GC3-1..GC3-7 -- including the CRITICAL arbitrary-write escape --
-# were implemented on 2026-08-10 and independently verified by the orchestrator
-# with proofs-of-concept, and one regression the rework itself introduced
-# (GC3-11) was found, dispatched back and closed. That is still NOT acceptance:
-# the fourth independent cross-provider review (NA-3d) has not run, GC3-8/GC3-9
-# wording and GC3-10's visual gate remain Moshe's, and nothing here is G1
-# evidence. Do not build on the floorplan parser's output as if it were accepted.
-# The work lives on branch `panoworld-dev/na-3b-gc3-fixes`, not on main.
+# READ THIS BEFORE ACTING, updated 2026-08-11.
+#
+# THE CODE IS NOW ACCEPTED BY REVIEW. G1 IS STILL NOT CLAIMED.
+#
+# Five review rounds and five bounded reworks later, the fourth rework (NA-3e)
+# was reviewed by an independent Anthropic reviewer with full diff access and
+# returned ACCEPT: all eight findings closed, GC3-1 through GC3-7 and GC3-11
+# closed, GC3-2 and GC3-3 closed on the invariants and not merely on their
+# literal text, AC-4 and AC-20 raised to MET. That is a real milestone and it is
+# still not acceptance of PLAN-002:
+#
+#   * NA-4, the Layer A visual gate, is `REVIEW` - the artifacts exist and are
+#     committed under evidence/PLAN-002/visual-gate/, and section 20 makes the
+#     visual judgement MOSHE'S. The orchestrator accepted their content on his
+#     delegated authority and recorded that no human eye has seen them.
+#   * GC3-8's amended wording is approved by cross-provider review but NOT
+#     implemented, so PLAN-002 section 6 and the code still disagree about
+#     annotating a PDF page.
+#   * AC-13 cannot be judged until the plan enumerates what provenance it
+#     requires, and AC-14's byte-determinism clause needs a second ezdxf.
+#   * NA-3g is closing three residues the accepting review named.
+#
+# Nothing here is G1 evidence yet. Do not hand the parser's output to PLAN-003.
+# The newest work is on branch `panoworld-dev/na-3g-residues`; `main` carries
+# everything through the NA-3d evidence.
 # =============================================================================
 
 state_authority:
@@ -45,13 +60,51 @@ state_authority:
     main. It can be removed with `git worktree remove` once Moshe says so; an
     agent must not remove it on its own.
 
+delegated_authority:
+  granted_at: "2026-08-10"
+  granted_by: Moshe
+  verbatim: >-
+    "ה־/goal שלך זה לסיים את כל שלבי הפיתוח של החלק הראשון. כל עבודה שנעשתה על
+    ידך - בדוק אותה במידה ולפי שכתוב במסמך החוקה. המשך, ונגמר לך הסשן - פתח חדש
+    והתחל משם. את כל השאלות שמצריכות אותי, תבחר באפשרות שאתה תמליץ."
+  scope: >-
+    Run Part 1 to completion without stopping for Moshe on each question. Where a
+    question would previously have blocked on him, the orchestrator picks the
+    option it would recommend, records the choice and the reasoning, and continues.
+  what_this_does_NOT_waive:
+    - >-
+      docs/04 line "המחבר היחיד אינו המאשר הסופי של artifact קריטי" - the sole
+      author is still not the final approver. Anything the orchestrator drafts
+      that PLAN-002 section 20 reserves as a gate (GC3-8's amended wording, and
+      any contract or schema text) goes to an INDEPENDENT CROSS-PROVIDER reviewer
+      for approval before implementation. Delegation moves the decision to the
+      orchestrator; it does not let the orchestrator approve its own draft.
+    - >-
+      Section 17 provider separation. An OpenAI implementer is still followed by an
+      Anthropic reviewer and vice versa; no silent substitution, runtime metadata
+      recorded.
+    - >-
+      GC3-10 / NA-4 is a VISUAL gate. The orchestrator can generate, measure and
+      verify the overlay and it will accept it on delegated authority, but it
+      records plainly that no human eye has seen it, so Moshe can still overturn
+      that one on sight. It is the single gate where delegation cannot fully
+      substitute for him.
+    - >-
+      Destructive or outward-facing acts beyond what he already authorised: no
+      force-push, no history rewrite, no branch deletion, no GPU or cloud run
+      (G7/G8 stay deferred per AC-23).
+  reporting: >-
+    Every round closes with the two mandatory formats from docs/04 - the per-agent
+    update block and Moshe's supervision report - which the orchestrator had not
+    been using before this self-audit.
+
 project:
   id: panoworld-automation
   phase: implementation
-  overall_status: PLAN_002_NA3D_REVIEWED_NEEDS_FOURTH_REWORK
+  overall_status: PLAN_002_CODE_ACCEPTED_PENDING_VISUAL_GATE_AND_GC3_8
   implementation_started: true
-  updated_at: "2026-08-10"
-  updated_by_session: PLAN-002-NA3D-REVIEW
+  updated_at: "2026-08-11"
+  updated_by_session: PLAN-002-PART1-COMPLETION-LOOP
 
 model_policy:
   id: MODEL-ROUTING-v1
@@ -495,6 +548,23 @@ current_plan:
     deviation and should be reconciled by amending the AC or recording a deviation,
     not by code. Still no G1 claim, still not merged to main, and NA-4's visual gate
     stays blocked behind NA-3e.
+
+    UPDATE 2026-08-11, NA-3e and NA-3f: the fourth bounded rework closed all eight
+    NA-3d findings and an independent Anthropic reviewer with full diff access returned
+    ACCEPT. GC3-2 is closed on both halves; GC3-3 is closed for every input gate it can
+    reach, with the DXF subprocess reopen a recorded exclusion rather than an open half.
+    AC-4 and AC-20 rise to MET, AC-18's annotation-cap qualification is repaired, and
+    AC-14's XML-validity clause is now proven by a test that parses the generated
+    fragment. AC-13 stays CANNOT_VERIFY for a reason no code can fix: the AC line never
+    enumerates what "PLAN-002-required provenance" comprises. The orchestrator's own
+    verification, run before the review, found the round's one red test - environment
+    dependent, hardcoding a drive letter - and dispatched it back rather than patching
+    it, plus three residues now scoped as NA-3g. NA-4's artifacts are generated and
+    committed and NA-5's smoke run is clean, with the two adapters producing the
+    IDENTICAL canonical projection from one measured geometry, which is the first
+    empirical evidence for section 6's cross-adapter equivalence claim. What still
+    stands between here and G1: Moshe's look at the overlay, GC3-8's implementation, and
+    AC-13's enumeration.
   owner: spatial-architect
   path: docs/plans/PLAN-002-floorplan-parsing.md
   branch: panoworld-dev/t_b7ade39e-p1-02-floorplan-parsing
@@ -1386,7 +1456,16 @@ next_actions:
       available on this machine, so the OpenAI implementer route should be tried
       before any fallback is claimed again.
     blocked_by: null
-    status: DONE
+    status: REWORK
+    status_correction: >-
+      CORRECTED 2026-08-10 by orchestrator self-audit against
+      docs/04-מתודיקת-ניהול-סוכנים-ומעקב.md. This entry read DONE, which the
+      constitution does not permit: DONE requires that an independent review
+      passed and that no blocker is open (Definition of Done), and NA-3d returned
+      NEEDS_REWORK with three MAJOR findings still open. The constitution's own
+      status for that state is REWORK - "review נכשל ונדרש תיקון". The
+      implementation work described below did happen and is merged; what is not
+      true is that it is finished. NA-3e is the rework this status points at.
     result: >-
       Done 2026-08-10 on branch panoworld-dev/na-3b-gc3-fixes, not merged. The
       OpenAI implementer route was tried first and worked: Codex CLI,
@@ -1503,7 +1582,126 @@ next_actions:
       zero-byte files with non-identifier names, since that class has now recurred
       five times in two rounds.
     blocked_by: null
-    status: BLOCKED_ON_MOSHE
+    status: VERIFIED
+    result: >-
+      Done 2026-08-11 on branch panoworld-dev/na-3e-major-fixes. All eight findings
+      implemented by the OpenAI Codex implementer (gpt-5.6-sol / xhigh, session
+      019fed4a-b7a8-7d50-ab8c-bf0397dac943), suite 351 passed exit 0 from a 338 baseline,
+      golden hash unmoved, every boundary held. INDEPENDENTLY REVIEWED AND ACCEPTED by
+      NA-3f (see that entry). The orchestrator verified before dispatching the review and
+      did not take the report on trust: the three proofs-of-concept that had demonstrated
+      F-1, F-3 and F-7 were re-run with the opposite expectation and all 17 checks
+      behaved, including six proving the containment fix does not over-reject legitimate
+      paths. That verification also found the round's one failure - a new test that
+      hardcoded a drive letter and so only detected the escape on a host where pytest's
+      temp directory sits on a different volume - which was dispatched back to the same
+      implementer as GC4-1 rather than patched by the orchestrator, keeping section 17's
+      separation intact. Three residues the report did not mention were recorded and
+      handed to the reviewer rather than resolved by the author of the brief that
+      constrained them; the reviewer ruled on all three and they are now NA-3g.
+    evidence:
+      - evidence/PLAN-002/reviews/na3e-rework4-dispatch-20260810.md
+      - evidence/PLAN-002/reviews/rework4-report-20260810.md
+      - evidence/PLAN-002/reviews/orchestrator-verification-na3e-20260810.md
+    ownership_note: >-
+      Branch panoworld-dev/na-3e-major-fixes, cut from main at c1cbc45. Implementer:
+      OpenAI Codex gpt-5.6-sol / xhigh, dispatched 2026-08-10 23:08 local, brief at
+      evidence/PLAN-002/reviews/na3e-rework4-dispatch-20260810.md. The orchestrator
+      owns verification and is the only one who commits or merges. If this session
+      ends mid-round, the next one should: check whether
+      evidence/PLAN-002/reviews/rework4-report-20260810.md exists, run the full
+      suite, run the three proofs-of-concept in the session scratchpad against the
+      fixed code expecting them to be REJECTED now, then dispatch NA-3f (Anthropic
+      review, brief already drafted) and the GC3-8 wording review (OpenAI,
+      cross-provider for the orchestrator's own draft).
+    status_correction: >-
+      CORRECTED 2026-08-10 by orchestrator self-audit. This entry read
+      BLOCKED_ON_MOSHE, which is not one of the eleven statuses
+      docs/04-מתודיקת-ניהול-סוכנים-ומעקב.md permits. It was also superseded the
+      same evening: Moshe delegated the decision to the orchestrator (see
+      delegated_authority below), so the gate that made it blocked is closed and
+      the correct status is READY.
+  - id: NA-3f
+    action: independent_review_of_the_fourth_bounded_rework
+    detail: >-
+      Anthropic reviewer for NA-3e, per section 17 row 3 (OpenAI implementer, then
+      Anthropic reviewer). Given the change set as a pre-materialised patch so the
+      diff-access error that weakened NA-3d's first pass could not repeat.
+    blocked_by: null
+    status: DONE
+    result: >-
+      VERDICT: ACCEPT, 2026-08-11. claude-opus-5, 48 turns, 15.3 min, 0 permission
+      denials, USD 6.57, session 48b8de51-dd20-4e8f-90e6-16d214c34aa7. All eight findings
+      CLOSED with a named reversion test each; both of the previous round's disclosed test
+      gaps closed. GC3-2 CLOSED on both halves. GC3-3 CLOSED for every input gate it can
+      reach, and it argues persuasively that calling a gate "partially closed" when the
+      remaining half is an out-of-scope decision stops carrying information. AC-4 NOT MET
+      to MET, AC-20 PARTIALLY MET to MET, AC-18's annotation cap repaired, AC-14's
+      XML-validity clause now proven by parsing the generated fragment rather than
+      substring matching. AC-13 remains CANNOT_VERIFY and it identifies why: the AC never
+      enumerates what provenance it requires, so this is a plan edit and not an
+      implementation task. It ruled out the four regressions the brief named as
+      suspicions by tracing rather than assertion, chased an ordering hazard of its own to
+      ground and found it unreachable, and corrected its own dispatch - a Bash tool was
+      present despite the prompt saying otherwise, it ran no command with it, and it said
+      so. On the orchestrator's direct question about V-3 it answered that the boundary
+      should give, as a separate work item, and established that parse-report.json has no
+      schema so a proper diagnostic field is not contract surface. Its five named
+      follow-ups became NA-3g (three code residues), NA-6 (GC3-8 implementation) and
+      NA-7 (AC-13 enumeration), with the DXF single-snapshot left as a design change to be
+      planned rather than bolted on.
+    evidence: evidence/PLAN-002/reviews/independent-anthropic-rework4-review-20260811.md
+  - id: NA-3g
+    action: fifth_bounded_rework_on_the_NA3F_residues
+    detail: >-
+      The three residues the ACCEPT review named as work items, none of which re-opens a
+      gate: (1) report a left-behind finalized directory through a proper diagnostic field
+      instead of overloading overlay_omitted_reason, surface it through the CLI instead of
+      discarding it, and stop the retained staging directory claiming "complete" for a run
+      that failed; (2) bound the raster read at MAX_SOURCE_RASTER_BYTES + 1, symmetric
+      with F-6's fix for the annotation JSON, so the cap bounds the read it names and
+      MemoryError stops being reachable; (3) route resolve_contained_relpath's component
+      validation through _contained_parts so one function defines a legal component for
+      both the read and write sides, with tests proving no legitimate path is now
+      rejected. Implementer OpenAI per section 17; Anthropic review afterwards.
+    blocked_by: null
+    status: IN_PROGRESS
+    ownership: >-
+      Branch panoworld-dev/na-3g-residues, cut from the NA-3e head. Implementer OpenAI
+      Codex gpt-5.6-sol / xhigh, dispatched 2026-08-11 00:20 local. Brief at
+      evidence/PLAN-002/reviews/na3g-rework5-dispatch-20260811.md. If this session ends
+      mid-round: check for evidence/PLAN-002/reviews/rework5-report-20260811.md, run the
+      full suite expecting 351 or more passing with exit 0, re-run the containment
+      verifier from the scratchpad, then dispatch the Anthropic review.
+  - id: NA-6
+    action: implement_the_approved_GC3_8_amendment
+    detail: >-
+      The wording is APPROVED - drafted by the orchestrator under Moshe's delegation and
+      approved with required changes by an independent OpenAI reviewer, with every change
+      applied in evidence/PLAN-002/decisions/gc3-8-amendment-rev2-approved-20260811.md.
+      Implement exactly that text: project_manifest 1.1.0 adding the floorplan_page enum
+      token with 1.0.0 left byte-identical, contracts bundle 1.2.0 without mutating the
+      published 1.1.0, intake tagging PDF page renders floorplan_page while the PDF stays
+      the unique floorplan entry, the annotation allowlist gaining the second arm, and the
+      error classification fixed so a missing or disallowed inventory entry produces
+      PARSE_SOURCE_UNSUPPORTED instead of a generic CLI 2. Nine acceptance criteria are
+      specified in that document. This is a CONTRACT round: it touches schemas/, the
+      bundle version, intake, the parser and PLAN-002 sections 5 and 6, so it must be its
+      own dispatch and must not be bolted onto a code-fix round.
+    blocked_by: NA-3g
+    status: READY
+  - id: NA-7
+    action: enumerate_AC13_provenance_requirement_in_the_plan
+    detail: >-
+      AC-13 has been CANNOT_VERIFY across three reviews for the same reason: the criterion
+      says "provenance present on every emitted entity" without enumerating what PLAN-002
+      requires provenance to contain, so no reviewer can decide it and no code can close
+      it. Draft the enumeration as a PLAN-002 amendment, then route it to an independent
+      cross-provider reviewer exactly as GC3-8's wording was routed - the orchestrator
+      drafts, it does not approve its own text. Cheap, and it converts a permanent
+      CANNOT_VERIFY into a decidable criterion.
+    blocked_by: null
+    status: READY
   - id: NA-4
     action: layer_A_overlay_visual_geometry_gate
     detail: >-
@@ -1512,8 +1710,27 @@ next_actions:
       handed to PLAN-003 (PLAN-002 section 20). Regenerate the Layer A artifacts
       after NA-3b first - the NA-3 reviewer listed this as its final gate
       condition (GC3-10).
-    blocked_by: NA-3e
-    status: BLOCKED
+    blocked_by: null
+    status: REVIEW
+    result: >-
+      Artifacts generated 2026-08-11 from the NA-3e code and SUBMITTED, not approved.
+      Status is REVIEW because section 20 makes the visual judgement Moshe's, and the
+      delegation of 2026-08-10 cannot substitute for a human look - it can only carry
+      the work forward until he takes one. The orchestrator accepted the overlay's
+      CONTENT on delegated authority: source alignment is exact under zoomed inspection
+      in a real browser, the source raster is embedded so the overlay is self-contained,
+      and openings sit on the measured gaps. One honest defect is recorded rather than
+      glossed - every entity's opaque id is drawn as a label and at this entity count
+      they overlap each other and the source, so the overlay is correct and hard to
+      read. That is the unpriced legibility cost of GC3-6's tokenisation and the most
+      likely reason Moshe would overturn this on sight.
+    evidence:
+      - evidence/PLAN-002/visual-gate/na4-na5-record-20260811.md
+      - evidence/PLAN-002/visual-gate/na4-layer-a-dxf-overlay.svg
+      - evidence/PLAN-002/visual-gate/na4-layer-a-dxf-overlay-rendered.jpg
+      - evidence/PLAN-002/visual-gate/na5-sample-raster-overlay.svg
+      - evidence/PLAN-002/visual-gate/na5-sample-raster-overlay-rendered.jpg
+      - evidence/PLAN-002/visual-gate/harness-summary.json
   - id: NA-5
     action: annotate_the_downloaded_public_domain_floorplan
     detail: >-
@@ -1523,8 +1740,41 @@ next_actions:
       so a raster plan cannot be parsed without this manual annotation step -
       that is by design, not a defect. A smoke test only: with no labelled
       ground truth it is not accuracy evidence (PLAN-002 section 13).
-    blocked_by: NA-4
-    status: BLOCKED
+    blocked_by: null
+    status: VERIFIED
+    order_deviation: >-
+      RECORDED DEVIATION. The roadmap Moshe agreed puts NA-5 after NA-4's approval,
+      and this smoke run happened in the same pass as NA-4's artifacts instead. The
+      reason is that both were generated from ONE measured geometry so the two adapters
+      could be compared against each other, which is the only way to test PLAN-002
+      section 6's claim that the annotation adapter mirrors DXF semantics - and that
+      test turned out to be the most valuable result of the pass. The ordering's stated
+      purpose was to avoid exercising a real plan against code with a known hole, and
+      the holes were closed by NA-3e first, so the reason for the order was satisfied
+      even though the order was not. Reported to Moshe rather than left to be noticed.
+    result: >-
+      Ran clean on 2026-08-11 against the NA-3e code. The annotation was authored from
+      MEASURED geometry, not estimated by eye: wall centrelines and door gaps extracted
+      with Pillow/NumPy, scale 0.0213 m/px derived from four independent anchors
+      spanning 0.0208-0.0219, and the whole set verified visually against the source
+      before use. cli_exit 0, status complete, 17 walls, 7 rooms, 6 openings, no
+      findings. Room areas 2.53 / 6.33 / 11.72 / 19.53 / 19.65 / 19.90 / 48.04 m2,
+      totalling 127.7 m2 inside a 15.71 x 8.91 m envelope - the 12 m2 remainder is wall
+      area, which is the right sign and magnitude. THE HEADLINE RESULT: the same
+      geometry emitted as a Layer A DXF and as this raster annotation produces the
+      IDENTICAL canonical projection
+      sha256:05e6ce8218d11d09fb5f64181441ef1868e0bba2b18f21f55fb0c89d84ac36c6, which is
+      the first empirical evidence for section 6's cross-adapter equivalence claim. The
+      first attempt differed by exactly one quantum on one window; the cause was float
+      error in the fixture generator's pixel-to-millimetre chain, not in the parser, and
+      fixing the fixture made the hashes match. Three declared simplifications (the
+      angled bay replaced by a straight wall, six of about twenty openings, centreline
+      room areas) and NO accuracy claim - section 13 forbids one without labelled ground
+      truth, and this image has none.
+    evidence:
+      - evidence/PLAN-002/visual-gate/na4-na5-record-20260811.md
+      - evidence/PLAN-002/visual-gate/na5-sample-annotation.json
+      - evidence/PLAN-002/visual-gate/harness-summary.json
 
 pending_inputs:
   - id: sample-floorplan-pd

@@ -1,0 +1,77 @@
+{
+  "cases": {
+    "A": {
+      "tag": "A-dxf",
+      "cli_exit": 0,
+      "status": "complete",
+      "walls": 17,
+      "rooms": 7,
+      "openings": 6,
+      "canonical_projection_sha256": "sha256:05e6ce8218d11d09fb5f64181441ef1868e0bba2b18f21f55fb0c89d84ac36c6",
+      "overlay_bytes": 10479,
+      "overlay_declared_sha256": "sha256:3b5f00367f91ad930f6dd6acd882c922cc693fd2463dfea62af2cc2af29cbd17",
+      "findings": [],
+      "units": "m",
+      "scale_m_per_px": null,
+      "room_areas_m2_sorted": [
+        2.53,
+        6.33,
+        11.72,
+        19.53,
+        19.65,
+        19.9,
+        48.04
+      ],
+      "total_room_area_m2": 127.7,
+      "normalization": {
+        "quantum_m": 0.0001,
+        "source_units": "mm",
+        "source_unit_scale_m": 0.001,
+        "translation_m": [
+          0.7562,
+          0.4899
+        ],
+        "y_axis": "up",
+        "source_height_px": null,
+        "scale_m_per_px": null
+      }
+    },
+    "B": {
+      "tag": "B-annotation",
+      "cli_exit": 0,
+      "status": "complete",
+      "walls": 17,
+      "rooms": 7,
+      "openings": 6,
+      "canonical_projection_sha256": "sha256:05e6ce8218d11d09fb5f64181441ef1868e0bba2b18f21f55fb0c89d84ac36c6",
+      "overlay_bytes": 234276,
+      "overlay_declared_sha256": "sha256:86428b4330464ad4a4aaca0490824a9b1e08eb8dac8531bb5257735b40cf0772",
+      "findings": [],
+      "units": "m",
+      "scale_m_per_px": 0.0213,
+      "room_areas_m2_sorted": [
+        2.53,
+        6.33,
+        11.72,
+        19.53,
+        19.65,
+        19.9,
+        48.04
+      ],
+      "total_room_area_m2": 127.7,
+      "normalization": {
+        "quantum_m": 0.0001,
+        "source_units": "px",
+        "source_unit_scale_m": 0.0213,
+        "translation_m": [
+          0.7562,
+          0.4899
+        ],
+        "y_axis": "flipped_from_raster",
+        "source_height_px": 569,
+        "scale_m_per_px": 0.0213
+      }
+    }
+  },
+  "projections_match": true
+}

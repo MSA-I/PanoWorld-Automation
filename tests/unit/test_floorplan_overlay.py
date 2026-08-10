@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import io
 import re
+import xml.etree.ElementTree as ET
 
 from PIL import Image
 
-from pwa.floorplan.overlay import render_overlay
+from pwa.floorplan.overlay import _legend_lines, render_overlay
 from pwa.floorplan.types import NormOpening, NormRoom, NormWall, NormalizedGeometry, SourceFrame
 
 
@@ -362,3 +363,14 @@ def test_hostile_label_escaped():
     assert "&lt;script&gt;" in text
     assert "xlink:" not in text
     assert "<!DOCTYPE" not in text
+
+
+def test_legend_lines_escape_xml_text_metacharacters():
+    hostile_label = 'client<&>"name"'
+
+    legend = "\n".join(_legend_lines({"labels": [hostile_label]}))
+    document = f'<svg xmlns="http://www.w3.org/2000/svg">{legend}</svg>'
+    root = ET.fromstring(document)
+
+    assert root.find("{http://www.w3.org/2000/svg}g/{http://www.w3.org/2000/svg}text").text == hostile_label
+    assert "client&lt;&amp;&gt;" in legend

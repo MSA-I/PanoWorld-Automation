@@ -2,14 +2,16 @@
 
 from __future__ import annotations
 
+import hashlib
+import io
 import json
 from pathlib import Path
 
 from PIL import Image
 
 from pwa.contracts import compute_content_hash, validate_artifact
-from pwa.files import sha256_file
 from pwa.floorplan.findings import FloorplanError
+from pwa.floorplan.runs import resolve_contained_relpath
 from pwa.floorplan.types import RawDimension, RawGeometry, RawOpening, RawRoom, RawWall, SourceFrame
 
 # GC-5 (OpenAI cross-provider rework review, 2026-08-10): section 6 permits
@@ -35,6 +37,22 @@ class AnnotationSource:
         source_inventory: dict[str, dict] | None = None,
         document: dict | None = None,
     ) -> RawGeometry:
+        geometry, _ = self.extract_with_image_snapshot(
+            path,
+            source_root=source_root,
+            source_inventory=source_inventory,
+            document=document,
+        )
+        return geometry
+
+    def extract_with_image_snapshot(
+        self,
+        path: Path,
+        *,
+        source_root: Path | None = None,
+        source_inventory: dict[str, dict] | None = None,
+        document: dict | None = None,
+    ) -> tuple[RawGeometry, bytes]:
         if document is None:
             document = json.loads(Path(path).read_text(encoding="utf-8"))
         errors = validate_artifact(document)
@@ -56,12 +74,15 @@ class AnnotationSource:
         # non-floorplan inventory entry) instead of the floorplan raster.
         if source_inventory is not None and source_inventory[image_ref].get("kind") not in _APPROVED_ANNOTATION_IMAGE_KINDS:
             raise ValueError("annotation source image is not an approved floorplan source artifact")
-        image_path = (source_root / image_ref) if source_root is not None else (Path(path).parent / image_ref)
-        if sha256_file(image_path) != payload["image"]["sha256"]:
+        image_root = source_root if source_root is not None else Path(path).parent
+        image_path = resolve_contained_relpath(image_root, image_ref)
+        image_bytes = image_path.read_bytes()
+        image_sha256 = "sha256:" + hashlib.sha256(image_bytes).hexdigest()
+        if image_sha256 != payload["image"]["sha256"]:
             raise FloorplanError("PARSE_SOURCE_HASH_MISMATCH", "annotation image hash mismatch")
-        if source_inventory is not None and source_inventory[image_ref]["sha256"] != payload["image"]["sha256"]:
+        if source_inventory is not None and image_sha256 != source_inventory[image_ref]["sha256"]:
             raise FloorplanError("PARSE_SOURCE_HASH_MISMATCH", "annotation image hash does not match source inventory")
-        with Image.open(image_path) as image:
+        with Image.open(io.BytesIO(image_bytes)) as image:
             width_px, height_px = image.width, image.height
         if width_px != payload["image"]["width_px"] or height_px != payload["image"]["height_px"]:
             raise ValueError("annotation image dimensions do not match the decoded source image")
@@ -108,4 +129,4 @@ class AnnotationSource:
                 len(payload["walls"]) + len(payload["rooms"]) + len(payload["openings"]) + len(payload["declared_dimensions"])
             ),
             unmapped=(),
-        )
+        ), image_bytes

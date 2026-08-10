@@ -32,6 +32,7 @@ from pwa.floorplan.findings import Finding, FloorplanError, make_finding, sort_f
 from pwa.floorplan.normalize import canonical_projection, normalize
 from pwa.floorplan.overlay import render_overlay
 from pwa.floorplan.runs import (
+    FinalizedRunLeftBehindError,
     copy_source_inventory,
     create_contained_directory,
     finalize_run,
@@ -312,9 +313,9 @@ def _sanitize_raster_bytes(image: Image.Image, media_type: str) -> bytes:
     return buffer.getvalue()
 
 
-def _source_binding(source_path: Path, raw) -> dict:
+def _source_binding(source_path: Path, raw, *, source_bytes: bytes | None = None) -> dict:
     if raw.frame.kind == "raster":
-        source_bytes = source_path.read_bytes()
+        source_bytes = source_path.read_bytes() if source_bytes is None else source_bytes
         with Image.open(io.BytesIO(source_bytes)) as image:
             width, height = image.width, image.height
             # M-5 (spatial review, 2026-08-10): the overlay used to hardcode
@@ -428,6 +429,10 @@ def _annotation_input(document: dict | None) -> dict | None:
     return {"artifact_id": document["artifact_id"], "content_hash": document["content_hash"]}
 
 
+def _write_staged_json(path: Path, document: dict) -> None:
+    write_json_exclusive(path, document, create_parents=False)
+
+
 def _staged_operational_result(
     *,
     parse_run_id: str,
@@ -436,6 +441,7 @@ def _staged_operational_result(
     final_run: Path,
     staging_run: Path,
     finding: Finding | None = None,
+    overlay_omitted_reason: str = "no_normalized_geometry",
 ) -> ParseRunResult:
     report = _diagnostic(
         parse_run_id=parse_run_id,
@@ -444,11 +450,12 @@ def _staged_operational_result(
         cli_exit=2,
         outcome="operational_failure",
         finding=finding,
+        overlay_omitted_reason=overlay_omitted_reason,
     )
     try:
         report_path = staging_run / "parse" / "parse-report.json"
         if staging_run.is_dir() and not report_path.exists():
-            write_json_exclusive(report_path, report)
+            _write_staged_json(report_path, report)
     except (OSError, ValueError):
         pass
     return ParseRunResult(cli_exit=2, final_run=final_run, staging_run=staging_run, diagnostic=report)
@@ -464,6 +471,7 @@ def parse_run(
     runs_root = Path(runs_root)
     adapter = "annotation" if annotation is not None else "dxf"
     raw = None
+    source_image_bytes: bytes | None = None
     annotation_document: dict | None = None
     annotation_bytes: bytes | None = None
     # GC-1 (OpenAI cross-provider rework review, 2026-08-10): validate the raw
@@ -681,7 +689,8 @@ def parse_run(
             )
             return ParseRunResult(cli_exit=2, final_run=final_run, staging_run=staging_run, diagnostic=diagnostic)
         try:
-            annotation_bytes = Path(annotation).read_bytes()
+            with Path(annotation).open("rb") as stream:
+                annotation_bytes = stream.read(MAX_ANNOTATION_BYTES + 1)
         except OSError:
             diagnostic = _diagnostic(
                 parse_run_id=parse_run_id,
@@ -778,14 +787,19 @@ def parse_run(
         return ParseRunResult(cli_exit=2, final_run=final_run, staging_run=staging_run, diagnostic=diagnostic)
     try:
         copy_source_inventory(source_run, staging_run, source_manifest)
-        write_bytes_contained(staging_run, "project/source-manifest.json", manifest_bytes)
-        write_bytes_contained(staging_run, "project/source-quality-report.json", quality_bytes)
+        write_bytes_contained(staging_run, "project/source-manifest.json", manifest_bytes, create_parents=False)
+        write_bytes_contained(staging_run, "project/source-quality-report.json", quality_bytes, create_parents=False)
         staged_floorplan = resolve_contained_relpath(staging_run, floorplan_entry["path"])
 
         if annotation is not None:
             inventory_by_path = {item["path"]: item for item in source_manifest["payload"]["inputs"]}
-            copied_annotation = write_bytes_contained(staging_run, "parse/annotation.json", annotation_bytes)
-            raw = AnnotationSource().extract(
+            copied_annotation = write_bytes_contained(
+                staging_run,
+                "parse/annotation.json",
+                annotation_bytes,
+                create_parents=False,
+            )
+            raw, source_image_bytes = AnnotationSource().extract_with_image_snapshot(
                 copied_annotation,
                 source_root=staging_run,
                 source_inventory=inventory_by_path,
@@ -811,11 +825,11 @@ def parse_run(
                     source_height_px=raw.frame.height_px,
                     annotation_input=_annotation_input(annotation_document),
                 )
-                write_json_exclusive(staging_run / "project" / "project_manifest.json", derived_manifest)
-                write_json_exclusive(staging_run / "project" / "input_quality_report.json", derived_quality)
-                write_json_exclusive(staging_run / "parse" / "floorplan_parse.json", floorplan_parse)
-                write_json_exclusive(staging_run / "parse" / "assumptions.json", assumptions)
-                write_json_exclusive(staging_run / "parse" / "parse-report.json", parse_report)
+                _write_staged_json(staging_run / "project" / "project_manifest.json", derived_manifest)
+                _write_staged_json(staging_run / "project" / "input_quality_report.json", derived_quality)
+                _write_staged_json(staging_run / "parse" / "floorplan_parse.json", floorplan_parse)
+                _write_staged_json(staging_run / "parse" / "assumptions.json", assumptions)
+                _write_staged_json(staging_run / "parse" / "parse-report.json", parse_report)
                 finalize_run(staging_run, final_run, derived_manifest)
                 return ParseRunResult(cli_exit=3, final_run=final_run, staging_run=staging_run, diagnostic=parse_report)
         else:
@@ -829,7 +843,7 @@ def parse_run(
         geometry = normalize(raw)
         findings = sort_findings([*raw.errors, *validate(geometry), *raw.unmapped])
         projection = canonical_projection(geometry)
-        source_binding = _source_binding(source_image, raw)
+        source_binding = _source_binding(source_image, raw, source_bytes=source_image_bytes)
         try:
             overlay_bytes = render_overlay(geometry, source_binding)
         except ValueError as exc:
@@ -845,11 +859,11 @@ def parse_run(
                 source_height_px=raw.frame.height_px if raw.frame.kind == "raster" else None,
                 annotation_input=_annotation_input(annotation_document),
             )
-            write_json_exclusive(staging_run / "project" / "project_manifest.json", derived_manifest)
-            write_json_exclusive(staging_run / "project" / "input_quality_report.json", derived_quality)
-            write_json_exclusive(staging_run / "parse" / "floorplan_parse.json", floorplan_parse)
-            write_json_exclusive(staging_run / "parse" / "assumptions.json", assumptions)
-            write_json_exclusive(staging_run / "parse" / "parse-report.json", parse_report)
+            _write_staged_json(staging_run / "project" / "project_manifest.json", derived_manifest)
+            _write_staged_json(staging_run / "project" / "input_quality_report.json", derived_quality)
+            _write_staged_json(staging_run / "parse" / "floorplan_parse.json", floorplan_parse)
+            _write_staged_json(staging_run / "parse" / "assumptions.json", assumptions)
+            _write_staged_json(staging_run / "parse" / "parse-report.json", parse_report)
             finalize_run(staging_run, final_run, derived_manifest)
             return ParseRunResult(cli_exit=3, final_run=final_run, staging_run=staging_run, diagnostic=parse_report)
         if len(overlay_bytes) > MAX_OVERLAY_BYTES:
@@ -864,11 +878,11 @@ def parse_run(
                 source_height_px=raw.frame.height_px if raw.frame.kind == "raster" else None,
                 annotation_input=_annotation_input(annotation_document),
             )
-            write_json_exclusive(staging_run / "project" / "project_manifest.json", derived_manifest)
-            write_json_exclusive(staging_run / "project" / "input_quality_report.json", derived_quality)
-            write_json_exclusive(staging_run / "parse" / "floorplan_parse.json", floorplan_parse)
-            write_json_exclusive(staging_run / "parse" / "assumptions.json", assumptions)
-            write_json_exclusive(staging_run / "parse" / "parse-report.json", parse_report)
+            _write_staged_json(staging_run / "project" / "project_manifest.json", derived_manifest)
+            _write_staged_json(staging_run / "project" / "input_quality_report.json", derived_quality)
+            _write_staged_json(staging_run / "parse" / "floorplan_parse.json", floorplan_parse)
+            _write_staged_json(staging_run / "parse" / "assumptions.json", assumptions)
+            _write_staged_json(staging_run / "parse" / "parse-report.json", parse_report)
             finalize_run(staging_run, final_run, derived_manifest)
             return ParseRunResult(cli_exit=3, final_run=final_run, staging_run=staging_run, diagnostic=parse_report)
         overlay_hash = "sha256:" + hashlib.sha256(overlay_bytes).hexdigest()
@@ -1019,15 +1033,17 @@ def parse_run(
         # -- true only if the overlay write (the one write in this block
         # that can newly fail this way) happens before, not after, the
         # envelope writes.
-        overlay_path = staging_run / "parse" / "overlay.svg"
-        overlay_path.parent.mkdir(parents=True, exist_ok=True)
-        with overlay_path.open("xb") as stream:
-            stream.write(overlay_bytes)
-        write_json_exclusive(staging_run / "project" / "project_manifest.json", derived_manifest)
-        write_json_exclusive(staging_run / "project" / "input_quality_report.json", derived_quality)
-        write_json_exclusive(staging_run / "parse" / "floorplan_parse.json", floorplan_parse)
-        write_json_exclusive(staging_run / "parse" / "assumptions.json", assumptions)
-        write_json_exclusive(staging_run / "parse" / "parse-report.json", parse_report)
+        write_bytes_contained(
+            staging_run,
+            "parse/overlay.svg",
+            overlay_bytes,
+            create_parents=False,
+        )
+        _write_staged_json(staging_run / "project" / "project_manifest.json", derived_manifest)
+        _write_staged_json(staging_run / "project" / "input_quality_report.json", derived_quality)
+        _write_staged_json(staging_run / "parse" / "floorplan_parse.json", floorplan_parse)
+        _write_staged_json(staging_run / "parse" / "assumptions.json", assumptions)
+        _write_staged_json(staging_run / "parse" / "parse-report.json", parse_report)
         finalize_run(staging_run, final_run, derived_manifest)
         return ParseRunResult(cli_exit=cli_exit, final_run=final_run, staging_run=staging_run, diagnostic=parse_report)
     except FloorplanError as exc:
@@ -1043,20 +1059,25 @@ def parse_run(
                     source_height_px=raw.frame.height_px if raw is not None and raw.frame.kind == "raster" else None,
                     annotation_input=_annotation_input(annotation_document),
                 )
-                write_json_exclusive(staging_run / "project" / "project_manifest.json", derived_manifest)
-                write_json_exclusive(staging_run / "project" / "input_quality_report.json", derived_quality)
-                write_json_exclusive(staging_run / "parse" / "floorplan_parse.json", floorplan_parse)
-                write_json_exclusive(staging_run / "parse" / "assumptions.json", assumptions)
-                write_json_exclusive(staging_run / "parse" / "parse-report.json", parse_report)
+                _write_staged_json(staging_run / "project" / "project_manifest.json", derived_manifest)
+                _write_staged_json(staging_run / "project" / "input_quality_report.json", derived_quality)
+                _write_staged_json(staging_run / "parse" / "floorplan_parse.json", floorplan_parse)
+                _write_staged_json(staging_run / "parse" / "assumptions.json", assumptions)
+                _write_staged_json(staging_run / "parse" / "parse-report.json", parse_report)
                 finalize_run(staging_run, final_run, derived_manifest)
                 return ParseRunResult(cli_exit=3, final_run=final_run, staging_run=staging_run, diagnostic=parse_report)
-            except (OSError, ValueError, UnicodeDecodeError, json.JSONDecodeError):
+            except (OSError, ValueError, UnicodeDecodeError, json.JSONDecodeError) as exc:
                 return _staged_operational_result(
                     parse_run_id=parse_run_id,
                     source_run_id=source_manifest["run_id"],
                     adapter=adapter,
                     final_run=final_run,
                     staging_run=staging_run,
+                    overlay_omitted_reason=(
+                        "finalized_directory_left_behind"
+                        if isinstance(exc, FinalizedRunLeftBehindError)
+                        else "no_normalized_geometry"
+                    ),
                 )
         return _staged_operational_result(
             parse_run_id=parse_run_id,
@@ -1073,11 +1094,16 @@ def parse_run(
         json.JSONDecodeError,
         Image.DecompressionBombError,
         Image.DecompressionBombWarning,
-    ):
+    ) as exc:
         return _staged_operational_result(
             parse_run_id=parse_run_id,
             source_run_id=source_manifest["run_id"],
             adapter=adapter,
             final_run=final_run,
             staging_run=staging_run,
+            overlay_omitted_reason=(
+                "finalized_directory_left_behind"
+                if isinstance(exc, FinalizedRunLeftBehindError)
+                else "no_normalized_geometry"
+            ),
         )

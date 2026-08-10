@@ -117,6 +117,87 @@ def test_annotation_source_extracts_layer_a_fixture(tmp_path):
     assert len(raw.dimensions) == 2
 
 
+def test_annotation_source_reads_one_raster_snapshot_for_hash_and_dimensions(tmp_path, monkeypatch):
+    annotation_path, image_path = _write_annotation_fixture(tmp_path)
+    image_ref = image_path.relative_to(tmp_path).as_posix()
+    expected_bytes = image_path.read_bytes()
+    image_reads = 0
+    real_read_bytes = Path.read_bytes
+
+    def counted_read_bytes(path):
+        nonlocal image_reads
+        if Path(path) == image_path:
+            image_reads += 1
+        return real_read_bytes(path)
+
+    monkeypatch.setattr(Path, "read_bytes", counted_read_bytes)
+
+    raw, image_snapshot = AnnotationSource().extract_with_image_snapshot(
+        annotation_path,
+        source_root=tmp_path,
+        source_inventory={image_ref: {"kind": "floorplan", "sha256": sha256_file(image_path)}},
+    )
+
+    assert image_reads == 1
+    assert image_snapshot == expected_bytes
+    assert raw.frame.height_px == 1800
+
+
+def test_annotation_source_rejects_reparse_image_ref_before_open(tmp_path, monkeypatch):
+    source_root = tmp_path / "source-root"
+    source_root.mkdir()
+    annotation_path, _ = _write_annotation_fixture(source_root)
+    outside_root = tmp_path / "outside-root"
+    outside_root.mkdir()
+    outside_image = outside_root / "outside.png"
+    Image.new("RGB", (2000, 1800), "white").save(outside_image, format="PNG")
+    linked_root = source_root / "linked"
+
+    if os.name == "nt":
+        subprocess.run(
+            ["cmd.exe", "/d", "/c", "mklink", "/J", str(linked_root), str(outside_root)],
+            check=True,
+            capture_output=True,
+        )
+    else:
+        linked_root.symlink_to(outside_root, target_is_directory=True)
+
+    document = json.loads(annotation_path.read_text(encoding="utf-8"))
+    document["payload"]["image"].update(
+        {
+            "source_image_ref": "linked/outside.png",
+            "sha256": sha256_file(outside_image),
+        }
+    )
+    document["content_hash"] = compute_content_hash(document)
+    annotation_path.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    real_read_bytes = Path.read_bytes
+    opened_linked_image = False
+
+    def guarded_read_bytes(path):
+        nonlocal opened_linked_image
+        if Path(path) == linked_root / "outside.png":
+            opened_linked_image = True
+        return real_read_bytes(path)
+
+    monkeypatch.setattr(Path, "read_bytes", guarded_read_bytes)
+
+    try:
+        with pytest.raises(ValueError):
+            AnnotationSource().extract(
+                annotation_path,
+                source_root=source_root,
+                source_inventory=None,
+            )
+        assert not opened_linked_image
+    finally:
+        if linked_root.exists() or linked_root.is_symlink():
+            if os.name == "nt":
+                linked_root.rmdir()
+            else:
+                linked_root.unlink()
+
+
 def test_dxf_source_extracts_layer_a_fixture(tmp_path):
     dxf_path = tmp_path / "layer-a-1.dxf"
     _write_dxf_fixture(dxf_path)

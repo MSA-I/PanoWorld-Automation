@@ -12,6 +12,7 @@ from pwa.contracts import compute_content_hash
 from pwa.floorplan.builder import parse_run
 from pwa.floorplan.config import MAX_ANNOTATION_BYTES
 from pwa.floorplan.findings import FloorplanError
+from pwa.floorplan.runs import validate_contained_destination
 from pwa.intake import ingest_project
 from tests.integration.test_plan002_parse_run import _annotation_doc, _image, _source_run
 from tests.unit.test_floorplan_sources import _write_dxf_fixture
@@ -82,6 +83,41 @@ def _finalized_docs(result):
     parse_report = _read_json(result.final_run / "parse" / "parse-report.json")
     overlay_path = result.final_run / "parse" / "overlay.svg"
     return floorplan_parse, parse_report, overlay_path
+
+
+def _destination_is_rejected(root: Path, inventory_path: str) -> bool:
+    try:
+        validate_contained_destination(root, inventory_path)
+    except (OSError, ValueError):
+        return True
+    return False
+
+
+def test_drive_relative_inventory_destination_is_rejected(tmp_path):
+    staging_root = tmp_path / "staging"
+    staging_root.mkdir()
+
+    assert _destination_is_rejected(staging_root, "C:pwa_escape/owned.txt")
+
+
+def test_ads_inventory_destination_is_rejected(tmp_path):
+    staging_root = tmp_path / "staging"
+    staging_root.mkdir()
+
+    assert _destination_is_rejected(staging_root, "artifact.dxf:payload")
+
+
+def test_destination_containment_is_reproved_if_component_grammar_misses_drive_anchor(tmp_path, monkeypatch):
+    staging_root = tmp_path / "staging"
+    staging_root.mkdir()
+    # The injected drive must differ from the temp root's drive or pathlib keeps it under the root.
+    injected_drive = "Q:" if staging_root.drive.casefold() != "q:" else "R:"
+    monkeypatch.setattr(
+        "pwa.floorplan.runs._contained_parts",
+        lambda relpath: (injected_drive, "pwa_escape", "owned.txt"),
+    )
+
+    assert _destination_is_rejected(staging_root, "inventory-path")
 
 
 @pytest.mark.parametrize(

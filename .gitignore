@@ -6,6 +6,11 @@ __pycache__/
 .coverage
 runs/
 
+# pytest --basetemp scratch. Rework implementers use .tmp/ for red/green runs and the
+# directories stay locked while a run is live, which makes `git status` warn as well as
+# offering the tree a chance to swallow them. Never commit them.
+.tmp/
+
 # Secrets — never in repo
 .env
 .env.*

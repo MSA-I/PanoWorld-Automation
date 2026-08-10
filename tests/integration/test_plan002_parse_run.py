@@ -15,7 +15,7 @@ from PIL import Image
 from pwa.contracts import compute_content_hash, validate_artifact
 from pwa.files import sha256_file
 from pwa.floorplan.builder import ParseRunResult, parse_run
-from pwa.floorplan.config import MAX_OVERLAY_BYTES, limits_snapshot
+from pwa.floorplan.config import MAX_ANNOTATION_BYTES, MAX_OVERLAY_BYTES, limits_snapshot
 from pwa.floorplan.findings import FloorplanError
 from pwa.intake import ingest_project
 from tests.unit.test_floorplan_sources import _write_dxf_fixture
@@ -103,10 +103,10 @@ def _source_run(root: Path, run_id: str = "RUN-20260809-source") -> tuple[Path, 
     return run_root, copied_floorplan
 
 
-def _source_run_dxf(root: Path, run_id: str = "RUN-20260809-source-dxf") -> Path:
+def _source_run_dxf(root: Path, run_id: str = "RUN-20260809-source-dxf", *, mutate=None) -> Path:
     floorplan = root / "floorplan.dxf"
     style = root / "style.png"
-    _write_dxf_fixture(floorplan)
+    _write_dxf_fixture(floorplan, mutate=mutate)
     _image(style)
     run_root = root / "runs" / run_id
     ingest_project(
@@ -189,6 +189,89 @@ def test_post_finalization_inventory_hash_drift_is_not_reported_complete(tmp_pat
 
     assert result.cli_exit == 2
     assert result.diagnostic["outcome"] == "operational_failure"
+    assert not result.final_run.exists()
+    assert result.staging_run.is_dir()
+
+
+def test_post_finalization_rollback_failure_reports_finalized_directory_left_behind(tmp_path, monkeypatch):
+    source_run, copied_floorplan = _source_run(tmp_path, "RUN-20260810-source-post-final-rollback")
+    annotation = _annotation_doc(tmp_path, copied_floorplan)
+    real_replace = os.replace
+    replace_calls = 0
+
+    def replace_then_corrupt_then_refuse_rollback(source, destination):
+        nonlocal replace_calls
+        replace_calls += 1
+        if replace_calls == 2:
+            raise OSError("forced rename-back failure")
+        real_replace(source, destination)
+        copied = next((Path(destination) / "project" / "inputs" / "originals").glob("floorplan.*"))
+        with copied.open("ab") as stream:
+            stream.write(b"post-finalization-drift")
+
+    monkeypatch.setattr("pwa.floorplan.runs.os.replace", replace_then_corrupt_then_refuse_rollback)
+
+    result = parse_run(
+        runs_root=tmp_path / "runs",
+        source_run=source_run,
+        parse_run_id="RUN-20260810-parse-post-final-rollback",
+        annotation=annotation,
+    )
+
+    assert result.cli_exit == 2
+    assert result.diagnostic["outcome"] == "operational_failure"
+    assert result.final_run.is_dir()
+    assert not result.staging_run.exists()
+    assert result.diagnostic["overlay"]["overlay_omitted_reason"] == "finalized_directory_left_behind"
+
+
+def test_finalization_rejects_overlay_hash_drift(tmp_path, monkeypatch):
+    source_run, copied_floorplan = _source_run(tmp_path, "RUN-20260810-source-overlay-finalize")
+    annotation = _annotation_doc(tmp_path, copied_floorplan)
+    from pwa.floorplan.runs import finalize_run as real_finalize_run
+
+    def tamper_overlay_then_finalize(staging_run, final_run, manifest):
+        (Path(staging_run) / "parse" / "overlay.svg").write_bytes(b"tampered-overlay")
+        return real_finalize_run(staging_run, final_run, manifest)
+
+    monkeypatch.setattr("pwa.floorplan.builder.finalize_run", tamper_overlay_then_finalize)
+
+    result = parse_run(
+        runs_root=tmp_path / "runs",
+        source_run=source_run,
+        parse_run_id="RUN-20260810-parse-overlay-finalize",
+        annotation=annotation,
+    )
+
+    assert result.cli_exit == 2
+    assert not result.final_run.exists()
+    assert result.staging_run.is_dir()
+
+
+def test_finalization_rejects_envelope_content_hash_drift(tmp_path, monkeypatch):
+    source_run, copied_floorplan = _source_run(tmp_path, "RUN-20260810-source-envelope-finalize")
+    annotation = _annotation_doc(tmp_path, copied_floorplan)
+    from pwa.floorplan.runs import finalize_run as real_finalize_run
+
+    def tamper_envelope_then_finalize(staging_run, final_run, manifest):
+        assumptions_path = Path(staging_run) / "parse" / "assumptions.json"
+        assumptions = json.loads(assumptions_path.read_text(encoding="utf-8"))
+        assumptions["payload"]["entries"].append({"name": "tampered", "value": "true"})
+        assumptions_path.write_text(json.dumps(assumptions, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        return real_finalize_run(staging_run, final_run, manifest)
+
+    monkeypatch.setattr("pwa.floorplan.builder.finalize_run", tamper_envelope_then_finalize)
+
+    result = parse_run(
+        runs_root=tmp_path / "runs",
+        source_run=source_run,
+        parse_run_id="RUN-20260810-parse-envelope-finalize",
+        annotation=annotation,
+    )
+
+    assert result.cli_exit == 2
+    assert not result.final_run.exists()
+    assert result.staging_run.is_dir()
 
 
 def test_operational_failure_retains_staging_and_no_finalized_run(tmp_path, monkeypatch):
@@ -213,16 +296,46 @@ def test_operational_failure_retains_staging_and_no_finalized_run(tmp_path, monk
     assert (result.staging_run / "parse" / "parse-report.json").is_file()
 
 
+def test_staged_write_does_not_recreate_missing_parse_parent(tmp_path, monkeypatch):
+    source_run, copied_floorplan = _source_run(tmp_path, "RUN-20260810-source-missing-parse-parent")
+    annotation = _annotation_doc(tmp_path, copied_floorplan)
+    parse_run_id = "RUN-20260810-parse-missing-parse-parent"
+    staging_run = tmp_path / "runs" / ".staging" / parse_run_id
+    parse_parent = staging_run / "parse"
+    displaced_parent = staging_run / "parse-displaced"
+    from pwa.floorplan.overlay import render_overlay as real_render_overlay
+
+    def displace_parse_parent(geometry, source):
+        overlay = real_render_overlay(geometry, source)
+        parse_parent.rename(displaced_parent)
+        return overlay
+
+    monkeypatch.setattr("pwa.floorplan.builder.render_overlay", displace_parse_parent)
+
+    result = parse_run(
+        runs_root=tmp_path / "runs",
+        source_run=source_run,
+        parse_run_id=parse_run_id,
+        annotation=annotation,
+    )
+
+    assert result.cli_exit == 2
+    assert not result.final_run.exists()
+    assert result.staging_run.is_dir()
+    assert displaced_parent.is_dir()
+    assert not parse_parent.exists()
+
+
 def test_unreadable_source_input_returns_cli2_result_instead_of_raising(tmp_path, monkeypatch):
     """GC3-7: an unreadable inventory input is an operational API result."""
     source_run, copied_floorplan = _source_run(tmp_path, "RUN-20260810-source-unreadable")
     annotation = _annotation_doc(tmp_path, copied_floorplan)
     from pwa.files import copy_immutable as real_copy_immutable
 
-    def unreadable_source(source, destination):
+    def unreadable_source(source, destination, **kwargs):
         if Path(source) == copied_floorplan:
             raise PermissionError("input is unreadable")
-        return real_copy_immutable(source, destination)
+        return real_copy_immutable(source, destination, **kwargs)
 
     monkeypatch.setattr("pwa.floorplan.runs.copy_immutable", unreadable_source)
 
@@ -474,6 +587,40 @@ def test_cumulative_paperspace_entity_overflow_is_resource_limit_cli3(tmp_path, 
     floorplan_parse = json.loads((result.final_run / "parse" / "floorplan_parse.json").read_text(encoding="utf-8"))
     assert parse_report["terminal_finding"]["code"] == "PARSE_RESOURCE_LIMIT"
     assert floorplan_parse["errors"][0]["code"] == "PARSE_RESOURCE_LIMIT"
+
+
+def test_real_dxf_worker_subprocess_maps_cumulative_entity_overflow_to_cli3(tmp_path, monkeypatch):
+    """GC3-5: the cumulative cap and parent mapping compose through Popen."""
+    worker_override = tmp_path / "worker-override"
+    worker_override.mkdir()
+    (worker_override / "sitecustomize.py").write_text(
+        "import pwa.floorplan.config as _config\n_config.MAX_DXF_ENTITIES = 12\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("PYTHONPATH", str(worker_override))
+
+    def add_paperspace(document):
+        paperspace = document.layout("Layout1")
+        paperspace.add_line((0, 0), (1, 0))
+        paperspace.add_line((0, 1), (1, 1))
+
+    source_run = _source_run_dxf(
+        tmp_path,
+        "RUN-20260810-source-real-worker-overflow",
+        mutate=add_paperspace,
+    )
+
+    result = parse_run(
+        runs_root=tmp_path / "runs",
+        source_run=source_run,
+        parse_run_id="RUN-20260810-parse-real-worker-overflow",
+        annotation=None,
+    )
+
+    assert result.cli_exit == 3
+    assert result.final_run.is_dir()
+    parse_report = json.loads((result.final_run / "parse" / "parse-report.json").read_text(encoding="utf-8"))
+    assert parse_report["terminal_finding"]["code"] == "PARSE_RESOURCE_LIMIT"
 
 
 def test_unknown_dxf_layout_and_layer_names_are_opaque_in_all_artifacts(tmp_path):
@@ -1093,6 +1240,49 @@ def test_missing_annotation_file_returns_operational_cli2(tmp_path):
     assert result.cli_exit == 2
     assert not result.final_run.exists()
     assert not result.staging_run.exists()
+
+
+def test_annotation_read_is_bounded_before_resource_limit_check(tmp_path, monkeypatch):
+    source_run, copied_floorplan = _source_run(tmp_path, "RUN-20260810-source-bounded-annotation")
+    annotation = _annotation_doc(tmp_path, copied_floorplan)
+    annotation.write_bytes(b"{" + (b"x" * MAX_ANNOTATION_BYTES))
+    real_open = Path.open
+    read_sizes: list[int] = []
+
+    class BoundedReader:
+        def __init__(self, stream):
+            self.stream = stream
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc_value, traceback):
+            self.stream.close()
+
+        def read(self, size=-1):
+            read_sizes.append(size)
+            if size != MAX_ANNOTATION_BYTES + 1:
+                raise AssertionError("annotation read was not bounded")
+            return self.stream.read(size)
+
+    def guarded_open(path, mode="r", *args, **kwargs):
+        stream = real_open(path, mode, *args, **kwargs)
+        if Path(path) == annotation and mode == "rb":
+            return BoundedReader(stream)
+        return stream
+
+    monkeypatch.setattr(Path, "open", guarded_open)
+
+    result = parse_run(
+        runs_root=tmp_path / "runs",
+        source_run=source_run,
+        parse_run_id="RUN-20260810-parse-bounded-annotation",
+        annotation=annotation,
+    )
+
+    assert read_sizes == [MAX_ANNOTATION_BYTES + 1]
+    assert result.cli_exit == 2
+    assert result.diagnostic["terminal_finding"]["code"] == "PARSE_RESOURCE_LIMIT"
 
 
 def test_copied_inventory_hash_drift_before_copy_is_rejected(tmp_path, monkeypatch):
