@@ -96,3 +96,49 @@ This amendment says nothing about `assumptions.json`, about hash recomputation, 
 `normalization` block — AC-13's other clauses. Those are already decidable as written: hash
 recomputation is enforced at finalisation by `verify_run_derived_artifacts`, which NA-3f confirmed,
 and schema validation is enforced by `_artifact`.
+
+---
+
+## Addendum, appended after checking the draft against the schema itself
+
+Appended rather than folded in, because this file is committed evidence. Two gaps in the text above,
+found by the orchestrator reading `schemas/floorplan_parse/v1/floorplan_parse-1.1.0.schema.json`
+rather than by a reviewer.
+
+### A1 — `texts` exists as an entity array and the enumeration ignored it
+
+AC-13 says "every emitted entity". The payload has a fourth array, `texts`, which the text above
+does not mention. Checked:
+
+- `texts` items are typed `required: ["text"]` with properties `text`, `bbox`, `confidence` — and
+  **no `provenance` property at all.** A text entity cannot carry provenance under the current
+  schema even if something wanted it to.
+- The parser never emits `texts`: no source file references it, and both of the 2026-08-11 runs
+  omit the key entirely. Part 1 has no OCR, by design (ADR-0004).
+
+So the enumeration is scoped to **walls, rooms and openings**, and that scope should be stated in
+the amendment rather than left implicit. Proposed added sentence:
+
+> This enumeration applies to every emitted wall, room and opening. `texts` is out of scope for
+> Part 1: the parser emits none, and the schema gives a text item no provenance property. If a later
+> part emits text entities, this enumeration must be revisited before AC-13 is claimed for them.
+
+### A2 — the schema makes provenance optional; the plan is what makes it mandatory
+
+For walls, rooms and openings the schema's `required` lists are `id`, geometry and `confidence`.
+**`provenance` is not required by the schema.** So a parse artifact with no provenance at all is
+schema-valid, and AC-13 is the only thing that forbids it.
+
+That is not a defect to fix in the schema — a permissive optional field is the right shape for an
+additive contract, and 1.0.0 had no provenance at all, so requiring it would have broken forward
+reading. But it means the amendment must say plainly that the plan, not the schema, is the binding
+source for this criterion, and that a reviewer checking AC-13 must check the artifact against the
+plan text and not merely run the validator. Proposed added sentence:
+
+> `provenance` is an optional property in the `floorplan_parse` schema, deliberately, so that the
+> additive contract can still read artifacts produced before it existed. This criterion is
+> therefore binding on the plan and not on the validator: a schema-valid artifact missing provenance
+> fails AC-13.
+
+Both additions strengthen the draft rather than change its substance, and the reviewer should judge
+the amendment with them included.
