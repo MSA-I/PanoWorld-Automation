@@ -210,8 +210,8 @@ def _failed_scale_artifacts(
             }
     derived_manifest = _artifact(
         "project_manifest",
-        "1.0.0",
-        {**source_manifest["payload"], "contracts_bundle_version": "1.1.0"},
+        "1.1.0",
+        {**source_manifest["payload"], "contracts_bundle_version": "1.2.0"},
         project_id=source_manifest["project_id"],
         run_id=parse_run_id,
         status="complete",
@@ -909,10 +909,10 @@ def parse_run(
 
         derived_manifest = _artifact(
             "project_manifest",
-            "1.0.0",
+            "1.1.0",
             {
                 **source_manifest["payload"],
-                "contracts_bundle_version": "1.1.0",
+                "contracts_bundle_version": "1.2.0",
             },
             project_id=source_manifest["project_id"],
             run_id=parse_run_id,

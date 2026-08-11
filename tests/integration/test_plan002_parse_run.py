@@ -26,16 +26,18 @@ def _image(path: Path) -> None:
     Image.new("RGB", (2000, 1800), "white").save(path, format="PNG")
 
 
-def _annotation_doc(root: Path, image_path: Path) -> Path:
+def _annotation_doc(root: Path, image_path: Path, *, source_root: Path | None = None) -> Path:
     from pwa.files import sha256_file
 
-    source_root = image_path.parents[3]
+    source_root = source_root or image_path.parents[3]
+    with Image.open(image_path) as image:
+        width_px, height_px = image.width, image.height
     payload = {
         "image": {
             "source_image_ref": image_path.relative_to(source_root).as_posix(),
             "sha256": sha256_file(image_path),
-            "width_px": 2000,
-            "height_px": 1800,
+            "width_px": width_px,
+            "height_px": height_px,
         },
         "scale_m_per_px": 0.005,
         "walls": [
@@ -133,6 +135,7 @@ def _rewrite_artifact(path: Path, mutate) -> dict:
 def test_parse_run_finalizes_complete_derived_run(tmp_path):
     source_run, copied_floorplan = _source_run(tmp_path)
     annotation = _annotation_doc(tmp_path, copied_floorplan)
+    source_manifest_bytes = (source_run / "project" / "project_manifest.json").read_bytes()
 
     result = parse_run(
         runs_root=tmp_path / "runs",
@@ -153,7 +156,10 @@ def test_parse_run_finalizes_complete_derived_run(tmp_path):
     assert validate_artifact(report) == []
     assert validate_artifact(floorplan_parse) == []
     assert validate_artifact(assumptions) == []
-    assert manifest["payload"]["contracts_bundle_version"] == "1.1.0"
+    assert manifest["schema_version"] == "1.1.0"
+    assert manifest["payload"]["contracts_bundle_version"] == "1.2.0"
+    assert (result.final_run / "project" / "source-manifest.json").read_bytes() == source_manifest_bytes
+    assert (source_run / "project" / "project_manifest.json").read_bytes() == source_manifest_bytes
     assert floorplan_parse["schema_version"] == "1.1.0"
     assert floorplan_parse["status"] == "complete"
     assert assumptions["payload"]["stage"] == "parsing"

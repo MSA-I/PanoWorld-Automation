@@ -23,7 +23,7 @@ MAX_INPUT_BYTES = 250 * 1024 * 1024
 _ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]{1,63}$")
 _DWG_HEADER_RE = re.compile(rb"^AC10\d{2}")
 _DXF_UNITS = {4: "mm", 5: "cm", 6: "m"}
-CONTRACTS_BUNDLE_VERSION = "1.1.0"
+CONTRACTS_BUNDLE_VERSION = "1.2.0"
 
 
 def _artifact(
@@ -32,12 +32,13 @@ def _artifact(
     *,
     project_id: str,
     run_id: str,
+    schema_version: str = "1.0.0",
     status: str = "complete",
     errors: list[dict] | None = None,
 ) -> dict:
     document = {
         "schema_id": schema_id,
-        "schema_version": "1.0.0",
+        "schema_version": schema_version,
         "artifact_id": f"{run_id}:{schema_id}",
         "project_id": project_id,
         "run_id": run_id,
@@ -175,7 +176,7 @@ def ingest_project(
             floor_copy, run_root / "project" / "inputs" / "derivatives" / "pdf"
         )
         derivative_entries = [
-            {"path": p.relative_to(run_root).as_posix(), "sha256": sha256_file(p), "kind": "other"}
+            {"path": p.relative_to(run_root).as_posix(), "sha256": sha256_file(p), "kind": "floorplan_page"}
             for p in outputs
         ]
     elif floor_suffix == ".dxf":
@@ -220,6 +221,7 @@ def ingest_project(
         },
         project_id=project_id,
         run_id=run_id,
+        schema_version="1.1.0",
     )
     report_errors = [] if scale_known else [
         {"code": "INPUT_SCALE_UNKNOWN", "message": "scale or CAD units are required before packaging"}

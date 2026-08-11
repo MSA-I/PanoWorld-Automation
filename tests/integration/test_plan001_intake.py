@@ -60,6 +60,8 @@ def test_all_floorplan_formats_keep_original_and_emit_valid_contracts(tmp_path, 
     assert validate_artifact(manifest) == []
     assert validate_artifact(report) == []
     assert manifest["content_hash"] == compute_content_hash(manifest)
+    assert manifest["schema_version"] == "1.1.0"
+    assert manifest["payload"]["contracts_bundle_version"] == "1.2.0"
     assert report["content_hash"] == compute_content_hash(report)
     copied = next((run_root / "project" / "inputs" / "originals").glob("floorplan.*"))
     assert copied.read_bytes() == original
@@ -68,10 +70,50 @@ def test_all_floorplan_formats_keep_original_and_emit_valid_contracts(tmp_path, 
     assert "private-name" not in json.dumps(manifest)
     if kind == "pdf":
         assert list((run_root / "project" / "inputs" / "derivatives" / "pdf").glob("*.png"))
+        assert [item["kind"] for item in manifest["payload"]["inputs"]].count("floorplan") == 1
+        assert [item["kind"] for item in manifest["payload"]["inputs"]].count("floorplan_page") == 1
     if kind == "dxf":
-        assert (run_root / "project" / "inputs" / "derivatives" / "dxf" / "preview.svg").is_file()
+        preview = run_root / "project" / "inputs" / "derivatives" / "dxf" / "preview.svg"
+        assert preview.is_file()
+        preview_entry = next(item for item in manifest["payload"]["inputs"] if item["path"].endswith("preview.svg"))
+        assert preview_entry["kind"] == "other"
+        assert not any(item["kind"] == "floorplan_page" for item in manifest["payload"]["inputs"])
     if kind == "dwg":
         assert not (run_root / "project" / "inputs" / "derivatives" / "dwg").exists()
+
+
+def test_two_page_pdf_emits_only_two_floorplan_page_pngs(tmp_path):
+    floorplan = tmp_path / "two-page.pdf"
+    first_page = Image.new("RGB", (1000, 800), (220, 20, 20))
+    second_page = Image.new("RGB", (1000, 900), (20, 20, 220))
+    first_page.save(floorplan, format="PDF", save_all=True, append_images=[second_page], resolution=72)
+    style = tmp_path / "style.png"
+    _image(style, "PNG")
+    run_root = tmp_path / "two-page-run"
+
+    manifest, _ = ingest_project(
+        run_root,
+        project_id="demo-project",
+        run_id="RUN-20260811-two-page",
+        floorplan=floorplan,
+        style_reference=style,
+        goal="precise",
+        units="m",
+        m_per_px=0.005,
+    )
+
+    floorplans = [item for item in manifest["payload"]["inputs"] if item["kind"] == "floorplan"]
+    pages = [item for item in manifest["payload"]["inputs"] if item["kind"] == "floorplan_page"]
+    assert len(floorplans) == 1
+    assert floorplans[0]["path"].endswith("floorplan.pdf")
+    assert [item["path"] for item in pages] == [
+        "project/inputs/derivatives/pdf/page-0001.png",
+        "project/inputs/derivatives/pdf/page-0002.png",
+    ]
+    assert len(pages) == 2
+    for item in pages:
+        with Image.open(run_root / item["path"]) as rendered:
+            assert rendered.format == "PNG"
 
 
 def test_unknown_scale_finalizes_blocked_run_without_package(tmp_path):

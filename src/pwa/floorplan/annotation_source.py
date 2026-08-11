@@ -15,15 +15,11 @@ from pwa.floorplan.findings import FloorplanError
 from pwa.floorplan.runs import resolve_contained_relpath
 from pwa.floorplan.types import RawDimension, RawGeometry, RawOpening, RawRoom, RawWall, SourceFrame
 
-# GC-5 (OpenAI cross-provider rework review, 2026-08-10): section 6 permits
-# annotation image binding only to "the immutable PNG/JPEG floorplan input or
-# one explicitly selected intake-generated PDF page ... already listed in the
-# source manifest." The current source-inventory "kind" vocabulary
-# (src/pwa/intake.py) only distinguishes "floorplan" unambiguously -- PDF-page
-# derivatives and other generated artifacts are all tagged "other" alongside
-# each other, so there is no separate kind to safelist for them without a
-# manifest/contract change (out of bounded scope here; see rework report).
-_APPROVED_ANNOTATION_IMAGE_KINDS = {"floorplan"}
+_APPROVED_ANNOTATION_IMAGE_KINDS = {"floorplan", "floorplan_page"}
+_APPROVED_FORMATS_BY_KIND = {
+    "floorplan": {"PNG", "JPEG"},
+    "floorplan_page": {"PNG"},
+}
 
 
 class AnnotationSource:
@@ -68,13 +64,23 @@ class AnnotationSource:
             raise FloorplanError("PARSE_SOURCE_HASH_MISMATCH", "annotation content_hash mismatch")
         payload = document["payload"]
         image_ref = payload["image"]["source_image_ref"]
-        if source_inventory is not None and image_ref not in source_inventory:
-            raise ValueError("annotation source image is not part of the source inventory")
-        # GC-5: membership and hash were checked, but not "kind" -- an
-        # annotation could bind to the style-reference image (or any other
-        # non-floorplan inventory entry) instead of the floorplan raster.
-        if source_inventory is not None and source_inventory[image_ref].get("kind") not in _APPROVED_ANNOTATION_IMAGE_KINDS:
-            raise ValueError("annotation source image is not an approved floorplan source artifact")
+        approved_formats = {"PNG", "JPEG"}
+        if source_inventory is not None:
+            inventory_entry = source_inventory.get(image_ref)
+            if inventory_entry is None:
+                raise FloorplanError(
+                    "PARSE_SOURCE_UNSUPPORTED",
+                    "annotation source image is not part of the source inventory",
+                    source_ref=image_ref,
+                )
+            inventory_kind = inventory_entry.get("kind")
+            if inventory_kind not in _APPROVED_ANNOTATION_IMAGE_KINDS:
+                raise FloorplanError(
+                    "PARSE_SOURCE_UNSUPPORTED",
+                    "annotation source image is not an approved floorplan source artifact",
+                    source_ref=image_ref,
+                )
+            approved_formats = _APPROVED_FORMATS_BY_KIND[inventory_kind]
         image_root = source_root if source_root is not None else Path(path).parent
         image_path = resolve_contained_relpath(image_root, image_ref)
         with image_path.open("rb") as stream:
@@ -90,8 +96,24 @@ class AnnotationSource:
             raise FloorplanError("PARSE_SOURCE_HASH_MISMATCH", "annotation image hash mismatch")
         if source_inventory is not None and image_sha256 != source_inventory[image_ref]["sha256"]:
             raise FloorplanError("PARSE_SOURCE_HASH_MISMATCH", "annotation image hash does not match source inventory")
-        with Image.open(io.BytesIO(image_bytes)) as image:
-            width_px, height_px = image.width, image.height
+        try:
+            with Image.open(io.BytesIO(image_bytes)) as image:
+                if image.format not in approved_formats:
+                    raise FloorplanError(
+                        "PARSE_SOURCE_UNSUPPORTED",
+                        "annotation source image format is unsupported for its inventory kind",
+                        source_ref=image_ref,
+                    )
+                image.load()
+                width_px, height_px = image.width, image.height
+        except FloorplanError:
+            raise
+        except (OSError, SyntaxError, ValueError) as exc:
+            raise FloorplanError(
+                "PARSE_SOURCE_UNSUPPORTED",
+                "annotation source image bytes do not decode to an approved format",
+                source_ref=image_ref,
+            ) from exc
         if width_px != payload["image"]["width_px"] or height_px != payload["image"]["height_px"]:
             raise ValueError("annotation image dimensions do not match the decoded source image")
         frame = SourceFrame(

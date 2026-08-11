@@ -116,7 +116,7 @@ Rules:
 - It resolves the source run under the configured `runs_root`, rejects traversal, symlinks/reparse points in every ancestor from `runs_root` to the file, and verifies copied artifact and floorplan hashes against the source manifest before parsing.
 - Parse artifacts use the new parse run ID. Their `inputs[]` bind to source artifact IDs/hashes.
 - No hard link or symlink is used. Source artifacts are copied byte-for-byte for audit, and **every item** in the verified source manifest inventory (floorplan, style reference and derivatives, including a selected PDF page) is copied with `copy_immutable` to the same run-relative path under the derived run.
-- The new `project/project_manifest.json` is schema `project_manifest` 1.0.0 with the parse-run ID, a new artifact ID, bundle `1.1.0`, and the complete copied inventory with reverified hashes. Its top-level `inputs[]` binds to the source manifest and source quality-report artifact IDs/hashes. Goal/units/scale are copied semantically from the verified source manifest. The source manifest remains unchanged at bundle 1.0.0.
+- The new `project/project_manifest.json` is schema `project_manifest` 1.1.0, declares contracts bundle 1.2.0, carries the new parse-run ID and artifact ID, and contains the complete copied inventory with reverified hashes. The source manifest remains byte-unchanged at its originally declared schema and bundle versions.
 - The new `project/input_quality_report.json` is schema 1.0.0 with the parse-run/artifact IDs, semantically copied payload/status, recomputed hash, and a top-level input binding to the source quality report. Parsing proceeds only when this derived report is `complete` with no blockers.
 - `floorplan_parse` and `assumptions` bind to the **derived** project manifest and quality report; the annotation path additionally binds to the annotation artifact ID/hash. This gives one internally consistent RUN namespace while preserving cross-run lineage through envelope inputs.
 - A valid parser outcome (`complete`, `partial`, or `failed`) writes schema-valid diagnostic artifacts and finalizes as an immutable run; only `complete` is G1-eligible. An operational failure before a valid diagnostic set exists leaves `.staging/<parse-run-id>` for diagnosis and never appears as a finalized run. Every retry requires a new parse-run ID.
@@ -200,7 +200,33 @@ Disposition table:
 ### Annotation adapter
 
 - Pixel coordinates are multiplied by `scale_m_per_px`.
-- Annotation `source_image_ref` and hash must bind to either the immutable PNG/JPEG floorplan input or one explicitly selected intake-generated PDF page PNG already listed in the source manifest. Raw PDF is not embedded or decoded by the parser; multi-page PDF requires an explicit derivative page reference.
+- An annotation selects exactly one source image through its sole `payload.image.source_image_ref`.
+  Selection is exact, code-point-for-code-point string equality, after JSON decoding, with one
+  `payload.inputs[].path` in the validated source manifest. No case folding, slash conversion,
+  Unicode normalization, filesystem alias resolution, path-prefix inference or `derived_from`
+  inference participates in selection.
+
+  Source-manifest preflight must first require unique inventory path strings. Duplicate paths are
+  an invalid source contract and fail with CLI 2 and no finalized derived run; they are not an
+  annotation "multiple match."
+
+  The selected entry must have `kind: "floorplan"` and decode as PNG or JPEG, or have
+  `kind: "floorplan_page"` and decode as PNG. Raw PDF, CAD source bytes, CAD previews,
+  `style_reference`, `other`, and all other formats are not annotatable. A missing reference, a
+  disallowed kind, or an incompatible decoded format produces `PARSE_SOURCE_UNSUPPORTED`, CLI 2,
+  and no finalized derived run.
+
+  `floorplan_page` is a producer-contract token reserved exclusively for PNG page renders created
+  by the approved intake PDF renderer from the same run's unique `kind: "floorplan"` PDF input. It
+  must not be assigned to uploaded rasters, style references, DXF/DWG previews, generic
+  derivatives or any other artifact.
+
+  The parser treats the validated manifest classification as authoritative; it does not
+  authenticate that classification from the path. `content_hash` is not an authenticity mechanism.
+  An actor able to rewrite a source run and recompute its hashes can misclassify arbitrary PNG
+  inventory entries, and `floorplan_page` increases how many such entries one forged manifest can
+  expose. This is an explicit residual source-run trust-boundary limitation, not a property
+  claimed to be prevented by this amendment.
 - Width/height are decoded fresh from the verified image bytes (they are not read from manifest `details`) and must match annotation metadata. Scale must match the immutable source manifest.
 - Raster coordinates transform from x-right/y-down to x-right/y-up using `metric_y=(height_px-y_px)*scale_m_per_px`; DXF uses native x-right/y-up. The transform and its inverse are recorded in normalization metadata.
 - Annotation source references are array indices in the validated document.
