@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import copy
+import hashlib
 import json
 import shutil
 from pathlib import Path
@@ -74,13 +76,54 @@ def _floorplan_parse_v1_1_payload() -> dict:
 
 def test_schema_catalog_tracks_exact_versions_and_latest_view():
     catalog = load_schema_catalog()
+    assert ("project_manifest", "1.0.0") in catalog
+    assert ("project_manifest", "1.1.0") in catalog
     assert ("floorplan_parse", "1.0.0") in catalog
     assert ("floorplan_parse", "1.1.0") in catalog
     assert ("floorplan_annotation", "1.0.0") in catalog
 
     latest = load_all_schemas()
+    assert latest["project_manifest"]["allOf"][1]["properties"]["schema_version"]["const"] == "1.1.0"
     assert latest["floorplan_parse"]["allOf"][1]["properties"]["schema_version"]["const"] == "1.1.0"
     assert "floorplan_annotation" in latest
+
+
+def test_project_manifest_1_0_fixture_is_compatible_with_1_1_and_frozen_schema_rejects_new_kind():
+    schema_1_0_path = REPO_ROOT / "schemas" / "project_manifest" / "v1" / "project_manifest-1.0.0.schema.json"
+    schema_1_1_path = REPO_ROOT / "schemas" / "project_manifest" / "v1" / "project_manifest-1.1.0.schema.json"
+    assert hashlib.sha256(schema_1_0_path.read_bytes()).hexdigest() == (
+        "b8020d9c79fa009d49c1b7bbaa6a64fd8a7caddfeadfc4080e8a1d3033ca33e6"
+    )
+    schema_1_0 = json.loads(schema_1_0_path.read_text(encoding="utf-8"))
+    schema_1_1 = json.loads(schema_1_1_path.read_text(encoding="utf-8"))
+    schema_1_1["$id"] = schema_1_0["$id"]
+    schema_1_1["allOf"][1]["properties"]["schema_version"]["const"] = "1.0.0"
+    schema_1_1["allOf"][1]["properties"]["payload"]["properties"]["inputs"]["items"]["properties"]["kind"][
+        "enum"
+    ].remove("floorplan_page")
+    assert schema_1_1 == schema_1_0
+
+    examples = json.loads(
+        (REPO_ROOT / "tests" / "fixtures" / "contracts" / "examples.json").read_text(encoding="utf-8")
+    )
+    historical = make_envelope("project_manifest", copy.deepcopy(examples["project_manifest"]["valid"]))
+    assert validate_artifact(historical) == []
+
+    compatible_1_1 = copy.deepcopy(historical)
+    compatible_1_1["schema_version"] = "1.1.0"
+    assert validate_artifact(compatible_1_1) == []
+
+    floorplan_page = copy.deepcopy(compatible_1_1)
+    floorplan_page["payload"]["inputs"].append(
+        {
+            "path": "project/inputs/derivatives/pdf/page-0001.png",
+            "sha256": "sha256:" + "f" * 64,
+            "kind": "floorplan_page",
+        }
+    )
+    assert validate_artifact(floorplan_page) == []
+    floorplan_page["schema_version"] = "1.0.0"
+    assert validate_artifact(floorplan_page)
 
 
 def test_validate_artifact_uses_declared_exact_version():

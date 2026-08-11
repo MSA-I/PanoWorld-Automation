@@ -101,7 +101,7 @@ delegated_authority:
 project:
   id: panoworld-automation
   phase: implementation
-  overall_status: PLAN_002_CODE_ACCEPTED_PENDING_VISUAL_GATE_AND_GC3_8
+  overall_status: PLAN_002_ALL_GATES_CLOSED_PENDING_MOSHE_VISUAL_GATE
   implementation_started: true
   updated_at: "2026-08-11"
   updated_by_session: PLAN-002-PART1-COMPLETION-LOOP
@@ -366,15 +366,36 @@ current_plan:
         vocabulary. The narrowing introduced by the GC-5 fix therefore stands as
         correct for now, and the permitted section 6 capability is restored
         through an approved contract amendment instead.
-      implementation_status: NOT_IMPLEMENTED
-      what_is_still_open: >-
-        The decision fixes the ROUTE, not the wording. PLAN-002 section 20 still
-        requires Moshe's explicit approval of the exact amended text before any
-        implementation: the new kind/role token, whether it lands in the
-        project_manifest schema vocabulary or only in intake's tagging, whether
-        the schema bump is additive (ADR-0005 requires additive-only), and how a
-        single page is "explicitly selected". Do not implement from this entry
-        alone - draft the amendment, get it approved, then implement.
+      implementation_status: IMPLEMENTED_AND_REVIEWED
+      closed_at: "2026-08-11"
+      closure: >-
+        CLOSED. The wording was drafted by the orchestrator under Moshe's delegation
+        of 2026-08-10, reviewed by an independent OpenAI reviewer which returned
+        APPROVE_WITH_CHANGES after catching three factual errors and a
+        bundle-versioning gap, and revision 2 applied every required change. NA-6
+        implemented that text: project_manifest 1.1.0 appending the floorplan_page
+        token with 1.0.0 left byte-identical, contracts bundle 1.2.0 without mutating
+        the published 1.1.0, intake tagging PDF page renders, the annotation allowlist
+        gaining a second arm with PNG-only for pages, and the error classification
+        fixed so a missing or disallowed inventory entry produces
+        PARSE_SOURCE_UNSUPPORTED instead of a bare ValueError becoming a generic CLI
+        2. NA-6b reviewed it and ruled "GC3-8: CLOSE" with all nine acceptance
+        criteria MET. The orchestrator verified independently with a two-page PDF it
+        built itself: 24 of 24 checks pass, including a 480,000-pixel comparison
+        proving an annotation selecting page 2 embeds page 2 and not page 1.
+        PLAN-002 section 6 and the code finally agree.
+      what_was_still_open_before_closure: >-
+        Kept for the record: the decision of 2026-08-10 fixed the ROUTE and not the
+        wording, and section 20 reserved the exact text. That is what the drafting,
+        the cross-provider review and revision 2 supplied.
+      evidence:
+        - evidence/PLAN-002/decisions/gc3-8-amendment-draft-20260810.md
+        - evidence/PLAN-002/decisions/gc3-8-independent-openai-wording-review-20260811.md
+        - evidence/PLAN-002/decisions/gc3-8-amendment-rev2-approved-20260811.md
+        - evidence/PLAN-002/reviews/na6-gc3-8-dispatch-20260811.md
+        - evidence/PLAN-002/reviews/na6-gc3-8-implementation-report-20260811.md
+        - evidence/PLAN-002/reviews/orchestrator-verification-na6-20260811.md
+        - evidence/PLAN-002/reviews/independent-anthropic-na6-contract-review-20260811.md
       recorded_by_session: PLAN-002-NA3-CROSS-PROVIDER-RE-REVIEW
     - id: GC3-9
       text: >-
@@ -1456,7 +1477,15 @@ next_actions:
       available on this machine, so the OpenAI implementer route should be tried
       before any fallback is claimed again.
     blocked_by: null
-    status: REWORK
+    status: DONE
+    closure: >-
+      DONE 2026-08-11. The status went READY -> DONE (wrongly) -> REWORK (corrected by
+      self-audit) -> DONE (earned). All eight findings the NA-3d review raised against
+      this round were closed by NA-3e, an independent reviewer accepted that round
+      (NA-3f), its three residues were closed by NA-3g and accepted again (NA-3h), and
+      both are merged into main. The Definition of Done's conditions are met: the
+      review passed, docs and state are updated, evidence is openable, and the merge
+      is done.
     status_correction: >-
       CORRECTED 2026-08-10 by orchestrator self-audit against
       docs/04-מתודיקת-ניהול-סוכנים-ומעקב.md. This entry read DONE, which the
@@ -1665,14 +1694,45 @@ next_actions:
       both the read and write sides, with tests proving no legitimate path is now
       rejected. Implementer OpenAI per section 17; Anthropic review afterwards.
     blocked_by: null
-    status: IN_PROGRESS
-    ownership: >-
-      Branch panoworld-dev/na-3g-residues, cut from the NA-3e head. Implementer OpenAI
-      Codex gpt-5.6-sol / xhigh, dispatched 2026-08-11 00:20 local. Brief at
-      evidence/PLAN-002/reviews/na3g-rework5-dispatch-20260811.md. If this session ends
-      mid-round: check for evidence/PLAN-002/reviews/rework5-report-20260811.md, run the
-      full suite expecting 351 or more passing with exit 0, re-run the containment
-      verifier from the scratchpad, then dispatch the Anthropic review.
+    status: DONE
+    result: >-
+      Done 2026-08-11 and merged into main at e8e0e7e. Suite 356 passed exit 0 from 351.
+      All three fixes implemented by the OpenAI Codex implementer (session
+      019fed8c-8842-77e1-a247-7b58478d4322) and ACCEPTED by NA-3h. The orchestrator
+      re-ran the containment verifier because fix 3 rewired the read side (17 of 17
+      still, including the six checks that prove no legitimate path is over-rejected)
+      and re-ran the cross-adapter harness because fix 2 touches the code path feeding
+      the overlay's embedded pixels (canonical projection hash unmoved, overlay byte
+      counts identical). One residue, W-1, was recorded rather than fixed and NA-3h
+      ruled it an accepted residual: it needs two independent filesystem failures and
+      degrades to the pre-round state plus a file containing the truth.
+    evidence:
+      - evidence/PLAN-002/reviews/na3g-rework5-dispatch-20260811.md
+      - evidence/PLAN-002/reviews/rework5-report-20260811.md
+      - evidence/PLAN-002/reviews/orchestrator-verification-na3g-20260811.md
+  - id: NA-3h
+    action: independent_review_of_the_fifth_bounded_rework
+    detail: >-
+      Anthropic reviewer for NA-3g, per section 17. Given the change set as a
+      pre-materialised patch, and asked to rule on W-1 rather than let a fifth round's
+      residue become a sixth round.
+    blocked_by: null
+    status: DONE
+    result: >-
+      VERDICT: ACCEPT, 2026-08-11. claude-opus-5, 43 turns, 15.5 min, session
+      25f0ef2f-504c-4e1c-9e49-557c9484757d. All three residues CLOSED with reversion
+      tests that pin routing rather than outcome. W-1 ruled an accepted residual. It
+      went further than confirming residual_state is not contract surface: on the
+      current code the field is never written to parse-report.json at all, because it
+      is set only for FinalizedRunLeftBehindError and that error means staging no
+      longer exists. NEW FINDING R-1, medium and non-blocking: the CLI's stderr write
+      sat outside its try/except, so an OSError there turned the documented exit 2 into
+      an uncaught exception and exit 1, on exactly the path that reports a left-behind
+      finalized run. It recommended folding the two-line fix into NA-6 rather than
+      opening a sixth rework, which is what happened. It also disclosed that Bash,
+      Edit and Write were present despite its read-only mandate, that it used none of
+      them to change anything, and listed every read-only command it ran.
+    evidence: evidence/PLAN-002/reviews/independent-anthropic-rework5-review-20260811.md
   - id: NA-6
     action: implement_the_approved_GC3_8_amendment
     detail: >-
@@ -1688,8 +1748,47 @@ next_actions:
       specified in that document. This is a CONTRACT round: it touches schemas/, the
       bundle version, intake, the parser and PLAN-002 sections 5 and 6, so it must be its
       own dispatch and must not be bolted onto a code-fix round.
-    blocked_by: NA-3g
-    status: READY
+    blocked_by: null
+    status: VERIFIED
+    result: >-
+      Implemented and reviewed 2026-08-11, on branch panoworld-dev/na-6-gc3-8 and NOT
+      yet merged. OpenAI Codex gpt-5.6-sol / xhigh, session
+      019ff067-d3e9-75f1-9efb-f487f85a9331. Suite 369 passed exit 0 from 356, thirteen
+      new contract and acceptance tests, golden hash unmoved, and R-1 from the previous
+      review folded in and fixed. NA-6b reviewed it: VERDICT ACCEPT, all nine
+      acceptance criteria MET, and "GC3-8: CLOSE". The orchestrator verified
+      independently rather than reading the report: 24 of 24 checks with a two-page PDF
+      built for the purpose, including a 480,000-pixel comparison proving an annotation
+      selecting page 2 embeds page 2's pixels and not page 1's, and the additive-ness
+      proven structurally - reverting the three authorised deltas makes 1.1.0 equal
+      1.0.0 exactly. It also found F-NA6-1, a defect in the APPROVED TEXT rather than
+      the code: AC 2's requirement that a historical 1.0.0 fixture validate "under
+      1.1.0" is unsatisfiable because every schema pins its own schema_version as a
+      const. NA-6b confirmed and the repair is applied in the text amendment bundle.
+    evidence:
+      - evidence/PLAN-002/reviews/na6-gc3-8-dispatch-20260811.md
+      - evidence/PLAN-002/reviews/na6-gc3-8-implementation-report-20260811.md
+      - evidence/PLAN-002/reviews/orchestrator-verification-na6-20260811.md
+      - evidence/PLAN-002/reviews/independent-anthropic-na6-contract-review-20260811.md
+  - id: NA-6b
+    action: independent_review_of_the_GC3_8_contract_round
+    detail: >-
+      Anthropic reviewer for NA-6. Reviewed as a CONTRACT change rather than a code fix,
+      so the binding questions were additive-ness and whether an old consumer can still
+      read old artifacts. Also asked to rule on F-NA6-1.
+    blocked_by: null
+    status: DONE
+    result: >-
+      VERDICT: ACCEPT with all nine acceptance criteria MET and "GC3-8: CLOSE".
+      claude-opus-5, effort reported by the harness as full. It executed nothing - no
+      test, no interpreter, no build - and said so, resting every verdict on static
+      reading, which is why the orchestrator's separate executable verification carries
+      the empirical weight. It confirmed F-NA6-1 and required one addition to the
+      repair: the criterion must cover committed run artifacts and not only test
+      fixtures. It raised F-NA6B-1 of its own - three statements in the plan document
+      still naming the old schema and bundle versions - and recommended bundling that
+      text fix with the F-NA6-1 repair through the same gate, which is what happened.
+    evidence: evidence/PLAN-002/reviews/independent-anthropic-na6-contract-review-20260811.md
   - id: NA-7
     action: enumerate_AC13_provenance_requirement_in_the_plan
     detail: >-
@@ -1701,7 +1800,27 @@ next_actions:
       drafts, it does not approve its own text. Cheap, and it converts a permanent
       CANNOT_VERIFY into a decidable criterion.
     blocked_by: null
-    status: READY
+    status: VERIFIED
+    result: >-
+      Drafted, reviewed and APPLIED 2026-08-11. The independent OpenAI reviewer returned
+      APPROVE_WITH_CHANGES and caught three real errors in the orchestrator's draft, one
+      of which mattered: the draft required room provenance to preserve the emitted
+      polygon's vertex order, but normalize.py deliberately rotates and sometimes
+      reverses those vertices, so the clause would have failed the implementation it was
+      written to describe. It also placed the definition in section 6 while section 9
+      already carried provenance bullets, which would have left two competing
+      requirements, and banned synthesised provenance outright, which would have
+      outlawed the DXF opening centre - a deterministic midpoint. The reviewer's
+      wording replaces the draft: section 9 now carries a Required Entity Audit Metadata
+      block, section 6 carries only a cross-reference, and AC-13 is replaced. The
+      reviewer states that with this wording it would mark AC-13 MET on the current
+      implementation, which closes a criterion three consecutive reviews could not
+      decide. The application of the wording is itself routed to one further
+      opposite-provider check rather than trusted.
+    evidence:
+      - evidence/PLAN-002/decisions/ac13-provenance-enumeration-draft-20260811.md
+      - evidence/PLAN-002/decisions/ac13-independent-openai-wording-review-20260811.md
+      - evidence/PLAN-002/decisions/text-amendment-bundle-20260811.md
   - id: NA-4
     action: layer_A_overlay_visual_geometry_gate
     detail: >-

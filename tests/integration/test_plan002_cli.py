@@ -56,3 +56,30 @@ def test_main_surfaces_finalized_directory_left_behind_diagnostic(monkeypatch, c
     assert exit_code == 2
     assert captured.out == ""
     assert json.loads(captured.err) == diagnostic
+
+
+def test_main_returns_2_when_residual_diagnostic_stderr_write_raises_oserror(monkeypatch):
+    diagnostic = {
+        "report_version": 1,
+        "parse_run_id": "RUN-x",
+        "outcome": "operational_failure",
+        "cli_exit": 2,
+        "residual_state": "finalized_directory_left_behind",
+    }
+
+    class Result:
+        cli_exit = 2
+
+        def __init__(self):
+            self.diagnostic = diagnostic
+
+    class RaisingStderr:
+        def write(self, text):
+            raise OSError("stderr unavailable")
+
+    monkeypatch.setattr("pwa.floorplan.cli.parse_run", lambda **kwargs: Result())
+    monkeypatch.setattr("pwa.floorplan.cli.sys.stderr", RaisingStderr())
+
+    exit_code = main(["--runs-root", "runs", "--source-run", "runs/source", "--parse-run-id", "RUN-x"])
+
+    assert exit_code == 2

@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoworld-automation.local/schemas/project_manifest/v1/project_manifest-1.1.0.schema.json",
+  "title": "project_manifest",
+  "allOf": [
+    { "$ref": "https://panoworld-automation.local/schemas/envelope/v1/envelope-1.0.0.schema.json" },
+    {
+      "properties": {
+        "schema_id": { "const": "project_manifest" },
+        "schema_version": { "const": "1.1.0" },
+        "payload": {
+          "type": "object",
+          "required": ["goal", "units", "scale", "inputs", "contracts_bundle_version"],
+          "properties": {
+            "goal": { "enum": ["conceptual", "precise"] },
+            "units": { "enum": ["m", "cm", "mm", "unknown"] },
+            "scale": {
+              "type": "object",
+              "required": ["known"],
+              "properties": {
+                "known": { "type": "boolean" },
+                "m_per_px": { "type": ["number", "null"], "exclusiveMinimum": 0 }
+              },
+              "additionalProperties": false
+            },
+            "inputs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": ["path", "sha256", "kind"],
+                "properties": {
+                  "path": { "type": "string", "minLength": 1 },
+                  "sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+                  "kind": { "enum": ["floorplan", "style_reference", "other", "floorplan_page"] }
+                },
+                "additionalProperties": false
+              }
+            },
+            "contracts_bundle_version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  ]
+}

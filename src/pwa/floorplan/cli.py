@@ -24,6 +24,8 @@ def main(argv: list[str] | None = None) -> int:
             parse_run_id=args.parse_run_id,
             annotation=Path(args.annotation) if args.annotation else None,
         )
+        if result.diagnostic and result.diagnostic.get("residual_state") == "finalized_directory_left_behind":
+            print(json.dumps(result.diagnostic, ensure_ascii=False, sort_keys=True), file=sys.stderr)
     except Exception:
         # Defense in depth: parse_run() is expected to convert every reachable
         # failure into a CLI-2 ParseRunResult itself (see builder.py's
@@ -31,8 +33,6 @@ def main(argv: list[str] | None = None) -> int:
         # unforeseen exception still surfaces as the documented operational
         # exit code instead of a raw traceback / stack trace to the user.
         return 2
-    if result.diagnostic and result.diagnostic.get("residual_state") == "finalized_directory_left_behind":
-        print(json.dumps(result.diagnostic, ensure_ascii=False, sort_keys=True), file=sys.stderr)
     return result.cli_exit
 
 
