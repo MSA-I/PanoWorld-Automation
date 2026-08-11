@@ -31,7 +31,7 @@ The plan intentionally proves contracts, validation, traceability and G1 evidenc
 - Append-only `PARSE_*` vocabulary.
 - Synthetic fixtures, golden artifacts, failure fixtures, tests and evidence.
 - A new immutable **derived parse run**; no write to a finalized PLAN-001 run.
-- A bounded update to future intake manifests from contracts bundle 1.0.0 to 1.1.0 after D-012 approval. Existing manifests are never rewritten.
+- A bounded update to future intake manifests from contracts bundle 1.0.0 to 1.1.0 after D-012 approval, and from 1.1.0 to 1.2.0 after the approved GC3-8 amendment. Existing manifests are never rewritten.
 - Planning records, independent cross-provider review and a human approval gate.
 
 ## 3. Non-goals
@@ -87,7 +87,7 @@ Version tests must prove:
 - duplicate `(schema_id, schema_version)` or `$id` is rejected;
 - all existing examples remain valid and byte-round-trip unchanged.
 
-Existing finalized project manifests remain bundle 1.0.0. A derived parse run created from one of them writes a new lineage manifest under the new parse run, preserving the original hashes and declaring bundle 1.1.0; it never rewrites the source run. Future intake runs declare 1.1.0 after approval.
+Existing finalized project manifests keep whatever bundle they declared. A derived parse run created from one of them writes a new lineage manifest under the new parse run, preserving the original hashes and declaring the current bundle — 1.2.0 after the approved GC3-8 amendment; it never rewrites the source run. Future intake runs declare the current bundle after approval.
 
 ### D-013 — Immutable run lifecycle
 
@@ -99,7 +99,7 @@ PLAN-001 finalizes each intake run with `os.replace(staging, final)`. PLAN-002 m
 runs/.staging/<parse-run-id>/
   project/source-manifest.json       # byte-copy of source artifact for audit
   project/source-quality-report.json # byte-copy of source artifact for audit
-  project/project_manifest.json      # new schema 1.0 artifact, bundle 1.1
+  project/project_manifest.json      # new project_manifest 1.1.0 artifact, bundle 1.2.0
   project/input_quality_report.json  # new schema 1.0 artifact for parse-run ID
   project/inputs/**                  # full verified source inventory, byte-copied
   parse/annotation.json              # annotation path only
@@ -245,6 +245,8 @@ render_overlay(normalized, source_binding) -> bytes
 
 `RawGeometry` retains adapter-specific source coordinates/provenance. Immediately after `extract()`, `prevalidate_cardinality()` requires at least one wall and one room and emits `PARSE_EMPTY_GEOMETRY` before any `min()`/normalization operation. No future raster adapter stub is created in Part 1.
 
+All adapters MUST emit the Required Entity Audit Metadata defined in section 9.
+
 ## 7. Deterministic normalization
 
 - Convert to metres before identity or validation.
@@ -306,12 +308,27 @@ Confidence is deterministic, not model-estimated:
 
 There are no parser defaults that alter geometry in Part 1. If a future approved default is added, it must create a matching assumption with `requires_human_ack=true`.
 
-Provenance required by PLAN-002 runtime:
+**Required Entity Audit Metadata.** In every PLAN-002 Part 1 runtime output, every emitted wall, room and opening MUST carry:
 
-- wall: source kind/ref and original endpoints;
-- room: source kind/ref and full original polygon;
-- opening: source kind/ref and original span/center;
-- text: not emitted in Part 1.
+1. `id`: the stable quantised identity defined in section 7.
+2. `confidence`: a number in `[0, 1]`, calculated under this section's confidence rules.
+3. `provenance.source_kind`: exactly `dxf` or `annotation`.
+4. `provenance.source_ref`: a reference resolving to the originating construct in the source artifact bound through the parse artifact's `inputs` and derived manifest:
+   - DXF: layout token, layer token and entity handle. The reserved literal `Model` and approved `PWA-*` layer names may appear; every other client-authored layout or layer name MUST be replaced by an opaque token.
+   - annotation: the array name and index in the validated annotation document.
+   - `source_ref` MUST NOT contain client free-text, a source filename, an absolute/private path or a user name.
+5. Source geometry in the source coordinate system and units — declared accepted DXF units (`mm`, `cm` or `m`) for DXF and pixels for annotation:
+   - wall: `source_start` and `source_end`, preserving the source endpoints;
+   - room: `source_polygon`, preserving the extracted source vertices in source order. It is not required to have the emitted polygon's order. Applying `payload.normalization` and section 7's terminal-vertex, winding and rotation rules MUST reproduce the emitted polygon;
+   - opening: `source_center`, using the annotation's declared centre or, for DXF, the deterministic midpoint of the source span. `source_span` MUST be present if and only if the source construct directly supplies span endpoints. DXF openings therefore carry it; annotation openings do not. A span derived from annotation centre, width and wall direction MUST NOT be recorded as `source_span`.
+
+`payload.normalization` MUST be present whenever any wall, room or opening is emitted. It is the single transform applicable to all entity provenance in that payload; no per-entity transform reference is required. Applying it together with the applicable sections 6 and 7 rules to the construct selected by `source_ref` MUST reproduce the emitted geometry.
+
+`payload.texts` MUST be absent or empty in PLAN-002 Part 1. A non-empty `texts` array fails AC-13. If a later part emits text entities, their provenance requirements and schema support MUST be approved before AC-13 is claimed for them.
+
+`provenance` and `normalization` remain optional in the additive `floorplan_parse` schema. They are mandatory in PLAN-002 runtime outputs under this plan. Schema validity alone therefore does not satisfy AC-13: an emitted wall, room or opening missing the metadata above fails AC-13.
+
+Entity provenance is descriptive, not an integrity or authenticity mechanism. Source identity and hashes are established at artifact scope through the envelope inputs, derived manifest inventory and, for annotation, the bound annotation artifact. Private Layer B provenance remains untracked under sections 12 and 13.
 
 Low confidence is aggregated with `any(entity.confidence < 0.5)`. It creates `partial` output and blocks G1 under D-014. Any assumption entry with `requires_human_ack=true` also blocks G1. Because schema 1.0.0 has no resolution field, acknowledgement is represented only by corrected input and a fresh run whose assumptions no longer contain that unresolved entry; an old artifact is never mutated.
 
@@ -423,7 +440,7 @@ No dependency or third-party dataset is added. Existing project-wide commercial 
 
 ### G1 evidence
 
-- AC-13: parse and assumptions validate, hashes recompute, and PLAN-002-required provenance is present on every emitted entity.
+- AC-13: parse and assumptions validate against their exact declared schemas; required artifact and overlay hashes recompute; `payload.normalization` is present whenever geometry is emitted; every emitted wall, room and opening satisfies section 9's Required Entity Audit Metadata; and `payload.texts` is absent or empty.
 - AC-14: source-aligned overlay shows source and detections, is deterministic byte-for-byte, XML-valid and contains no active/external content.
 - AC-15: hostile labels are escaped; private source data never enters tracked evidence.
 - AC-16: warning/partial/unresolved acknowledgement cannot pass G1; corrected input requires a fresh run.
