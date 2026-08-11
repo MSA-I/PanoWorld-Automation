@@ -191,6 +191,9 @@ def test_post_finalization_inventory_hash_drift_is_not_reported_complete(tmp_pat
     assert result.diagnostic["outcome"] == "operational_failure"
     assert not result.final_run.exists()
     assert result.staging_run.is_dir()
+    staged_report = json.loads((result.staging_run / "parse" / "parse-report.json").read_text(encoding="utf-8"))
+    assert staged_report["outcome"] == "operational_failure"
+    assert staged_report["cli_exit"] == 2
 
 
 def test_post_finalization_rollback_failure_reports_finalized_directory_left_behind(tmp_path, monkeypatch):
@@ -222,7 +225,8 @@ def test_post_finalization_rollback_failure_reports_finalized_directory_left_beh
     assert result.diagnostic["outcome"] == "operational_failure"
     assert result.final_run.is_dir()
     assert not result.staging_run.exists()
-    assert result.diagnostic["overlay"]["overlay_omitted_reason"] == "finalized_directory_left_behind"
+    assert result.diagnostic["residual_state"] == "finalized_directory_left_behind"
+    assert result.diagnostic["overlay"]["overlay_omitted_reason"] == "no_normalized_geometry"
 
 
 def test_finalization_rejects_overlay_hash_drift(tmp_path, monkeypatch):
@@ -368,6 +372,23 @@ def test_pillow_decompression_bomb_is_operational_cli2(tmp_path, monkeypatch):
     assert result.cli_exit == 2
     assert result.diagnostic["outcome"] == "operational_failure"
     assert not result.final_run.exists()
+
+
+def test_source_raster_read_overflow_maps_to_resource_limit_without_raising(tmp_path, monkeypatch):
+    source_run, copied_floorplan = _source_run(tmp_path, "RUN-20260811-source-raster-read-limit")
+    annotation = _annotation_doc(tmp_path, copied_floorplan)
+    monkeypatch.setattr("pwa.floorplan.annotation_source.MAX_SOURCE_RASTER_BYTES", 1)
+
+    result = parse_run(
+        runs_root=tmp_path / "runs",
+        source_run=source_run,
+        parse_run_id="RUN-20260811-parse-raster-read-limit",
+        annotation=annotation,
+    )
+
+    assert isinstance(result, ParseRunResult)
+    assert result.cli_exit == 3
+    assert result.diagnostic["terminal_finding"]["code"] == "PARSE_RESOURCE_LIMIT"
 
 
 def test_pillow_decompression_bomb_warning_as_error_is_operational_cli2(tmp_path, monkeypatch):

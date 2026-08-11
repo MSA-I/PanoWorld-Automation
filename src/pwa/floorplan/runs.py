@@ -165,15 +165,13 @@ def resolve_contained_relpath(root: Path, relpath: str, *, must_exist: bool = Tr
     # side may not exist yet on the very first write).
     if root_raw.exists() and is_link_or_reparse(root_raw):
         raise ValueError("containment root must not be a link or reparse point")
-    candidate = Path(relpath)
-    if candidate.is_absolute() or not candidate.parts or any(part == ".." for part in candidate.parts):
-        raise ValueError("path must be a contained relative path")
+    parts = _contained_parts(relpath)
     # GC-2: walk the ORIGINAL lexical candidate -- never a resolve()d one --
     # ancestor by ancestor from root, so an intermediate symlink/junction is
     # inspected before it is substituted away, even when its resolved target
     # would itself remain lexically under root.
     cursor = root_raw
-    for part in candidate.parts:
+    for part in parts:
         cursor = cursor / part
         exists = cursor.exists()
         if must_exist and not exists:

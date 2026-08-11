@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import argparse
+import json
+import sys
 from pathlib import Path
 
 from pwa.floorplan.builder import parse_run
@@ -29,6 +31,8 @@ def main(argv: list[str] | None = None) -> int:
         # unforeseen exception still surfaces as the documented operational
         # exit code instead of a raw traceback / stack trace to the user.
         return 2
+    if result.diagnostic and result.diagnostic.get("residual_state") == "finalized_directory_left_behind":
+        print(json.dumps(result.diagnostic, ensure_ascii=False, sort_keys=True), file=sys.stderr)
     return result.cli_exit
 
 
