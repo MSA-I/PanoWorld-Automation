@@ -1,0 +1,57 @@
+{
+  "accuracy_evaluable": false,
+  "accuracy_note": "Not scored: no independent truth and/or two authoritative scale anchors.",
+  "blockers": [
+    "INDEPENDENT_TRUTH_MISSING",
+    "TWO_AUTHORITATIVE_SCALE_ANCHORS_MISSING"
+  ],
+  "decision": "STOP",
+  "determinism": {
+    "canonical_sha256": [
+      "de4358ea8ebdee3f345f1ecc962376a06d4035a35e7e9cecff6a27beb5ce8db6",
+      "de4358ea8ebdee3f345f1ecc962376a06d4035a35e7e9cecff6a27beb5ce8db6"
+    ],
+    "identical": true,
+    "replays": 2
+  },
+  "diagnostic_probe": {
+    "canonical_sha256": "de4358ea8ebdee3f345f1ecc962376a06d4035a35e7e9cecff6a27beb5ce8db6",
+    "dark_pixels_lt_128": 24481,
+    "dark_pixels_lt_64": 23350,
+    "edge_pixels_gt_64": 60845,
+    "edge_sha256": "2e3264ee62879546f18da1ccf05d35cf6cfb4d602fc3f86c7c617fb62cfb40ac",
+    "grayscale_sha256": "b40d204327c9e0185f1fe30f9549e785f27fb9a95c518910f1364b2e67c15300",
+    "height_px": 569,
+    "width_px": 842
+  },
+  "environment": {
+    "numpy": "2.4.3",
+    "pillow": "12.2.0",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "python": "3.11.15"
+  },
+  "memory": {
+    "peak_tracemalloc_bytes": 1692138,
+    "soft_limit_bytes": 1610612736
+  },
+  "rights": {
+    "license": "public-domain",
+    "source_sha256": "917a5753feceb65f8401381894bfb0809bd43194879002d2aa2acb74ee80df08",
+    "status": "approved"
+  },
+  "runtime": {
+    "limit_seconds": 60.0,
+    "max_seconds": 0.039474899997003376,
+    "median_seconds": 0.03125974998692982,
+    "replays_completed": 2,
+    "seconds": [
+      0.039474899997003376,
+      0.02304459997685626
+    ]
+  },
+  "source": {
+    "path_recorded": false,
+    "sha256": "917a5753feceb65f8401381894bfb0809bd43194879002d2aa2acb74ee80df08"
+  },
+  "yield_evaluable": false
+}
