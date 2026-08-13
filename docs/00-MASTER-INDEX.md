@@ -103,4 +103,4 @@
 
 ## הפעולה הבאה המומלצת
 
-להשלים review read-only של checkpoint הסגירה המדויק של WP0. לאחר APPROVE ו־evidence index תקין, תלות ה־Kanban רשאית לקדם את WP1 אוטומטית בתוך ה־scope המאושר; route activation נשאר חסום עד החלטת משה נפרדת ב־WP6.
+להשלים review read-only של checkpoint הסגירה המדויק של WP0. גם לאחר APPROVE ו־evidence index תקין, WP1 נשאר חסום עד שחרור ידני של שער ההשגחה `t_4f9188e9`; verdict של reviewer לבדו אינו מקדם אותו. ההרשאה הכללית לשרשרת Local-only נשמרת, ו־route activation נשאר חסום עד החלטת משה נפרדת ב־WP6.

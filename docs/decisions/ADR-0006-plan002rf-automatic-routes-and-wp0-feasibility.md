@@ -1,6 +1,6 @@
 # ADR-0006 — PLAN-002RF WP0 automatic CAD/raster direction and fail-closed feasibility result
 
-- Status: ACCEPTED — WP0 closed with truthful `STOP / NOT_EVALUABLE`; Local-only successor chain authorized, routes remain default-off
+- Status: PROPOSED — WP0 closure candidate preserves truthful `STOP / NOT_EVALUABLE`; routes remain default-off
 - Date: 2026-08-12
 - Controlling approval packet: `D:/משה פרוייקטים/פיתוח אתרים/PanoWorld-Automation/.hermes/plans/2026-08-11_220700-plan-002rf-final-remediation-approval-packet.md`
 - Approved packet SHA-256: `95c4cfd8711d4c2335d9905285b977118ba89cff440aa90c1a9cb5aab74422f7`

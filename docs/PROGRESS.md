@@ -7,7 +7,7 @@
 - משה אישר במפורש את שרשרת ה־Local-only WP0–WP6 דרך OmniRoute. המעבר בין WPs מותר רק לאחר dependency, evidence, tests ו-review טריים; WP6 הוא decision-only ו-route activation נשאר שער אנושי נפרד.
 - WP0-FX1 נסגר ב־`6c8c378`: fixture סינתטי וזכויות־נקי, truth עצמאי, שלושה scale anchors, replay ‏5/5, ‏7 targeted ו־376 full-suite tests. review עצמאי של `fc3a9c3` + `e2fbd32` החזיר APPROVE ללא findings.
 - ADR-0006 ו־U-1..U-15 עודכנו: verdict של WP0 הוא `STOP / NOT_EVALUABLE` ליכולת recognition, לא כשל fixture ולא GO מנופח. pinned-environment proof, accuracy/yield ו-resource feasibility של recognizer נשארים gates עתידיים.
-- הפעולה הבאה: review read-only של checkpoint הסגירה המדויק; לאחר APPROVE ה־Kanban dependency רשאי לקדם את WP1. אין merge/push או route activation.
+- הפעולה הבאה: review read-only של checkpoint הסגירה המדויק. גם לאחר APPROVE, WP1 נשאר חסום עד שחרור ידני של שער ההשגחה `t_4f9188e9`; verdict של reviewer לבדו אינו מקדם אותו. אין merge/push או route activation.
 
 ## PLAN-002 — כל תנאי השערים סגורים — ממתין לשער הוויזואלי של משה — 2026-08-11
 
