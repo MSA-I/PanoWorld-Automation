@@ -1,7 +1,7 @@
 {
   "document": "PLAN-002RF WP1 corpus and evaluator lock evidence index",
   "index_version": "1.0.0",
-  "generated_against_commit": "9faeef85159c720962987e60c0ba9420fb398e8d",
+  "generated_against_commit": "aab6a3ce0561d66af474189db8adfac6e0502ba8",
   "controlling_packet_sha256": "95c4cfd8711d4c2335d9905285b977118ba89cff440aa90c1a9cb5aab74422f7",
   "entries": [
     {
@@ -42,9 +42,9 @@
     },
     {
       "path": "evidence/PLAN-002RF/WP1/lock/wp1-support-taxonomy.json",
-      "git_blob": "587d91bbf49f5db2440a95201d19acde8328b38f",
-      "sha256": "sha256:f590ee94fc2645608af9ab29d6b9e536a64c9243ee010ac2475c77e314cd18e9",
-      "bytes": 987
+      "git_blob": "9200ac858b9a52e2e3c9b8ae887cc39eef2d3e23",
+      "sha256": "sha256:53d015a33796da69814eb47a3cbd0c9d0c91a635b3191c20a3c64836a04f0470",
+      "bytes": 1137
     },
     {
       "path": "evidence/PLAN-002RF/WP1/lock/wp1-role-matrix.json",
@@ -60,8 +60,8 @@
     },
     {
       "path": "evidence/PLAN-002RF/WP1/lock/wp1-manifest.json",
-      "git_blob": "16fade351209de7f2e2a5fff1e3277714738f0f6",
-      "sha256": "sha256:1f93533f73b7c80b7ef1bc60cfefdfb39ff421699a13e5ce0147fb5d71bce06a",
+      "git_blob": "808811ab8141de05fb05ad1bf8e598bd5bc0e907",
+      "sha256": "sha256:b85a35511e6d42029d7f0179f1ae299da4d7dd837499dea7204207b67526d877",
       "bytes": 733
     },
     {
@@ -84,21 +84,21 @@
     },
     {
       "path": "src/pwa/evaluator/metrics.py",
-      "git_blob": "d48ebd8e2beb38f043b5f22231174589a53c6144",
-      "sha256": "sha256:2eaf7f56833c89b7c690844b0fc1cdd8f05286f487b1cd1cf09f1201092f3cf5",
-      "bytes": 6750
+      "git_blob": "c94d1e5be75a682a7b0ede59f282569c7c85eeff",
+      "sha256": "sha256:ce7de9a5190eb81091bb5b1f82742ad5ee2d42279b5392e2f336ffe41e2d6cd0",
+      "bytes": 6927
     },
     {
       "path": "tests/unit/test_wp1_evaluator.py",
-      "git_blob": "c15673e82a12499156f88b09322e8002bdb8a133",
-      "sha256": "sha256:422724e58386fc149587716262f1ae69ca2a0a0dc264b1ae0669fa30e5478d9b",
-      "bytes": 6795
+      "git_blob": "405414092e11487b61a90667f7a9dbe8180de580",
+      "sha256": "sha256:b8241c34fb31c9ec71186ede14da633361af9d76821a341719c73a5dd02c8de8",
+      "bytes": 6900
     },
     {
       "path": "tools/make_wp1_evaluator_lock.py",
-      "git_blob": "c031d72d99a8de2f339382e638f062ca196f453a",
-      "sha256": "sha256:7f294885a6e307bdd0749e46a66494eb3f1bb3d4055be65f8ea4b0a47fb2fcb3",
-      "bytes": 9941
+      "git_blob": "86b502f0a993080d6b6665719badccbfcc92c12d",
+      "sha256": "sha256:4565b6b34bbf21db9968db7e2dbb7f1156acd873645a80c74251c1206393620a",
+      "bytes": 10113
     },
     {
       "path": "tools/make_wp1_evidence_index.py",
