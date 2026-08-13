@@ -1,7 +1,7 @@
 {
   "document": "PLAN-002RF WP0 closure evidence index",
-  "index_version": "2.1.0",
-  "generated_against_commit": "826ece05c6b180a75580ca0b1414d5c8627d3cef",
+  "index_version": "2.2.0",
+  "generated_against_commit": "5768900b92b618331ef6db68e590e3d15b830b76",
   "controlling_packet_sha256": "95c4cfd8711d4c2335d9905285b977118ba89cff440aa90c1a9cb5aab74422f7",
   "entries": [
     {
