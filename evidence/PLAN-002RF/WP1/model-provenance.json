@@ -1,0 +1,30 @@
+{
+  "document": "WP1 model/provenance runtime record",
+  "task": "t_2f261417",
+  "recorded_at": "2026-08-13",
+  "governing_policy": "docs/08-מדיניות-ניהול-מודלים-וסוכנים-deepseek-first.md (MODEL-AGENT-MANAGEMENT-v4-AUTONOMOUS)",
+  "active_runtime": {
+    "provider": "openrouter",
+    "model": "deepseek/deepseek-v4-pro-0813",
+    "fallback_providers": [],
+    "source": "profiles/panoworld/config.yaml model.default / provider / fallback_providers"
+  },
+  "omniroute_gateway": {
+    "reachable": true,
+    "base_url": "http://127.0.0.1:20128/v1",
+    "custom_provider_name": "Local (127.0.0.1:20128)",
+    "probe": "GET /v1/models -> HTTP 200; exposes auto/best-* and auto/pro-* routes",
+    "active_for_this_session": false,
+    "note": "OmniRoute is reachable but is NOT the active routing for this session; the active policy pins openrouter/deepseek with empty fallback."
+  },
+  "cross_provider_review_available": false,
+  "independent_review_substitute": "separate deepseek-v4-pro read-only-first session + deterministic hash-bound evidence (NOT labelled cross-provider)",
+  "geometry_critical_work": {
+    "new_spatial_design_in_wp1": false,
+    "rationale": "WP1 locks WP0 opus-spatial-design (claude-opus-5, opus-spatial-design-full.md) as frozen truth; it produces no new spatial/geometry reasoning."
+  },
+  "implementer_identity": {
+    "provider": "openrouter",
+    "model": "deepseek/deepseek-v4-pro-0813"
+  }
+}

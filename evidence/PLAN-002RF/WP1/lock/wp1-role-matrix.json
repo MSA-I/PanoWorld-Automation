@@ -1,0 +1,61 @@
+{
+  "document": "wp1-role-matrix",
+  "version": "1.0.0",
+  "roles": [
+    "implementer",
+    "labeler_a",
+    "labeler_b",
+    "adjudicator",
+    "qa_delegate",
+    "reviewer",
+    "rights_owner"
+  ],
+  "forbidden_overlap": {
+    "implementer": [
+      "labeler_a",
+      "labeler_b",
+      "adjudicator",
+      "qa_delegate",
+      "reviewer"
+    ],
+    "labeler_a": [
+      "labeler_b",
+      "adjudicator",
+      "qa_delegate",
+      "reviewer"
+    ],
+    "labeler_b": [
+      "adjudicator",
+      "qa_delegate",
+      "reviewer"
+    ],
+    "adjudicator": [
+      "qa_delegate",
+      "reviewer"
+    ],
+    "qa_delegate": [
+      "reviewer"
+    ],
+    "reviewer": [],
+    "rights_owner": [
+      "implementer",
+      "labeler_a",
+      "labeler_b",
+      "adjudicator",
+      "qa_delegate",
+      "reviewer"
+    ]
+  },
+  "holders": {
+    "rights_owner": "Moshe (human)",
+    "labeler_a": "deepseek-v4-pro session A (separate run)",
+    "labeler_b": "deepseek-v4-pro session B (separate run)",
+    "adjudicator": "deepseek-v4-pro session C (separate run)",
+    "qa_delegate": "deepseek-v4-pro session D (separate run)",
+    "reviewer": "read-only-first independent review session (separate run)",
+    "implementer": "deepseek-v4-pro via openrouter (the WP1 producer session)"
+  },
+  "overlap_is_fail_closed": true,
+  "blind_labeler_rule": "neither labeler sees the other's verdict before recording its own",
+  "rights_owner_only_human": true
+}

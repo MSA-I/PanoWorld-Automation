@@ -1,0 +1,40 @@
+{
+  "document": "wp1-support-taxonomy-style-guide",
+  "version": "1.0.0",
+  "supported_motifs": [
+    {
+      "taxon": "wall_segment",
+      "rule": "straight wall as a segment, any orientation"
+    },
+    {
+      "taxon": "wall_circular_arc",
+      "rule": "circular-arc wall with max_sagitta_px <= 0.5"
+    },
+    {
+      "taxon": "opening_door",
+      "rule": "door opening, span <= 1500 mm"
+    },
+    {
+      "taxon": "opening_window",
+      "rule": "window opening, span <= 1500 mm"
+    },
+    {
+      "taxon": "opening_passage",
+      "rule": "passage opening, span <= 3000 mm (frozen upper bound)"
+    },
+    {
+      "taxon": "diagonal_3_4_5",
+      "rule": "diagonal wall on the 3-4-5 lattice only"
+    }
+  ],
+  "out_of_scope": [
+    "double_line_hatched_walls",
+    "text_annotations",
+    "furniture_symbols",
+    "stairs",
+    "dotted_grid",
+    "arbitrary_diagonals",
+    "arc_walls_without_stated_sagitta_bound"
+  ],
+  "blind_split_never_scored_during_development": true
+}

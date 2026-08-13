@@ -1,0 +1,41 @@
+{
+  "document": "wp1-frozen-evaluator-spec",
+  "version": "1.0.0",
+  "frozen_before_truth_opened": true,
+  "recognizer_inputs": [],
+  "matcher": {
+    "unit": "mm",
+    "kind_match_required": true,
+    "match_by": "exact_canonical_geometry_key",
+    "quantize_grid_mm": 0.01,
+    "segments_never_match_arcs": true,
+    "id_and_confidence_stripped_from_key": true,
+    "no_tolerance_relaxation": true
+  },
+  "canonicalization": {
+    "quantize_grid_mm": 0.01,
+    "key_ordering": "sorted_recursive",
+    "id_excluded_from_key": true
+  },
+  "metrics": {
+    "macro": "unweighted mean of per-plan scores",
+    "micro": "aggregate correct over all predictions",
+    "per_plan": "correct / supportable (unsupported counted in denominator)",
+    "supported_open_span_max_mm": 1500.0
+  },
+  "refusal_accounting": {
+    "false_negative_refusal_penalised": true,
+    "handled_unsupported_refusal_counted_not_promoted": true,
+    "refusal_rate_reported_separately": true
+  },
+  "rule_of_three": {
+    "confidence": 0.95,
+    "zero_successes_lower_bound": "3/n",
+    "never_reports_100_percent_for_partial_success": true
+  },
+  "support_classifier": {
+    "unsupported_routes_to_refusal": true,
+    "confidence_is_diagnostic_only": true,
+    "confidence_never_promotes_output": true
+  }
+}

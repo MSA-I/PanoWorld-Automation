@@ -1,0 +1,33 @@
+{
+  "document": "wp1-split-manifest",
+  "version": "1.0.0",
+  "families": {
+    "fx1_hall": {
+      "split": "train",
+      "source": "fx1-source-geometry.json"
+    },
+    "fx1_apse": {
+      "split": "dev",
+      "source": "arc topology derived from fx1"
+    },
+    "fx1_blind": {
+      "split": "blind",
+      "source": "reserved; truth frozen, never scored during development"
+    }
+  },
+  "leakage_controls": [
+    "family_in_exactly_one_split",
+    "content_hash_duplicate_detection_across_corpus",
+    "blind_split_truth_not_opened_by_development_tools"
+  ],
+  "train_families": [
+    "fx1_hall"
+  ],
+  "dev_families": [
+    "fx1_apse"
+  ],
+  "blind_families": [
+    "fx1_blind"
+  ],
+  "network_acquisition": "none"
+}
