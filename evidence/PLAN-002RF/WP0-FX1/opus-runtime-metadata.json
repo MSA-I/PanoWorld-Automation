@@ -1,0 +1,17 @@
+{
+  "requested_provider": "Anthropic first-party",
+  "requested_model_alias": "opus",
+  "requested_effort": "max",
+  "actual_model_id": "claude-opus-5",
+  "canonical_model": "claude-opus-5",
+  "actual_provider": "firstParty",
+  "session_id": "c0d9917d-ce87-4f1c-9f92-e58d3c72c28a",
+  "fallback_occurred": false,
+  "fallback_reason": null,
+  "authoritative_source": "Claude Code --output-format json modelUsage",
+  "claude_code_version": "2.1.227",
+  "duration_api_ms": 1001706,
+  "num_turns": 42,
+  "web_search_requests": 0,
+  "permission_denials": []
+}

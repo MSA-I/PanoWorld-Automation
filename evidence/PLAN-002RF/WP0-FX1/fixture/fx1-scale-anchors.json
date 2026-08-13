@@ -1,0 +1,81 @@
+{
+  "document": "fx1-authoritative-scale-anchors",
+  "version": "1.0.0",
+  "source_sha256": "sha256:1766e65d8fef0dc70c91ccccf3644359193d1a2efe428bb3b9fc67d75e881c22",
+  "raster_sha256": "sha256:672203f739aa348a2d0d6eda57d01d279a5ac87b6a63a0a8ed9cf25dd64c6352",
+  "truth_sha256": "sha256:f4f9c1de5d781c85c66179c00d0c6178a800d4a2c918dd5e09c4e30a5f3dcb9a",
+  "anchors": [
+    {
+      "id": "A-S",
+      "a_mm": [
+        1500,
+        750
+      ],
+      "b_mm": [
+        6500,
+        750
+      ],
+      "real_length_m": 5.0,
+      "placement_region": "south_margin",
+      "a_px": [
+        300,
+        1850
+      ],
+      "b_px": [
+        1300,
+        1850
+      ],
+      "span_px": 1000.0,
+      "provenance": "fx1-source-geometry.json#anchors/A-S",
+      "derived_m_per_px": 0.005
+    },
+    {
+      "id": "A-W",
+      "a_mm": [
+        500,
+        2000
+      ],
+      "b_mm": [
+        500,
+        8000
+      ],
+      "real_length_m": 6.0,
+      "placement_region": "west_margin",
+      "a_px": [
+        100,
+        1600
+      ],
+      "b_px": [
+        100,
+        400
+      ],
+      "span_px": 1200.0,
+      "provenance": "fx1-source-geometry.json#anchors/A-W",
+      "derived_m_per_px": 0.005
+    },
+    {
+      "id": "A-D",
+      "a_mm": [
+        10500,
+        5500
+      ],
+      "b_mm": [
+        11700,
+        7100
+      ],
+      "real_length_m": 2.0,
+      "placement_region": "east_margin",
+      "a_px": [
+        2100,
+        900
+      ],
+      "b_px": [
+        2340,
+        580
+      ],
+      "span_px": 400.0,
+      "provenance": "fx1-source-geometry.json#anchors/A-D",
+      "derived_m_per_px": 0.005
+    }
+  ]
+}
