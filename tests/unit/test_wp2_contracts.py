@@ -113,7 +113,7 @@ def _floorplan_parse_1_2_full_payload() -> dict:
                     "start_deg": 180.0,
                     "end_deg": 0.0,
                     "sweep": "ccw",
-                    "bulge": -1.0,
+                    "bulge": 1.0,
                     "max_sagitta_px": 0.4,
                 },
                 "provenance": {
@@ -146,6 +146,18 @@ def _floorplan_parse_1_2_full_payload() -> dict:
 def test_wp2_floorplan_parse_1_2_full_payload_round_trips():
     doc = _bundle_doc(_floorplan_parse_1_2_full_payload())
     assert validate_artifact(doc) == []
+
+
+def test_wp2_full_payload_arc_is_consistent_with_invariants():
+    # The round-trip example's circular-arc wall must satisfy the frozen
+    # arc_invariants convention (ccw sweep => bulge > 0) so the sample is
+    # internally consistent with the recognition invariants, not merely
+    # schema-valid (bulge is an unconstrained number at the schema level).
+    payload = _floorplan_parse_1_2_full_payload()
+    arc = next(w["arc"] for w in payload["walls"] if w.get("kind") == "circular_arc")
+    assert arc["sweep"] == "ccw"
+    assert arc["bulge"] > 0
+    assert recognition.arc_invariants(arc) == []
 
 
 def test_wp2_floorplan_parse_1_1_payload_remains_valid_under_1_2():
