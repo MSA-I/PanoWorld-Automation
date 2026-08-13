@@ -1,0 +1,98 @@
+{
+  "document": "WP0-FX1 evidence index",
+  "index_version": "1.0.0",
+  "generated_against_commit": "c3be0570011d016b10012602f69ad0b028ed1fc4",
+  "controlling_packet_sha256": "95c4cfd8711d4c2335d9905285b977118ba89cff440aa90c1a9cb5aab74422f7",
+  "entries": [
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/HANDOFF-WP0-FX1-to-t_d025498b.md",
+      "git_blob": "8bb5388a61d0791e935acd704788e1ff5cd6e8f5",
+      "sha256": "sha256:1f827041471580b719644e010d4547d3cd22fb09a717ac12bc158cac966c4603",
+      "bytes": 2019
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/RUN-REPORT-WP0-FX1.md",
+      "git_blob": "3ac27462c742e9506214f8d84d3de28aa1cee007",
+      "sha256": "sha256:4d1bef729cf23efccd044f86dba958170304b1bb42c59e5def959b8340a0369a",
+      "bytes": 2361
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/environment-dependencies.md",
+      "git_blob": "3645189f54584848955827aff60608879f162672",
+      "sha256": "sha256:7b438c9f3537b70fbaa942283de79dd09dec1091710fae480b52f928c6cec857",
+      "bytes": 833
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/fixture/fx1-manifest.json",
+      "git_blob": "91017f88f7c39a2fb75753dbed1fc774d0ecf267",
+      "sha256": "sha256:a9e9979eb7ce627ee50672e357684200f75b6cf0e670453051dc29f99fa731a8",
+      "bytes": 825
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/fixture/fx1-rights-provenance.json",
+      "git_blob": "82c50824def1d9f4b06673371096ed3da3e934a4",
+      "sha256": "sha256:3dca6f55730d90cc42d92fbf0aa2fe5d9fb3b42f1f1a5ad454fe23ea86408c3c",
+      "bytes": 275
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/fixture/fx1-scale-anchors.json",
+      "git_blob": "b4554e5ec4564b251f12408c6e829f793cc84f80",
+      "sha256": "sha256:51ee3f0503dcb274657cd32e17bcd5f78695518ea06e924445b49e3cc877ca04",
+      "bytes": 1644
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/fixture/fx1-source-geometry.json",
+      "git_blob": "271089836e2367df7523a7db0ccc1702e67367e6",
+      "sha256": "sha256:1766e65d8fef0dc70c91ccccf3644359193d1a2efe428bb3b9fc67d75e881c22",
+      "bytes": 6239
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/fixture/fx1-truth.json",
+      "git_blob": "ba969d7759458b962cb8bca63f5202942e150232",
+      "sha256": "sha256:f4f9c1de5d781c85c66179c00d0c6178a800d4a2c918dd5e09c4e30a5f3dcb9a",
+      "bytes": 8843
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/fixture/fx1.png",
+      "git_blob": "ea6b010a717bbf567f6f91897f6bb14c1b98a4d1",
+      "sha256": "sha256:672203f739aa348a2d0d6eda57d01d279a5ac87b6a63a0a8ed9cf25dd64c6352",
+      "bytes": 15194
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/opus-runtime-metadata.json",
+      "git_blob": "147d686312a7387b0897f1e741985f5ae4c3304d",
+      "sha256": "sha256:86f8e85cde997fb209484ba504cde028ac5ad6e955020cb78b978ee37fc3383f",
+      "bytes": 554
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/opus-spatial-design.md",
+      "git_blob": "2887ec5bfa6478377a1d65d44f9c403c0bcf8cbe",
+      "sha256": "sha256:5fe988f63161530ec9b3e0dd56753bd6a777d129842f45ff2c55cfef44e00302",
+      "bytes": 47912
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/role-independence-ledger.md",
+      "git_blob": "7d6b70fee95278ebef23436d5b2dd24fea898248",
+      "sha256": "sha256:4b8c486976502bc0ace21889540c976d119ada7fc40d81fc294da9b2896f8809",
+      "bytes": 1057
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/test-results/full-suite.log",
+      "git_blob": "55de578f598d00f96e67ea6841ddb17f745964b7",
+      "sha256": "sha256:9eb1b2cfa043f666c5350d578218f98fb6cdb432ef886e6ef3e1ef46044c0871",
+      "bytes": 1216
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/test-results/replay-verify.log",
+      "git_blob": "79e89c4e881562bbd889196a14d73dee1b6aa250",
+      "sha256": "sha256:7122a1b6ca5c805542d675dcf331a8025e02aa7e9d4d10ad7a26f5bc51e08233",
+      "bytes": 184
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/test-results/targeted.log",
+      "git_blob": "e9e9783b9d27a7b05171faf1b931372545ada692",
+      "sha256": "sha256:1933d56280b7668e1786304dd5671cba4fd12f439393712863aa4de95aabd9cf",
+      "bytes": 170
+    }
+  ]
+}
