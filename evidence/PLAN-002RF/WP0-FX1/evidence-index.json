@@ -1,20 +1,20 @@
 {
   "document": "WP0-FX1 evidence index",
-  "index_version": "1.0.0",
-  "generated_against_commit": "c3be0570011d016b10012602f69ad0b028ed1fc4",
+  "index_version": "1.1.0",
+  "generated_against_commit": "fc3a9c3cd75875aa80274827656f4cbc2086ac49",
   "controlling_packet_sha256": "95c4cfd8711d4c2335d9905285b977118ba89cff440aa90c1a9cb5aab74422f7",
   "entries": [
     {
       "path": "evidence/PLAN-002RF/WP0-FX1/HANDOFF-WP0-FX1-to-t_d025498b.md",
-      "git_blob": "8bb5388a61d0791e935acd704788e1ff5cd6e8f5",
-      "sha256": "sha256:1f827041471580b719644e010d4547d3cd22fb09a717ac12bc158cac966c4603",
-      "bytes": 2019
+      "git_blob": "b92dccfd08c33ac82721c34f83a7291c0acb2488",
+      "sha256": "sha256:54445b71c51e8757920b80be82200cab4bb5a019a977acec83855c2c69200d82",
+      "bytes": 2231
     },
     {
       "path": "evidence/PLAN-002RF/WP0-FX1/RUN-REPORT-WP0-FX1.md",
-      "git_blob": "3ac27462c742e9506214f8d84d3de28aa1cee007",
-      "sha256": "sha256:4d1bef729cf23efccd044f86dba958170304b1bb42c59e5def959b8340a0369a",
-      "bytes": 2361
+      "git_blob": "e4a2a546c6891db7146d94a2e27d19fd5088a02f",
+      "sha256": "sha256:7b2b128ddee0a35fc766411f7901bbfc27923664ee61c79b275733ab151413e9",
+      "bytes": 3328
     },
     {
       "path": "evidence/PLAN-002RF/WP0-FX1/environment-dependencies.md",
@@ -24,9 +24,9 @@
     },
     {
       "path": "evidence/PLAN-002RF/WP0-FX1/fixture/fx1-manifest.json",
-      "git_blob": "91017f88f7c39a2fb75753dbed1fc774d0ecf267",
-      "sha256": "sha256:a9e9979eb7ce627ee50672e357684200f75b6cf0e670453051dc29f99fa731a8",
-      "bytes": 825
+      "git_blob": "40d0a5c7e815c04d3981b58cbb4efe31041b82aa",
+      "sha256": "sha256:5083d0887db1008416f7816b6c38e40c50ec0d8d86560d51eb09b45e86517dae",
+      "bytes": 852
     },
     {
       "path": "evidence/PLAN-002RF/WP0-FX1/fixture/fx1-rights-provenance.json",
@@ -71,28 +71,40 @@
       "bytes": 47912
     },
     {
+      "path": "evidence/PLAN-002RF/WP0-FX1/reviews/independent-omniroute-review-60c5978.md",
+      "git_blob": "0fb2f5a10042d1975271596fc0fd6b01c2f2202c",
+      "sha256": "sha256:7b25816f92687275d11560b855dcbe1ccaedea0dabf799583056065e67f535e7",
+      "bytes": 1915
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/reviews/omniroute-authoritative-identity.json",
+      "git_blob": "63d0701f96296c4c29bed86eee229ba7af22d46e",
+      "sha256": "sha256:b6c25e3c6b36e85e5452eee993449f24709beecd57a112975a3f079bcd2be399",
+      "bytes": 610
+    },
+    {
       "path": "evidence/PLAN-002RF/WP0-FX1/role-independence-ledger.md",
-      "git_blob": "7d6b70fee95278ebef23436d5b2dd24fea898248",
-      "sha256": "sha256:4b8c486976502bc0ace21889540c976d119ada7fc40d81fc294da9b2896f8809",
-      "bytes": 1057
+      "git_blob": "f8795c652c80300dd443b5fab3d09d2546c6fb22",
+      "sha256": "sha256:bbbf47bf606a24b5488a26d44fe25f023c3e8e6f8bd6e95391de8f4657f7e17c",
+      "bytes": 1401
     },
     {
       "path": "evidence/PLAN-002RF/WP0-FX1/test-results/full-suite.log",
-      "git_blob": "55de578f598d00f96e67ea6841ddb17f745964b7",
-      "sha256": "sha256:9eb1b2cfa043f666c5350d578218f98fb6cdb432ef886e6ef3e1ef46044c0871",
-      "bytes": 1216
+      "git_blob": "5dc7286020cbe3d321f21ba655a9295e68d5bdc5",
+      "sha256": "sha256:2cee895d8e8e1d9ee2b88607480bcc34439d548c0ebb5f62cae2f98f713092db",
+      "bytes": 1149
     },
     {
       "path": "evidence/PLAN-002RF/WP0-FX1/test-results/replay-verify.log",
-      "git_blob": "79e89c4e881562bbd889196a14d73dee1b6aa250",
-      "sha256": "sha256:7122a1b6ca5c805542d675dcf331a8025e02aa7e9d4d10ad7a26f5bc51e08233",
-      "bytes": 184
+      "git_blob": "fbf7c6fed31828953e49f68019faca79785c7a66",
+      "sha256": "sha256:a7da3b8b6208dc54b405e3f6c514a6dd31dcc27c2634d3ae8fd067fa137bc3ee",
+      "bytes": 63
     },
     {
       "path": "evidence/PLAN-002RF/WP0-FX1/test-results/targeted.log",
-      "git_blob": "e9e9783b9d27a7b05171faf1b931372545ada692",
-      "sha256": "sha256:1933d56280b7668e1786304dd5671cba4fd12f439393712863aa4de95aabd9cf",
-      "bytes": 170
+      "git_blob": "6c3074af9849c7940e290802495d9c492e838805",
+      "sha256": "sha256:83a1593c5b5783693fe3006d1f6597bcb4f3a5968f23b59481ee09a0477f910a",
+      "bytes": 80
     }
   ]
 }
