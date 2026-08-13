@@ -1,0 +1,110 @@
+{
+  "document": "PLAN-002RF WP2 additive contracts and lifecycle evidence index",
+  "index_version": "1.0.0",
+  "generated_against_commit": "e085aa96b6148302d11ad5397f5f52bc3e9ce0e5",
+  "controlling_packet_sha256": "95c4cfd8711d4c2335d9905285b977118ba89cff440aa90c1a9cb5aab74422f7",
+  "entries": [
+    {
+      "path": "evidence/PLAN-002RF/WP2/WORKING-PLAN.md",
+      "git_blob": "403010c758f2b6e46eed49560b786d4aec6cc6e1",
+      "sha256": "sha256:eb7d8091dcbc101e8782f00a8d89005c7296b4363d0b5d41c815080643bbd22e",
+      "bytes": 8727
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP2/RUN-REPORT.md",
+      "git_blob": "39e3ee91f664a2775c61ad267c285dc9ff5fb0bc",
+      "sha256": "sha256:9f86c25fb6777b7f814e12ae80b5dbd7b64e3bafdb37ad6d4d1afa0bbddb2975",
+      "bytes": 5257
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP2/model-provenance.json",
+      "git_blob": "2dc3f5c432e20139318b84c6d8941259b10d6d00",
+      "sha256": "sha256:9e7d3ead4a7e7a04ff5a3363546f594cb04b7bf42a181d8d1d45cc6977e5886e",
+      "bytes": 3254
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP2/review/independent-review-WP2.md",
+      "git_blob": "1003d55ca7cab28fa2e05208e9c0883723eab19e",
+      "sha256": "sha256:90cfba6eb78408873f8264f9bc45e80d6a017464c66e2c272af2613340f17713",
+      "bytes": 2588
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP2/review/omniroute-review-full.txt",
+      "git_blob": "0c108f729d6d52ae358dae90f2164517d26dd557",
+      "sha256": "sha256:fb77adbd9f738d4342ff52eb840a29ddd346b3e19ce1f71bdf71218f9ee3224f",
+      "bytes": 994
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP2/review/omniroute-headers.txt",
+      "git_blob": "5441fa84d8b301f74dd03ad86d28e21638d68fd0",
+      "sha256": "sha256:51f520e0755c972a4ec6d13bd8ebae9663b8eb9b67e3bd88eb6ab7e7a19c9194",
+      "bytes": 1951
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP2/test-results/wp2-targeted.log",
+      "git_blob": "114f17b204a1e322d5d0f69e6f58120c73d74ac4",
+      "sha256": "sha256:3f6cccb0808d730ad691c692541e45058a8a26013cba8abd696dfd895a561ecf",
+      "bytes": 463
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP2/test-results/wp2-full-suite.log",
+      "git_blob": "9564fe4ff7304b8cd2117515c737ad0e17e6c448",
+      "sha256": "sha256:ab54c2379160541b213ab282bd331481ac40c8fbb516a8dbe6859da62c693633",
+      "bytes": 1127
+    },
+    {
+      "path": "schemas/floorplan_parse/v1/floorplan_parse-1.2.0.schema.json",
+      "git_blob": "e5569def606797c536ba9881c3ddb67192fbfe08",
+      "sha256": "sha256:fe6121aec62dab06b04ba9d8a20c3fad233a37f457799f6c7abf92add7873ab7",
+      "bytes": 10942
+    },
+    {
+      "path": "schemas/floorplan_review/v1/floorplan_review-1.0.0.schema.json",
+      "git_blob": "f1d9f9aacfc767aba66a05bab8bfa11126431c32",
+      "sha256": "sha256:d2656ab5dfbf57b964346e941cebbeb472867303681493c0ee0e44e9562d526b",
+      "bytes": 3691
+    },
+    {
+      "path": "contracts/error_codes.md",
+      "git_blob": "7e6745e5eb68deb6824e5a55f8db9b36371ce2c6",
+      "sha256": "sha256:726920b0d475d39693a36b7dd73e577aec0f862dad57cb2c9a975e860134ea22",
+      "bytes": 8553
+    },
+    {
+      "path": "src/pwa/contracts.py",
+      "git_blob": "12f27989135921a5e3458ab2a4f0dff16eeffa8c",
+      "sha256": "sha256:4d72ff185bd2137c38446db1d93150bbf3d7dd810a65f7e475b74a68aa5f1c1e",
+      "bytes": 8380
+    },
+    {
+      "path": "src/pwa/floorplan/recognition.py",
+      "git_blob": "2f622fb5fd4b0f3de84efb1f6ce5d78e18ef647b",
+      "sha256": "sha256:ba07c5a97e906fc8a9ad921a24775ab5b64d95c62d62c678c95ef1aa34ee2d91",
+      "bytes": 6964
+    },
+    {
+      "path": "src/pwa/intake.py",
+      "git_blob": "435ca9a150d3c4deb092527f67ceada6b71f816e",
+      "sha256": "sha256:d5d40b98607971b3d5f0ab960d4f64445631b27698d20325cf0a484deba6618b",
+      "bytes": 9530
+    },
+    {
+      "path": "src/pwa/floorplan/builder.py",
+      "git_blob": "7a01cc7e425ad314bfec2247da327162ee9a2787",
+      "sha256": "sha256:fe9411811173fe08209db053dc24815be82e3513cffa9e3df91f3c3bb69bcd59",
+      "bytes": 51183
+    },
+    {
+      "path": "tests/unit/test_wp2_contracts.py",
+      "git_blob": "141959fbc12d7e0a8fc8c3a24466b399524edeab",
+      "sha256": "sha256:f7bb093a7b9beead3b3d388a58ea7f6c27772ce5b1e9156fd43355aafa94cb55",
+      "bytes": 18933
+    },
+    {
+      "path": "tests/fixtures/contracts/examples.json",
+      "git_blob": "91f9dc121c84c8aaa8895f7daa9612a21e3585e8",
+      "sha256": "sha256:9cc6c745fa952c31ddb49fd263c49780bf32cb8978563eea0379ab26facacf02",
+      "bytes": 13442
+    }
+  ]
+}
