@@ -1,7 +1,7 @@
 # PanoWorld Automation — Master Index
 
 ## סטטוס
-`AUTOMATION_BLUEPRINT_READY_NOT_ACTIVE` — היסטוריית PLAN-000..002 נשמרת ב־PROGRESS. ב־2026-08-13 הוכנה מדיניות Omni-First ותוכנית אוטומציה מלאה ל־WP0–WP6. התכנון **אינו פעיל**: לא בוצעו unblock, dispatch, merge, push, route activation, H200/GPU/cloud/remote או implementation של PLAN-003.
+`M1_PLAN_001_DONE` — ‏PLAN-000 ו־PLAN-001 במצב `DONE`. ‏PLAN-001 intake + fixture packager עבר review חוצה־ספקים, תיקוני reparse/image-cap, ‏122/122 בדיקות טריות, ‏17/17 round-trip ו-validator ירוק; מוזג ל־`main` המקומי בידי ה־orchestrator ללא push. הבא הוא P1-02 Floorplan Parsing: תכנון בלבד ואז חסימה לאישור משה לפני implementation. לא הותקן Blender, לא הורדו PanoWorld/מודלים, לא הופעל H200.
 
 מבנה בפועל: ‏`schemas/` ‏(envelope+13), ‏`contracts/` ‏(state machine, error codes, עקרונות אבטחה), ‏`src/pwa/` ‏(validator), ‏`tools/`, ‏`tests/` ‏(כולל golden fixture ‏8.3MB), ‏`docs/decisions/` ‏(ADR-0001..0003), ‏`docs/handoffs/`, ‏`evidence/PLAN-000/`.
 
@@ -52,14 +52,7 @@
    - auto-recovery מוגבל, checkpoints, rollback ושערים שאינם ניתנים לעקיפה.
    - המסמך אינו מפעיל את השרשרת; נדרשת הוראת הפעלה מפורשת של משה.
 
-10. [תוכנית האוטומציה המפורטת — WP0–WP6](10-תוכנית-האוטומציה-המפורטת-WP0-WP6.md)
-   - מיפוי כל WP ל־inputs, agents, routing, tests, evidence, review, retry, checkpoint, rollback ו-gate.
-   - WP6 הוא decision-only; ‏G7/G8 ו־H200/GPU/cloud/remote מחוץ לתחום. PLAN-003 הוא Geometry מקומי אפשרי, אך implementation שלו דורש PLAN/packet ואישור נפרדים ואינו חלק מ־WP0–WP6.
-
-11. [עותקי המקור לפני עדכון האוטומציה](originals-pre-automation-20260813/)
-   - snapshot של 27 מסמכי Markdown לפני העדכון; אינו מקור אמת פעיל.
-
-12. [המדריך המקורי](../PanoWorld-מדריך-והסבר.txt)
+10. [המדריך המקורי](../PanoWorld-מדריך-והסבר.txt)
    - התקנה, חומרה, מודלים וקלטים.
    - הערה (SESSION-001): נמצאו בו 9 אי-דיוקים/השלמות מול קוד המקור — ראו Discrepancies ב-[דוח התאימות](../evidence/SESSION-001/agent-reports/panoworld-compat.md); המדריך טרם עודכן.
 
@@ -102,5 +95,6 @@
 - אין להתחיל implementation בלי PLAN-000 מאושר.
 
 ## הפעולה הבאה המומלצת
+‏PLAN-000 ו־PLAN-001 סגורים. הבא: **P1-02 יוצר PLAN תחום ל־Floorplan Parsing ואז נחסם לאישור משה לפני implementation**.
 
-לבצע review אנושי של מסמכים 08–10 ושל גבולות הקמפיין. רק לאחר הוראת activation מפורשת ניתן לבצע preflight, ליישב את הכרטיסים הקיימים מול ה־blueprint ולהתחיל מה־WP הראשון שאינו `VERIFIED`.
+אין להתחיל parsing או Blender לפני ש-PLAN ייעודי אושר.

@@ -1,12 +1,5 @@
 # PROGRESS — PanoWorld Automation
 
-## AUTOMATION-BLUEPRINT — READY FOR REVIEW, NOT ACTIVE — 2026-08-13
-
-- נקראו כל 27 מסמכי Markdown שהיו תחת `docs` לפני העדכון; עותק byte-identical נשמר תחת [`originals-pre-automation-20260813/`](originals-pre-automation-20260813/).
-- נכתבו מסמכים [08](08-מדיניות-ניהול-מודלים-וסוכנים-omni-first.md), [09](09-מדיניות-האוטומציה-החדשה-WP0-WP6.md) ו־[10](10-תוכנית-האוטומציה-המפורטת-WP0-WP6.md), ומסמכי הממשל המרכזיים עודכנו.
-- WP0–WP6 הם remediation מקומי; WP6 decision-only. ‏H200/GPU/cloud/remote ו־G7/G8 מחוץ לתחום. PLAN-003 הוא Geometry מקומי אפשרי אך אינו נכלל ב־packet הזה ודורש אישור נפרד.
-- לא בוצעו activation, unblock, dispatch, merge, push או הרצת מוצר. הפעולה הבאה היא review אנושי; activation דורש הוראה מפורשת חדשה של משה.
-
 ## PLAN-002 — כל תנאי השערים סגורים — ממתין לשער הוויזואלי של משה — 2026-08-11
 
 - **שני סבבים נוספים אושרו בביקורת בלתי־תלויה, ו־GC3-8 מומש.** ‏NA-3e סגר את שמונת ממצאי NA-3d ו־NA-3f החזיר **ACCEPT**; ‏NA-3g סגר את שלוש השאריות ש־NA-3f מנה ו־NA-3h החזיר **ACCEPT**; ‏NA-6 מימש את תיקון החוזה של GC3-8 ו־NA-6b החזיר **ACCEPT** עם כל תשעת ה־AC ב־MET ובמילים "GC3-8: CLOSE". ‏main ב־`bcc1410`, נדחף.
