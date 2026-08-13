@@ -1,0 +1,86 @@
+{
+  "document": "PLAN-002RF WP1 corpus and evaluator lock evidence index",
+  "index_version": "1.0.0",
+  "generated_against_commit": "7b3ac9657e4af0562fd690f1c70845197eed6a49",
+  "controlling_packet_sha256": "95c4cfd8711d4c2335d9905285b977118ba89cff440aa90c1a9cb5aab74422f7",
+  "entries": [
+    {
+      "path": "evidence/PLAN-002RF/WP1/WORKING-PLAN.md",
+      "git_blob": "51c7ef89d9fd9d4a957b8ef1319f9fb6883362c9",
+      "sha256": "sha256:b3fc617dad38005591985144ca8bd64ebef652bc0354fe07506b5341c8baf0b0",
+      "bytes": 9321
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP1/rights-and-role-matrix.md",
+      "git_blob": "fde5f4b4ff999ec18e44a48e58bfc54a1fe4abf9",
+      "sha256": "sha256:9e45b548594ddaf6ff17f18ba4f551f098b03bafb618f5c549b02c861c87774e",
+      "bytes": 3874
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP1/frozen-truth-matcher-canonicalization.md",
+      "git_blob": "8819c2785400efc576b7836dd5bd4ecf14614ad2",
+      "sha256": "sha256:96b86424903bf84f59f5dcaadbd4cb05f89a6872de6b892ce897e1ec39cd67a2",
+      "bytes": 4031
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP1/model-provenance.json",
+      "git_blob": "716fea0103c64d267bb1f65a754000046706ed5b",
+      "sha256": "sha256:c2d9f70fca0769090e09c141a84d1bc9ed2ec57cbc62b48d7b786a46838f104e",
+      "bytes": 1449
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP1/lock/wp1-evaluator-spec.json",
+      "git_blob": "6f77f380b9e756ffc47ab51209b12c1b25824bed",
+      "sha256": "sha256:f45983a23ce94bc086aa1708b4cd96061d03c7db8d73c7ec8b4d7afbe31743ba",
+      "bytes": 1278
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP1/lock/wp1-support-taxonomy.json",
+      "git_blob": "587d91bbf49f5db2440a95201d19acde8328b38f",
+      "sha256": "sha256:f590ee94fc2645608af9ab29d6b9e536a64c9243ee010ac2475c77e314cd18e9",
+      "bytes": 987
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP1/lock/wp1-role-matrix.json",
+      "git_blob": "54d329d1d1214dc9c78059c137afa7d76f1b5a29",
+      "sha256": "sha256:23eefe2902346c309dfe6b061345cf4dd8702427b90baf0541e74907a81e0d51",
+      "bytes": 1446
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP1/lock/wp1-split-manifest.json",
+      "git_blob": "875a7bab029a6856157c1e2ef6b23baf4bc9bc9d",
+      "sha256": "sha256:f07301eb4a710414c7f6d71a935007221dfcdbd0c67a5f0bee82e6a96b525832",
+      "bytes": 724
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP1/lock/wp1-manifest.json",
+      "git_blob": "16fade351209de7f2e2a5fff1e3277714738f0f6",
+      "sha256": "sha256:1f93533f73b7c80b7ef1bc60cfefdfb39ff421699a13e5ce0147fb5d71bce06a",
+      "bytes": 733
+    },
+    {
+      "path": "src/pwa/evaluator/__init__.py",
+      "git_blob": "c0d4249feef3bae4071f615377550982b56d9c55",
+      "sha256": "sha256:f7ff1cb6264cb384ceb95d4223c7e09b9adc013f8c47444f5b63ed9dc50e7955",
+      "bytes": 76
+    },
+    {
+      "path": "src/pwa/evaluator/metrics.py",
+      "git_blob": "d48ebd8e2beb38f043b5f22231174589a53c6144",
+      "sha256": "sha256:2eaf7f56833c89b7c690844b0fc1cdd8f05286f487b1cd1cf09f1201092f3cf5",
+      "bytes": 6750
+    },
+    {
+      "path": "tests/unit/test_wp1_evaluator.py",
+      "git_blob": "c15673e82a12499156f88b09322e8002bdb8a133",
+      "sha256": "sha256:422724e58386fc149587716262f1ae69ca2a0a0dc264b1ae0669fa30e5478d9b",
+      "bytes": 6795
+    },
+    {
+      "path": "tools/make_wp1_evaluator_lock.py",
+      "git_blob": "c031d72d99a8de2f339382e638f062ca196f453a",
+      "sha256": "sha256:7f294885a6e307bdd0749e46a66494eb3f1bb3d4055be65f8ea4b0a47fb2fcb3",
+      "bytes": 9941
+    }
+  ]
+}
