@@ -1,14 +1,14 @@
 {
   "document": "PLAN-002RF WP0 closure evidence index",
-  "index_version": "2.2.0",
-  "generated_against_commit": "5768900b92b618331ef6db68e590e3d15b830b76",
+  "index_version": "3.0.0",
+  "generated_against_commit": "5ac1331f5a386f07b80ddbf0a2b6c5baadb097f8",
   "controlling_packet_sha256": "95c4cfd8711d4c2335d9905285b977118ba89cff440aa90c1a9cb5aab74422f7",
   "entries": [
     {
       "path": "evidence/PLAN-002RF/WP0/CLOSURE-REPORT.md",
-      "git_blob": "7e6fe22ff3a368752781dff0073d29180a272129",
-      "sha256": "sha256:88bd96b4c56e41f39eab1ba0246656fe53bb17fca520ba5ea9988b42cca80e88",
-      "bytes": 3529
+      "git_blob": "e1e2a21056a4cc53bb66688562dfea576f1f76cf",
+      "sha256": "sha256:f50d0234db45d1e6be81b1cc178cbf454da0034c53e1211f6fbb9edbe27c544a",
+      "bytes": 3890
     },
     {
       "path": "evidence/PLAN-002RF/WP0/RUN-REPORT.md",
@@ -99,6 +99,12 @@
       "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
       "sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "bytes": 0
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0/independent-closure-rereview-e26591d.md",
+      "git_blob": "2e9535ba131d71d8ad8986555d50ebf02b74d611",
+      "sha256": "sha256:e4a19dde5313f392759891526775c3d7da3d7e62eac1230c276f532db0c23895",
+      "bytes": 2255
     }
   ]
 }
