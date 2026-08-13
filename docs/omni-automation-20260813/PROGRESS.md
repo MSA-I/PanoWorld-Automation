@@ -1,11 +1,11 @@
 # PROGRESS — PanoWorld Automation
 
-## DEEPSEEK-AUTOMATION-BLUEPRINT — READY FOR REVIEW, NOT ACTIVE — 2026-08-13
+## AUTOMATION-BLUEPRINT — READY FOR REVIEW, NOT ACTIVE — 2026-08-13
 
 - נקראו כל 27 מסמכי Markdown שהיו תחת `docs` לפני העדכון; עותק byte-identical נשמר תחת [`originals-pre-automation-20260813/`](originals-pre-automation-20260813/).
-- גרסת Omni בת 28 מסמכים נשמרה תחת [`omni-automation-20260813/`](omni-automation-20260813/) וזהות hashes אומתה בעת ההעתקה. נכתבו מסמכי DeepSeek חדשים: [08](08-מדיניות-ניהול-מודלים-וסוכנים-deepseek-first.md), [09](09-מדיניות-האוטומציה-DeepSeek-WP0-WP6.md) ו־[10](10-תוכנית-האוטומציה-DeepSeek-WP0-WP6.md), ומסמכי הממשל הפעילים עודכנו.
+- נכתבו מסמכים [08](08-מדיניות-ניהול-מודלים-וסוכנים-omni-first.md), [09](09-מדיניות-האוטומציה-החדשה-WP0-WP6.md) ו־[10](10-תוכנית-האוטומציה-המפורטת-WP0-WP6.md), ומסמכי הממשל המרכזיים עודכנו.
 - WP0–WP6 הם remediation מקומי; WP6 decision-only. ‏H200/GPU/cloud/remote ו־G7/G8 מחוץ לתחום. PLAN-003 הוא Geometry מקומי אפשרי אך אינו נכלל ב־packet הזה ודורש אישור נפרד.
-- מדיניות DeepSeek **לא הופעלה**. הפעולה הבאה היא review אנושי, הגדרת API מחוץ לריפו, אישור עלות/פרטיות ו־probes חיים; activation דורש הוראה מפורשת חדשה של משה ואינו יורש את אישור Omni ההיסטורי.
+- לא בוצעו activation, unblock, dispatch, merge, push או הרצת מוצר. הפעולה הבאה היא review אנושי; activation דורש הוראה מפורשת חדשה של משה.
 
 ## PLAN-002 — כל תנאי השערים סגורים — ממתין לשער הוויזואלי של משה — 2026-08-11
 

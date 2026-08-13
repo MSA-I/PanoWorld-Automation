@@ -63,8 +63,8 @@
 - NFR-5 **עלות GPU**: ‏smoke test לפני full run; כיבוי שרת מובטח גם ב-failure path; טלמטריית עלות לכל run.
 - NFR-6 **אבטחה**: ‏secrets מחוץ לריפו; בידוד הרצת Python/Blender שרירותי; אין push/deploy ללא אישור.
 - NFR-7 **תאימות סביבתית**: פיתוח על Windows 10 המקומי (ללא GPU inference); ‏PanoWorld רץ על Linux/H200 בלבד. קוד הפרויקט חייב לרוץ בשני ההקשרים (pathlib, ללא הנחות OS).
-- NFR-8 **Model governance**: DeepSeek V4 Pro מנהל ומבצע לפי [08](08-מדיניות-ניהול-מודלים-וסוכנים-deepseek-first.md); כל agent מתעד requested/actual model, effort, thinking, session ו־fallback ואין החלפה שקטה.
-- NFR-11 **Automation governance**: כל WP עובר מחזור מלא לפי [09](09-מדיניות-האוטומציה-DeepSeek-WP0-WP6.md) ו־[10](10-תוכנית-האוטומציה-DeepSeek-WP0-WP6.md); WP6 אינו מפעיל route.
+- NFR-8 **Model governance**: OmniRoute מנהל לפי [08](08-מדיניות-ניהול-מודלים-וסוכנים-omni-first.md); כל agent מתעד requested/actual provider/model/effort/fallback ואין החלפה שקטה.
+- NFR-11 **Automation governance**: כל WP עובר מחזור מלא לפי [09](09-מדיניות-האוטומציה-החדשה-WP0-WP6.md) ו־[10](10-תוכנית-האוטומציה-המפורטת-WP0-WP6.md); WP6 אינו מפעיל route.
 - NFR-9 **רישוי**: רכיבי GPL ‏(BlenderProc, FloorplanToBlender3d) מבודדים כ-tools חיצוניים; ‏license matrix לפני שימוש מסחרי.
 - NFR-10 **שפות**: מסמכים בעברית; קוד, schemas, שמות קבצים והודעות שגיאה באנגלית; נתיבי קוד פנימיים ASCII בלבד (הגנה מבעיות path בעברית על Windows).
 

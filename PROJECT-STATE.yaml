@@ -107,18 +107,26 @@ project:
   updated_by_session: PLAN-002-PART1-COMPLETION-LOOP
 
 model_policy:
-  id: MODEL-ROUTING-v1
+  id: MODEL-ROUTING-v2-DEEPSEEK
+  status: DRAFT_NOT_ACTIVE
   path: docs/06-מדיניות-ניתוב-מודלים-ומאמץ.md
-  3d_primary: "Anthropic Opus 5"
-  orchestration_primary: "Anthropic Fable 5"
-  code_primary: "OpenAI approved Codex/GPT-5.6"
-  cross_provider_review_required_for_critical_artifacts: true
-  interface_limitation: >-
-    Historical SESSION-001 Claude-only fallbacks remain documented in
-    evidence/SESSION-001/preflight-report.md. At campaign kickoff, bounded
-    Claude Code (claude-sonnet-5) and Codex (gpt-5.6-sol) sessions both passed;
-    real cross-provider review is now available, while policy decision D-009
-    remains open until formally resolved.
+  governance_path: docs/08-מדיניות-ניהול-מודלים-וסוכנים-deepseek-first.md
+  automation_policy_path: docs/09-מדיניות-האוטומציה-DeepSeek-WP0-WP6.md
+  blueprint_path: docs/10-תוכנית-האוטומציה-DeepSeek-WP0-WP6.md
+  professional_primary: "deepseek/deepseek-v4-pro-0813"
+  mechanical_only: "deepseek/deepseek-v4-flash-0731"
+  critical_review: "deepseek/deepseek-v4-pro-0813 in a separate read-only-first session plus deterministic evidence; human gate where required"
+  cross_provider_review_available: false
+  activation_requirements:
+    - "DeepSeek credentials outside the repository"
+    - "explicit API cost approval"
+    - "explicit privacy-boundary approval"
+    - "live deepseek/deepseek-v4-pro-0813 chat and tool-call probes with model identity"
+    - "new Moshe activation instruction; historical Omni approval does not transfer"
+  historical_model_records: >-
+    Historical Anthropic/OpenAI/Omni identities in PLANs, handoffs and evidence
+    remain factual records and must not be rewritten. The complete Omni-era docs
+    snapshot is under docs/omni-automation-20260813/.
 
 orchestration:
   system: hermes-kanban

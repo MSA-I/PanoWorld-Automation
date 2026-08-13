@@ -25,7 +25,7 @@
 - **Options:** ‏A. Prefect ‏(קל ל-MVP, ‏Python-native). ‏B. Temporal ‏(durable, כבד יותר תפעולית). ‏C. שלב ראשון ללא engine: ‏state machine מפורש + CLI runner דטרמיניסטי, ‏engine נבחר רק כשיש ≥2 workflows אמיתיים.
 - **Recommendation:** C ל-POC, עם spike השוואתי Prefect/Temporal לפני MVP (כמתחייב ממסמך 03: "spike ולא בחירה שיווקית"). ההשוואה על תרחיש אמיתי: run של packager+validator עם retry ו-resume.
 - **Impact:** משפיע על orchestrator, retries, observability. החלטה הפיכה יחסית אם ה-state נשמר בקבצים/DB ולא בתוך ה-engine.
-- **Owner (הכנה):** ‏System Architect ‏(`deepseek/deepseek-v4-pro-0813` לפי routing). **הכרעה:** משה אחרי ה-spike.
+- **Owner (הכנה):** ‏System Architect ‏(OpenAI GPT-5.6 לפי routing). **הכרעה:** משה אחרי ה-spike.
 
 ## D-003 — Storage/state ל-MVP
 
@@ -39,30 +39,30 @@
 - **Options:** ‏A. API חיצוני ‏(image-to-image panorama). ‏B. מודל על שרת ענן זמני. ‏C. mock בלבד עד H200. ‏
 - **Recommendation:** C לשלבי POC ‏(מסמך 02: "לא באיכות היעד מקומית"); הכרעה אמיתית רק כשמגיעים לשלב 7.
 - **Impact:** איכות, עלות, תלות ספק.
-- **Owner (הכנה):** ‏Visual Director ‏(`deepseek/deepseek-v4-pro-0813`). **הכרעה:** משה בשלב 7.
+- **Owner (הכנה):** ‏Visual Director ‏(Opus 5). **הכרעה:** משה בשלב 7.
 
 ## D-006 — ספק ענן H200
 
 - **Options:** ייבחנו ספקים המציעים H200 יחיד לפי מחיר/שעה, אחסון NVMe, ‏API אוטומציה ומדיניות billing. (מסמך המדריך: "הספק פחות חשוב מהמפרט".)
 - **Recommendation:** אין עדיין — נדרש מסמך השוואה קצר בשלב 9; עד אז כל הפיתוח מול mock.
 - **Impact:** עלות, אבטחה, סיכון שרת יתום.
-- **Owner (הכנה):** ‏Cloud/Systems Architect ‏(`deepseek/deepseek-v4-pro-0813`). **הכרעה:** משה לפני שכירה ראשונה.
+- **Owner (הכנה):** ‏Cloud/Systems Architect ‏(OpenAI GPT-5.6). **הכרעה:** משה לפני שכירה ראשונה.
 
 ## D-007 — Dashboard stack
 
 - **Options:** ‏A. CLI + דוחות Markdown בלבד ל-POC. ‏B. אפליקציית web מקומית קלה. ‏C. תבנית ה-web הקיימת של משה (React+Vite) כשלב MVP.
 - **Recommendation:** A ל-POC; ‏dashboard אמיתי רק בשלב 11 לפי סדר המימוש.
 - **Impact:** נוחות פיקוח מול עלות פיתוח מוקדמת.
-- **Owner (הכנה):** ‏Developer ‏(`deepseek/deepseek-v4-pro-0813`). **הכרעה:** משה בשלב 11.
+- **Owner (הכנה):** ‏Developer ‏(OpenAI Codex). **הכרעה:** משה בשלב 11.
 
-## D-009 — ביקורת בלתי תלויה תחת מדיניות DeepSeek-only
+## D-009 — ביצוע cross-provider review בפועל
 
-- **הקשר היסטורי:** המדיניות הקודמת דרשה cross-provider review; תוצאות העבר נשמרות ב־evidence. המדיניות החדשה משתמשת ב־DeepSeek Pro author/reviewer sessions נפרדים ואינה מציגה זאת כ־cross-provider.
+- **הקשר:** ‏MODEL-ROUTING-v1 דורש review של OpenAI על תוצרי Anthropic קריטיים. הממשק הנוכחי (Claude Code) מאפשר סוכני משנה של Anthropic בלבד — אומת ב-SESSION-001 ‏([evidence](../evidence/SESSION-001/preflight-report.md)).
 - **עדכון 2026-08-06:** עבור PLAN-000 משה בחר בפועל ב-B — אישר את התוכנית עם הביקורת הפנימית ‏(מודלים שונים, אותו ספק) כ**חריגה חד-פעמית מתועדת**. נותר פתוח: פתרון תשתיתי קבוע ‏(A או C) ל-PLANs הבאים, בפרט לפני artifacts קריטיים של geometry/H200.
-- **Options:** ‏A. לקבל same-provider session separation עם tests/human gates. ‏B. לאשר ספק שני ל־review קריטי. ‏C. להשאיר artifacts הדורשים cross-provider ב־BLOCKED.
+- **Options:** ‏A. סשן review נפרד בכלי OpenAI ‏(Codex CLI/ChatGPT) עם דוח שנשמר ב-`docs/reviews/`. ‏C. חיבור OpenAI כ-MCP/CLI לסביבה.
 - **Impact:** עמידה במדיניות; איכות ביקורת.
 - **Owner (הכנה):** Orchestrator. **הכרעה:** משה.
-- **מדיניות ביניים 2026-08-13:** DeepSeek Pro reviewer חייב להיות session נפרד וביקורת ראשונה read-only. artifact קריטי אינו נסגר ב-self-review; דרישת cross-provider מפורשת נשארת חסומה עד הכרעה.
+- **מדיניות ביניים 2026-08-13:** אי־זמינות Anthropic אינה עוצרת עבודה הפיכה: OmniRoute מנתב reviewer נפרד וכשיר ורושם `SAME-PROVIDER EXCEPTION` אם אין ספק שני. artifact קריטי אינו נסגר ב-self-review; פתרון תשתיתי קבוע נשאר פתוח.
 
 ## D-011 — קרדינליות style references ב-style_spec
 

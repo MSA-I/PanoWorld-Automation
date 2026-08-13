@@ -1,7 +1,7 @@
 # PanoWorld Automation — Master Index
 
 ## סטטוס
-`DEEPSEEK_BLUEPRINT_READY_NOT_ACTIVE` — היסטוריית PLAN-000..002 נשמרת ב־PROGRESS. ב־2026-08-13 נשמר snapshot מלא של גרסת Omni ונוצרה מדיניות DeepSeek V4 Pro חדשה ל־WP0–WP6. התכנון **אינו פעיל** ודורש preflight ואישור הפעלה חדשים.
+`AUTOMATION_BLUEPRINT_READY_NOT_ACTIVE` — היסטוריית PLAN-000..002 נשמרת ב־PROGRESS. ב־2026-08-13 הוכנה מדיניות Omni-First ותוכנית אוטומציה מלאה ל־WP0–WP6. התכנון **אינו פעיל**: לא בוצעו unblock, dispatch, merge, push, route activation, H200/GPU/cloud/remote או implementation של PLAN-003.
 
 מבנה בפועל: ‏`schemas/` ‏(envelope+13), ‏`contracts/` ‏(state machine, error codes, עקרונות אבטחה), ‏`src/pwa/` ‏(validator), ‏`tools/`, ‏`tests/` ‏(כולל golden fixture ‏8.3MB), ‏`docs/decisions/` ‏(ADR-0001..0003), ‏`docs/handoffs/`, ‏`evidence/PLAN-000/`.
 
@@ -34,35 +34,32 @@
    - מגבלות ורישיונות.
 
 6. [מדיניות ניתוב מודלים ומאמץ](06-מדיניות-ניתוב-מודלים-ומאמץ.md)
-   - `deepseek/deepseek-v4-pro-0813` לכל עבודה מקצועית וקריטית.
-   - `deepseek/deepseek-v4-flash-0731` למשימות מכניות בלבד.
-   - Effort, fallbacks וביקורת ב־session נפרד.
+   - Anthropic ו-OpenAI לפי תפקיד ושלב.
+   - Opus 5 כברירת מחדל למשימות 3D קריטיות.
+   - Effort, fallbacks ו-cross-provider review.
 
 7. [סיכום והפעלת Hermes Kanban](07-סיכום-לפני-הפעלת-Hermes-Kanban.md)
    - לוח `panoworld-dev`, תחום חלק 1 בלבד ופקודת ההפעלה הידנית.
    - רשומת pre-activation היסטורית; הקמפיין הופעל ב־2026-08-09 ו־PLAN-001 נסגר.
 
-8. [מדיניות ניהול מודלים וסוכנים — DeepSeek-First](08-מדיניות-ניהול-מודלים-וסוכנים-deepseek-first.md)
-   - DeepSeek V4 Pro מתכנן, מממש, בודק ומבקר ב־sessions נפרדים.
-   - Flash מוגבל לעבודה מכנית; אין fallback שקט לספק אחר.
-   - הפעלה דורשת API probe, אישור עלות וגבול פרטיות.
+8. [מדיניות ניהול מודלים וסוכנים — Omni-First](08-מדיניות-ניהול-מודלים-וסוכנים-omni-first.md)
+   - עד הודעה חדשה OmniRoute מתכנן ומנהל את הקמפיין.
+   - Anthropic מופעלת כאשר היא זמינה; אחרת ממשיכים דרך OmniRoute עם חלופה כשירה ומתועדת.
+   - מסמך זה גובר זמנית על ניתוב מתזמר/fallback סותר במסמך 06.
 
-9. [מדיניות האוטומציה — DeepSeek WP0–WP6](09-מדיניות-האוטומציה-DeepSeek-WP0-WP6.md)
+9. [מדיניות האוטומציה החדשה — WP0–WP6](09-מדיניות-האוטומציה-החדשה-WP0-WP6.md)
    - תכנון מלא מראש, מחזור ביצוע מבוקר לכל WP ומטריצת אישורים.
    - auto-recovery מוגבל, checkpoints, rollback ושערים שאינם ניתנים לעקיפה.
    - המסמך אינו מפעיל את השרשרת; נדרשת הוראת הפעלה מפורשת של משה.
 
-10. [תוכנית האוטומציה המפורטת — DeepSeek WP0–WP6](10-תוכנית-האוטומציה-DeepSeek-WP0-WP6.md)
+10. [תוכנית האוטומציה המפורטת — WP0–WP6](10-תוכנית-האוטומציה-המפורטת-WP0-WP6.md)
    - מיפוי כל WP ל־inputs, agents, routing, tests, evidence, review, retry, checkpoint, rollback ו-gate.
    - WP6 הוא decision-only; ‏G7/G8 ו־H200/GPU/cloud/remote מחוץ לתחום. PLAN-003 הוא Geometry מקומי אפשרי, אך implementation שלו דורש PLAN/packet ואישור נפרדים ואינו חלק מ־WP0–WP6.
 
 11. [עותקי המקור לפני עדכון האוטומציה](originals-pre-automation-20260813/)
    - snapshot של 27 מסמכי Markdown לפני העדכון; אינו מקור אמת פעיל.
 
-12. [עותק מלא של גרסת Omni](omni-automation-20260813/)
-   - snapshot של 28 מסמכי Markdown שנוצרו/עודכנו עבור Omni; אינו מקור אמת פעיל.
-
-13. [המדריך המקורי](../PanoWorld-מדריך-והסבר.txt)
+12. [המדריך המקורי](../PanoWorld-מדריך-והסבר.txt)
    - התקנה, חומרה, מודלים וקלטים.
    - הערה (SESSION-001): נמצאו בו 9 אי-דיוקים/השלמות מול קוד המקור — ראו Discrepancies ב-[דוח התאימות](../evidence/SESSION-001/agent-reports/panoworld-compat.md); המדריך טרם עודכן.
 
@@ -99,11 +96,11 @@
 - PanoWorld עצמו ירוץ מאוחר יותר על H200.
 - geometry pipeline יהיה דטרמיניסטי.
 - סוכני AI יתזמרו, יכתבו קוד, יבקרו ויטפלו בחריגים.
-- DeepSeek V4 Pro מוביל תכנון, coding, geometry, Blender, cameras, depth, security ו־QA.
-- ביקורת נעשית ב־DeepSeek Pro session נפרד יחד עם tests/evidence; spatial gates קריטיים נשארים אנושיים.
+- Opus 5 מוביל תכנון וביקורת של geometry, Blender, cameras, depth ו-3D QA; Fable אינו ברירת המחדל ל-3D.
+- OpenAI משמש ל-reasoning, coding, tests, cloud/security ול-review חוצה-ספקים.
 - שלוש נקודות אישור אנושי מינימליות.
 - אין להתחיל implementation בלי PLAN-000 מאושר.
 
 ## הפעולה הבאה המומלצת
 
-לבצע review אנושי של מסמכים 06 ו־08–10. רק לאחר הגדרת DeepSeek מחוץ לריפו, אישור עלות/פרטיות, probes חיים והוראת activation חדשה ניתן ליישב את הכרטיסים ולהתחיל מה־WP הראשון שאינו `VERIFIED`.
+לבצע review אנושי של מסמכים 08–10 ושל גבולות הקמפיין. רק לאחר הוראת activation מפורשת ניתן לבצע preflight, ליישב את הכרטיסים הקיימים מול ה־blueprint ולהתחיל מה־WP הראשון שאינו `VERIFIED`.

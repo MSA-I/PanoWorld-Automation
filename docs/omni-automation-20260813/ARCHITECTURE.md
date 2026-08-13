@@ -1,7 +1,7 @@
 # ARCHITECTURE — PanoWorld Automation
 
 - Status: `VERIFIED` — אושר יחד עם PLAN-000 ‏(משה, ‏2026-08-05). ‏PLAN-000 בוצע ומוזג: החוזים ‏(C9 חלקית — ‏validator בלבד), ‏schemas ו-state machine קיימים בפועל ב-main.
-- מסמכים סמכותיים: [01](01-חזון-וארכיטקטורת-האוטומציה.md), [03](03-תוכנית-בנייה-מפורטת-לפי-שלבים.md), [06](06-מדיניות-ניתוב-מודלים-ומאמץ.md), [08](08-מדיניות-ניהול-מודלים-וסוכנים-deepseek-first.md), [09](09-מדיניות-האוטומציה-DeepSeek-WP0-WP6.md) ו־[10](10-תוכנית-האוטומציה-DeepSeek-WP0-WP6.md).
+- מסמכים סמכותיים: [01](01-חזון-וארכיטקטורת-האוטומציה.md), [03](03-תוכנית-בנייה-מפורטת-לפי-שלבים.md), [08](08-מדיניות-ניהול-מודלים-וסוכנים-omni-first.md), [09](09-מדיניות-האוטומציה-החדשה-WP0-WP6.md) ו־[10](10-תוכנית-האוטומציה-המפורטת-WP0-WP6.md). מסמך 06 נשמר כ-baseline תפקידי.
 - כללי סימון: **[מאושר]** = הוחלט במסמכי התכנון וקיבל את אישור משה במסגרתם. **[Candidate]** = מועמד הדורש spike/ADR/אישור. אין לממש Candidate בלי החלטה ב-OPEN-DECISIONS → ADR.
 
 ## 1. Context
@@ -77,7 +77,7 @@ inputs → project_manifest.json → floorplan_parse.json → scene_geometry.jso
 2. ‏Contracts-first: ‏schemas ו-package validator לפני parser/Blender (מסמכים 00/03).
 3. ‏state machine ו-gates G0–G9 (מסמכים 01/04).
 4. שלושה human gates מינימליים (מסמך 01).
-5. ‏model governance: DeepSeek V4 Pro מנהל ומבצע; Flash מכני בלבד; sessions נפרדים לביקורת ואין fallback שקט לספק אחר (מסמכים 06, 08–10).
+5. ‏model governance: OmniRoute מנהל; Anthropic מועדפת כאשר זמינה; fallback כשיר ומתועד ללא החלשת gates (מסמכים 08–10).
 6. ‏PanoWorld inference בענן בלבד; הכנה מקומית (מסמך 02).
 7. סדר מימוש: Contracts → Intake → Packager מוקדם → Parsing → Geometry → ... (מסמך 03).
 
