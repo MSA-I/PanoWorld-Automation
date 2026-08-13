@@ -20,15 +20,19 @@ REL_PATHS = [
     "evidence/PLAN-002RF/WP1/rights-and-role-matrix.md",
     "evidence/PLAN-002RF/WP1/frozen-truth-matcher-canonicalization.md",
     "evidence/PLAN-002RF/WP1/model-provenance.json",
+    "evidence/PLAN-002RF/WP1/RUN-REPORT.md",
     "evidence/PLAN-002RF/WP1/lock/wp1-evaluator-spec.json",
     "evidence/PLAN-002RF/WP1/lock/wp1-support-taxonomy.json",
     "evidence/PLAN-002RF/WP1/lock/wp1-role-matrix.json",
     "evidence/PLAN-002RF/WP1/lock/wp1-split-manifest.json",
     "evidence/PLAN-002RF/WP1/lock/wp1-manifest.json",
+    "evidence/PLAN-002RF/WP1/test-results/wp1-targeted.log",
+    "evidence/PLAN-002RF/WP1/test-results/wp1-full-suite.log",
     "src/pwa/evaluator/__init__.py",
     "src/pwa/evaluator/metrics.py",
     "tests/unit/test_wp1_evaluator.py",
     "tools/make_wp1_evaluator_lock.py",
+    "tools/make_wp1_evidence_index.py",
 ]
 
 
