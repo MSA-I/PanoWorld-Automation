@@ -1,4 +1,39 @@
 # =============================================================================
+# CURRENT AUTOMATION OVERLAY — 2026-08-13
+#
+# Moshe activated the pre-planned Local-only WP0-WP6 campaign under docs/08,
+# docs/09 and docs/10. This overlay supersedes stale current-status prose below;
+# historical PLAN-002 review records remain preserved as dated history.
+# =============================================================================
+automation_campaign:
+  policy: AUTOMATION-POLICY-v2
+  blueprint: PWA-AUTOMATION-BLUEPRINT-v1
+  status: ACTIVE_WP0_CLOSURE_REVIEW
+  authorized_by: Moshe
+  authorized_at: "2026-08-13"
+  controller: "PanoWorld profile through OmniRoute"
+  current_task: t_d025498b
+  current_wp: WP0
+  wp0_verdict: "STOP / NOT_EVALUABLE for Product-B recognition feasibility"
+  wp0_fx1_closure_checkpoint: 6c8c3784fd83989ac3cc72733355bf9406ff6688
+  wp0_closure_checkpoint: eeff84d
+  next_allowed_action: "independent read-only exact-checkpoint review, then dependency-gated WP1"
+  pending_proof:
+    - pinned_environment
+    - product_b_accuracy_and_yield
+    - recognition_runtime_and_peak_working_set
+    - frozen_evaluator_and_corpus
+  mandatory_human_gate: "WP6 route activation decision naming routes, versions, scope and rollback owner"
+  excluded:
+    - PLAN-003
+    - H200_GPU_cloud_remote
+    - G7_G8
+    - Product_C
+    - spend_credentials_permissions
+  route_activation: false
+  merge_or_push_performed: false
+
+# =============================================================================
 # THIS FILE ON `main` IS NOW THE LIVE STATE.
 #
 # Until 2026-08-10 this file carried a warning that the real state lived in a
