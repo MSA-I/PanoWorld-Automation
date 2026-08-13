@@ -62,7 +62,6 @@
 - **Options:** ‏A. סשן review נפרד בכלי OpenAI ‏(Codex CLI/ChatGPT) עם דוח שנשמר ב-`docs/reviews/`. ‏C. חיבור OpenAI כ-MCP/CLI לסביבה.
 - **Impact:** עמידה במדיניות; איכות ביקורת.
 - **Owner (הכנה):** Orchestrator. **הכרעה:** משה.
-- **מדיניות ביניים 2026-08-13:** אי־זמינות Anthropic אינה עוצרת עבודה הפיכה: OmniRoute מנתב reviewer נפרד וכשיר ורושם `SAME-PROVIDER EXCEPTION` אם אין ספק שני. artifact קריטי אינו נסגר ב-self-review; פתרון תשתיתי קבוע נשאר פתוח.
 
 ## D-011 — קרדינליות style references ב-style_spec
 

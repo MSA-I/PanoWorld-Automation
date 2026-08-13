@@ -1,7 +1,7 @@
 # סיכום לפני הפעלת Hermes Kanban
 
 ## סטטוס
-**רשומה היסטורית:** זה היה מצב pre-activation ב־2026-08-06. הקמפיין הישן הופעל ב־2026-08-09 והתקדם מאז; אין להשתמש בפקודות להלן להפעלת WP0–WP6. מצב נוכחי נקרא מ־Kanban/PROJECT-STATE/PROGRESS והפעלה חדשה כפופה למסמכים 08–10.
+תשתית Hermes Kanban הוקמה ואומתה, אך הקמפיין נשאר **`DORMANT`** ולא הופעל. אין worker פעיל ואין כרטיס `ready` או `running`.
 
 - Board: `panoworld-dev`
 - Hermes Project: `panoworld-dev` (`p_0539c20f`)
@@ -19,11 +19,11 @@ Hermes ינהל רק את **חלק 1 — פיתוח PanoWorld Automation**: תכ
 2. נוצר שער התחלה יחיד וחסום; כל יתר הכרטיסים נמצאים מאחוריו בשרשרת dependencies סדרתית.
 3. הכרטיסים מכסים את סגירת PLAN-001 ואת שלבי Floorplan Parsing, Geometry, Cameras, Rendering/Depth, Style, Source Panorama מקומי, QA, Dashboard, Hardening וקבלת חלק 1.
 4. כל כרטיס נועל scope מקומי, model-routing, רישום מודל בפועל, review חוצה-ספקים, tests, evidence ו־human gates.
-5. **הגדרה היסטורית:** spawn/task retry הוגבל ל־1 כדי למנוע צריכת קרדיטים שקטה. במדיניות החדשה technical operation retry הוא עד 3 עם backoff; rework סמנטי הוא task חדש ואינו retry טכני.
+5. retries הוגבלו ל־1 כדי למנוע צריכת קרדיטים חוזרת ושקטה.
 6. מחזור העבודה נעול ל־`PLAN → APPROVAL → IMPLEMENT → TEST → REVIEW → REWORK → VERIFY → MERGE/HANDOFF`.
 
 ## פקודת ההפעלה הידנית
-הפקודה הבאה נשמרת ל-audit היסטורי בלבד ואינה הוראת הפעלה נוכחית:
+ביום שבו משה מאשר להתחיל:
 
 ```bash
 hermes kanban --board panoworld-dev unblock t_4ddc34f3 \
@@ -36,7 +36,7 @@ hermes kanban --board panoworld-dev unblock t_4ddc34f3 \
 hermes kanban --board panoworld-dev dispatch --max 1
 ```
 
-`dispatch` לבדו אינו מפעיל את הקמפיין כל עוד כרטיס ההתחלה חסום. להפעלת WP0–WP6 אין להריץ פקודה ממסמך זה; לאחר אישור יש לבצע reconciliation ו-preflight לפי מסמך 10.
+`dispatch` לבדו אינו מפעיל את הקמפיין כל עוד כרטיס ההתחלה חסום.
 
 ## רציפות והתאוששות
 הקמפיין לא יסתמך על צ׳אט אחד. הכרטיסים, התלויות והיסטוריית הריצות יישמרו באופן מתמשך. במקרה של crash, quota, timeout או צורך בהחלטה אנושית, הכרטיס יעבור ל־retry/blocked וימשיך מה־checkpoint האחרון; לא יתבצע fallback שקט.

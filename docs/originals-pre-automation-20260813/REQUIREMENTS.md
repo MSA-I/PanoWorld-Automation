@@ -63,8 +63,7 @@
 - NFR-5 **עלות GPU**: ‏smoke test לפני full run; כיבוי שרת מובטח גם ב-failure path; טלמטריית עלות לכל run.
 - NFR-6 **אבטחה**: ‏secrets מחוץ לריפו; בידוד הרצת Python/Blender שרירותי; אין push/deploy ללא אישור.
 - NFR-7 **תאימות סביבתית**: פיתוח על Windows 10 המקומי (ללא GPU inference); ‏PanoWorld רץ על Linux/H200 בלבד. קוד הפרויקט חייב לרוץ בשני ההקשרים (pathlib, ללא הנחות OS).
-- NFR-8 **Model governance**: OmniRoute מנהל לפי [08](08-מדיניות-ניהול-מודלים-וסוכנים-omni-first.md); כל agent מתעד requested/actual provider/model/effort/fallback ואין החלפה שקטה.
-- NFR-11 **Automation governance**: כל WP עובר מחזור מלא לפי [09](09-מדיניות-האוטומציה-החדשה-WP0-WP6.md) ו־[10](10-תוכנית-האוטומציה-המפורטת-WP0-WP6.md); WP6 אינו מפעיל route.
+- NFR-8 **Model governance**: כל agent עם provider/model/effort/fallback לפי [06-מדיניות-ניתוב-מודלים-ומאמץ.md](06-מדיניות-ניתוב-מודלים-ומאמץ.md); אין החלפה שקטה.
 - NFR-9 **רישוי**: רכיבי GPL ‏(BlenderProc, FloorplanToBlender3d) מבודדים כ-tools חיצוניים; ‏license matrix לפני שימוש מסחרי.
 - NFR-10 **שפות**: מסמכים בעברית; קוד, schemas, שמות קבצים והודעות שגיאה באנגלית; נתיבי קוד פנימיים ASCII בלבד (הגנה מבעיות path בעברית על Windows).
 
@@ -84,4 +83,4 @@
 | HG-2 Source panorama approval | פנורמת ההתחלה המעוצבת | לפני full run על H200 | G5 |
 | HG-3 Final output approval | פנורמות/3DGS סופיים + ‏QA report | לפני מסירה | G9 |
 
-בנוסף, אישורים נקודתיים נדרשים בכל מקום שבו confidence נמוך מהסף או שנרשמה סתירה בקלט (G0/G1). הרשימה המלאה של G0–G9 — במסמך [04](04-מתודיקת-ניהול-סוכנים-ומעקב.md). ל־WP0–WP6 חלה גם מטריצת 09–10: security/rights/scope/threshold/activation ו־H200/GPU/cloud/remote תמיד נעצרים לאישור. PLAN-003 הוא Geometry מקומי אפשרי, אך אינו מופעל מה־packet הנוכחי.
+בנוסף, אישורים נקודתיים נדרשים בכל מקום שבו confidence נמוך מהסף או שנרשמה סתירה בקלט (G0/G1). הרשימה המלאה של G0–G9 — במסמך [04](04-מתודיקת-ניהול-סוכנים-ומעקב.md).
