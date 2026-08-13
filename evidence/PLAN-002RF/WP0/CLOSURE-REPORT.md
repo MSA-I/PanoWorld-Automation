@@ -2,7 +2,7 @@
 
 - Task: `t_d025498b`
 - Controlling packet SHA-256: `95c4cfd8711d4c2335d9905285b977118ba89cff440aa90c1a9cb5aab74422f7`
-- Status: closure candidate pending exact-checkpoint independent read-only review
+- Status: technical closure approved at reviewed checkpoint `e26591ddc90afb626edc40563e0d5104fdebb61a`; WP1 remains blocked by supervision gate `t_4f9188e9`
 - Binding feasibility verdict: `STOP / NOT_EVALUABLE`
 
 ## Scope completed
@@ -31,6 +31,8 @@ No missing result is treated as a pass, and no fixture truth or scale anchor is 
 ## Authorization and next dependency
 
 Moshe's full-campaign authorization of 2026-08-13 permits the already planned Local-only WP1–WP6 chain to proceed only after each dependency is DONE and its fresh evidence/review gates pass. It supersedes the earlier requirement for a separate continuation approval between WPs. It does not authorize Product A/B route activation, PLAN-003, H200/GPU/cloud/remote work, G7/G8, spend, credentials, contract/threshold changes or weaker gates. WP6 remains decision-packet-only and route activation requires a later explicit decision naming routes, versions, scope and rollback owner.
+
+The durable re-review recorded in `independent-closure-rereview-e26591d.md` returned **APPROVE** with both governance MAJOR findings resolved and no new findings. This closes WP0 technically but does not authorize or dispatch WP1: manual supervision gate `t_4f9188e9` remains blocked.
 
 ## Remaining explicit limits
 

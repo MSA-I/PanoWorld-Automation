@@ -1,7 +1,7 @@
 # PanoWorld Automation — Master Index
 
 ## סטטוס
-`AUTOMATION_ACTIVE_WP0_CLOSURE_REVIEW` — משה הפעיל במפורש ב־2026-08-13 את שרשרת ה־Local-only WP0–WP6 לפי מסמכים 08–10. WP0-FX1 עבר review ו־WP0 נמצא ב־`STOP / NOT_EVALUABLE` אמיתי לפני review סגירה מדויק. אין merge/push, route activation, H200/GPU/cloud/remote, G7/G8 או PLAN-003.
+`WP0_TECHNICAL_CLOSURE_APPROVED_SUPERVISION_HOLD` — משה הפעיל במפורש ב־2026-08-13 את שרשרת ה־Local-only WP0–WP6 לפי מסמכים 08–10. WP0 נסגר טכנית ב־`STOP / NOT_EVALUABLE` לאחר review חוזר `APPROVE`; WP1 נשאר חסום בשער ההשגחה `t_4f9188e9`. אין merge/push, route activation, H200/GPU/cloud/remote, G7/G8 או PLAN-003.
 
 מבנה בפועל: ‏`schemas/` ‏(envelope+13), ‏`contracts/` ‏(state machine, error codes, עקרונות אבטחה), ‏`src/pwa/` ‏(validator), ‏`tools/`, ‏`tests/` ‏(כולל golden fixture ‏8.3MB), ‏`docs/decisions/` ‏(ADR-0001..0003), ‏`docs/handoffs/`, ‏`evidence/PLAN-000/`.
 
@@ -103,4 +103,4 @@
 
 ## הפעולה הבאה המומלצת
 
-להשלים review read-only של checkpoint הסגירה המדויק של WP0. גם לאחר APPROVE ו־evidence index תקין, WP1 נשאר חסום עד שחרור ידני של שער ההשגחה `t_4f9188e9`; verdict של reviewer לבדו אינו מקדם אותו. ההרשאה הכללית לשרשרת Local-only נשמרת, ו־route activation נשאר חסום עד החלטת משה נפרדת ב־WP6.
+WP0 עבר review חוזר `APPROVE` על `e26591d` ונסגר טכנית. WP1 נשאר חסום עד שחרור ידני של שער ההשגחה `t_4f9188e9`; verdict של reviewer לבדו אינו מקדם אותו. ההרשאה הכללית לשרשרת Local-only נשמרת, ו־route activation נשאר חסום עד החלטת משה נפרדת ב־WP6.

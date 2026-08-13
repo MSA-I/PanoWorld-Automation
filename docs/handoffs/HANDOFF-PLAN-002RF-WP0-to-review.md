@@ -1,7 +1,7 @@
 # HANDOFF — PLAN-002RF WP0 to independent review / Moshe gate
 
 - Producer task: `t_d025498b`
-- Status: WP0 closure candidate — `STOP / NOT_EVALUABLE`; WP0-FX1 approved; final exact-checkpoint review required
+- Status: WP0 technical closure approved — `STOP / NOT_EVALUABLE`; WP1 remains blocked by supervision gate `t_4f9188e9`
 - Approved packet SHA-256: `95c4cfd8711d4c2335d9905285b977118ba89cff440aa90c1a9cb5aab74422f7`
 - Branch: `panoworld-dev/t_d025498b-wp0-activate-approved-plan-002rf-decisio`
 
@@ -33,9 +33,11 @@ The review runtime reports exact model `gpt-5.6-sol`, effort `xhigh`, CLI `0.144
 
 Checkpoint `71b7b7a` fixed the manifest trust bypass and evidence-index defect. WP0-FX1 then fulfilled the bounded rights/truth/anchor package at `6c8c378`; review of `fc3a9c3` + `e2fbd32` returned APPROVE with no findings. U-8 is resolved for WP0 as `STOP / NOT_EVALUABLE`, and U-15 is resolved through durable exact-checkpoint review evidence. Product recognition/resource/security claims remain future gates.
 
-## Remaining reviewer obligations
+## Final closure review
 
-Any closure review must bind findings to the corrected exact checkpoint and inspect:
+The durable read-only review of `7c1ec7172667d274f3a6d747e0caa6e8fba433c7` returned `NEEDS_REWORK` on two governance MAJORs only. Checkpoint `e26591ddc90afb626edc40563e0d5104fdebb61a` restored ADR-0006 to `PROPOSED` and bound WP1 to manual supervision gate `t_4f9188e9`. Separate durable re-review session `20260813_200037_22700a` returned **APPROVE** with no remaining findings; the preserved report is `evidence/PLAN-002RF/WP0/independent-closure-rereview-e26591d.md`.
+
+The closing review inspected:
 
 - approved packet and its exact hash;
 - `docs/decisions/ADR-0006-plan002rf-automatic-routes-and-wp0-feasibility.md`;
@@ -44,7 +46,7 @@ Any closure review must bind findings to the corrected exact checkpoint and insp
 - model metadata/result;
 - installation incident, version mismatch, test limitations, and no-network/local-only audit.
 
-Return severity-tagged, file/line/evidence-backed findings and verdict. Do not edit. Cross-provider requirement is met only if runtime metadata confirms OpenAI `gpt-5.6-sol` (or the explicitly authorized exact OpenAI model) with no silent substitution.
+Provider/model identity was unavailable from the re-reviewer's observable tool surface, so the report makes no unsupported same-provider or cross-provider claim. Moshe's decision `3B` remains the accepted provider-identity exception. WP0 may close technically; WP1 remains blocked and cannot advance from reviewer verdict alone.
 
 ## Moshe decisions applied (2026-08-13)
 
