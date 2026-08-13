@@ -2,7 +2,7 @@
 
 - RUN_ID: `KANBAN-61-WP0-FX1`
 - PLAN_ID: `PLAN-002RF / WP0-FX1`
-- Status: producer verification complete; independent review pending
+- Status: bounded review rework verified; fresh exact-checkpoint review pending
 - Controlling packet SHA-256: `95c4cfd8711d4c2335d9905285b977118ba89cff440aa90c1a9cb5aab74422f7`
 
 ## Inputs
@@ -22,16 +22,23 @@
 3. RED: CLI-without-PYTHONPATH test failed; import-safe wrapper added.
 4. RED: visual inspection exposed walls were not split at openings; pixel assertions failed (`0 != 255`).
 5. GREEN: hosted segment/arc walls split before rendering; 3 targeted tests passed.
+6. Review RED: four accepted defects were reproduced as four failures covering unsafe manifest paths, missing/unbound payloads, rights/dependency claims, and Git-blob index binding.
+7. Review GREEN: exact payload/path enforcement, rights/dependency assertions, and all-entry Git-blob index validation pass.
 
 ## Commands and results
-- `../../.venv/Scripts/python.exe -m pytest tests/unit/test_wp0_fx1_fixture.py -q` → 3 passed, exit 0 (`test-results/targeted.log`).
-- `../../.venv/Scripts/python.exe -m pytest -q` → 372 passed, exit 0; two pre-existing Pillow deprecation warnings in `test_floorplan_builder.py` (`test-results/full-suite.log`).
+- `../../.venv/Scripts/python.exe -m pytest tests/unit/test_wp0_fx1_fixture.py -q` → 7 passed, exit 0 (`test-results/targeted.log`).
+- `../../.venv/Scripts/python.exe -m pytest -q` → 376 passed, exit 0; two pre-existing Pillow deprecation warnings in `test_floorplan_builder.py` (`test-results/full-suite.log`).
 - `../../.venv/Scripts/python.exe tools/make_wp0_fx1_fixture.py --verify evidence/PLAN-002RF/WP0-FX1/fixture` → valid, 5 files verified, exit 0 (`test-results/replay-verify.log`).
 
 ## Outputs
 - Exact source geometry, raster, frozen truth, three authoritative anchors, rights/provenance, and replay manifest under `fixture/`.
 - Replay hash: `sha256:243ace7f0793be867a7e8b6cfeab2244bdf70a823e8ba9778334ee648c79bb87`.
 - Recognition/scoring performed: `False`.
+
+## Independent review and bounded disposition
+- Recovered read-only OmniRoute review of checkpoint `60c5978`; verdict `BLOCKED` with one identity gap, three MAJOR findings, and one MINOR finding (`reviews/independent-omniroute-review-60c5978.md`).
+- Moshe supplied fresh authoritative route evidence: requested `auto/best-coding`, actual `cx/gpt-5.6-sol`, session `901958b590ba0120`, cache MISS (`reviews/omniroute-authoritative-identity.json`).
+- Accepted code/evidence findings were reworked without threshold, schema, or route changes. A fresh independent read-only review against the resulting exact checkpoint remains required before closure.
 
 ## Scope/claim limits
 - This package proves fixture provenance, independent truth, anchors, deterministic replay, and local test behavior only.

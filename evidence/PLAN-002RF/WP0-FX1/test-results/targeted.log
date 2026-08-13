@@ -1,4 +1,1 @@
-$ ../../.venv/Scripts/python.exe -m pytest tests/unit/test_wp0_fx1_fixture.py -q
-...                                                                      [100%]
-
-exit=0
+.......                                                                  [100%]

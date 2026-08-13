@@ -9,6 +9,6 @@
     "fx1.png": "sha256:672203f739aa348a2d0d6eda57d01d279a5ac87b6a63a0a8ed9cf25dd64c6352"
   },
   "replay_hash": "sha256:243ace7f0793be867a7e8b6cfeab2244bdf70a823e8ba9778334ee648c79bb87",
-  "dependency_policy": "existing pinned local environment only; no install performed",
+  "dependency_policy": "existing local environment only; pinned-environment proof pending; no install performed",
   "recognition_or_scoring_performed": false
 }

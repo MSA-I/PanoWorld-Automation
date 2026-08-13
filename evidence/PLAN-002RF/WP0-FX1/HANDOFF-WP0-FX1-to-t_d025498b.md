@@ -21,10 +21,10 @@ Run only in an already-provisioned approved environment:
 - Verify the exact reviewed checkpoint and evidence index before use.
 - Preserve source→{raster, truth} independence; never derive truth from recognizer output.
 - Do not infer recognition accuracy/yield from this fixture package.
-- Do not activate Product A/B routes or WP1 without separate authorization.
+- Do not activate Product A/B routes; the full-campaign authorization permits technical successors only after dependency completion and fresh gates, while WP6 activation remains a separate human gate.
 - Keep pinned-environment proof pending; the existing-env suite is not a substitute.
 
 ## Known limits
 - This is the approved clean synthetic envelope, not a private real-plan or degraded scan.
 - Fixture-local truth represents circular arcs and passage motifs that current production schemas do not represent; no schema change is implied.
-- Independent opposite-provider read-only review must be recorded against the exact checkpoint before closure.
+- The recovered review of `60c5978` and its bounded rework disposition are durable under `reviews/`; closure still requires a fresh independent read-only review against the exact rework checkpoint.

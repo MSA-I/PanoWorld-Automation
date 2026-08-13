@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import importlib.util
 import json
 from pathlib import Path
@@ -7,6 +8,7 @@ import subprocess
 import sys
 
 import numpy as np
+import pytest
 from PIL import Image
 
 _TOOL_PATH = Path(__file__).resolve().parents[2] / "tools" / "make_wp0_fx1_fixture.py"
@@ -39,8 +41,17 @@ def test_build_fixture_emits_independent_truth_and_distributed_scale_anchors(tmp
     truth = _load(package / "fx1-truth.json")
     anchors = _load(package / "fx1-scale-anchors.json")
     manifest = _load(package / "fx1-manifest.json")
+    rights = _load(package / "fx1-rights-provenance.json")
 
     assert source["origin"] == "project_owned_deterministic_synthetic"
+    assert rights == {
+        "origin": "project_owned_generated",
+        "third_party_bytes": 0,
+        "third_party_assets": [],
+        "network_acquisition": "none",
+        "license_statement": "This synthetic fixture is project-created; no repository-wide distribution-license claim is made.",
+        "local_only": True,
+    }
     assert {wall["kind"] for wall in source["walls"]} == {"segment", "circular_arc"}
     assert any(wall.get("orientation") == "diagonal_3_4_5" for wall in source["walls"])
     assert {opening["type"] for opening in source["openings"]} == {"door", "window", "passage"}
@@ -63,6 +74,7 @@ def test_build_fixture_emits_independent_truth_and_distributed_scale_anchors(tmp
     assert anchors["source_sha256"] == manifest["files"]["fx1-source-geometry.json"]
     assert anchors["raster_sha256"] == manifest["files"]["fx1.png"]
     assert anchors["truth_sha256"] == manifest["files"]["fx1-truth.json"]
+    assert manifest["dependency_policy"] == "existing local environment only; pinned-environment proof pending; no install performed"
 
     image = Image.open(package / "fx1.png")
     assert image.mode == "L"
@@ -90,6 +102,62 @@ def test_replay_is_byte_deterministic_and_detects_mutation(tmp_path):
     report = verify_fixture(second)
     assert report["valid"] is False
     assert "fx1.png" in report["mismatches"]
+
+
+@pytest.mark.parametrize("unsafe_name", ["../outside.json", "/absolute.json"])
+def test_verify_rejects_manifest_paths_outside_package(tmp_path, unsafe_name):
+    package = build_fixture(tmp_path / "fx1")
+    manifest_path = package / "fx1-manifest.json"
+    manifest = _load(manifest_path)
+    manifest["files"][unsafe_name] = manifest["files"].pop("fx1.png")
+    manifest["replay_hash"] = _MODULE._canonical_hash(manifest["files"])
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    report = verify_fixture(package)
+
+    assert report["valid"] is False
+    assert "manifest_file_scope" in report["mismatches"]
+
+
+def test_verify_requires_exact_payload_set_and_no_unbound_files(tmp_path):
+    package = build_fixture(tmp_path / "fx1")
+    manifest_path = package / "fx1-manifest.json"
+    manifest = _load(manifest_path)
+    manifest["files"].pop("fx1-rights-provenance.json")
+    manifest["replay_hash"] = _MODULE._canonical_hash(manifest["files"])
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    (package / "unbound.txt").write_text("not hash-bound", encoding="utf-8")
+
+    report = verify_fixture(package)
+
+    assert report["valid"] is False
+    assert "manifest_file_scope" in report["mismatches"]
+    assert "unexpected_files" in report["mismatches"]
+
+
+def test_evidence_index_binds_every_entry_to_nominated_git_commit():
+    repository = _TOOL_PATH.parents[1]
+    index = _load(repository / "evidence/PLAN-002RF/WP0-FX1/evidence-index.json")
+    commit = index["generated_against_commit"]
+
+    for entry in index["entries"]:
+        blob = subprocess.run(
+            ["git", "show", f"{commit}:{entry['path']}"],
+            cwd=repository,
+            capture_output=True,
+            check=True,
+        ).stdout
+        blob_id = subprocess.run(
+            ["git", "rev-parse", f"{commit}:{entry['path']}"],
+            cwd=repository,
+            capture_output=True,
+            check=True,
+            text=True,
+        ).stdout.strip()
+
+        assert entry["git_blob"] == blob_id
+        assert entry["sha256"] == f"sha256:{hashlib.sha256(blob).hexdigest()}"
+        assert entry["bytes"] == len(blob)
 
 
 def test_cli_needs_no_pythonpath(tmp_path):

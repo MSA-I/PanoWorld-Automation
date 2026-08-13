@@ -1,8 +1,5 @@
-$ ../../.venv/Scripts/python.exe tools/make_wp0_fx1_fixture.py --verify evidence/PLAN-002RF/WP0-FX1/fixture
 {
   "valid": true,
   "mismatches": [],
   "files_verified": 5
 }
-
-exit=0

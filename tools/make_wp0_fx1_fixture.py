@@ -21,6 +21,13 @@ WIDTH_PX = 2400
 HEIGHT_PX = 2000
 MM_PER_PX = 5
 SCALE_M_PER_PX = 0.005
+PAYLOAD_FILENAMES = frozenset({
+    "fx1-rights-provenance.json",
+    "fx1-scale-anchors.json",
+    "fx1-source-geometry.json",
+    "fx1-truth.json",
+    "fx1.png",
+})
 
 
 def _canonical_hash(document: Any) -> str:
@@ -257,7 +264,7 @@ def build_fixture(out: Path) -> Path:
         "version": "1.0.0",
         "files": files,
         "replay_hash": _canonical_hash(files),
-        "dependency_policy": "existing pinned local environment only; no install performed",
+        "dependency_policy": "existing local environment only; pinned-environment proof pending; no install performed",
         "recognition_or_scoring_performed": False,
     }
     write_json_exclusive(out / "fx1-manifest.json", manifest, create_parents=False)
@@ -271,12 +278,30 @@ def verify_fixture(package: Path) -> dict[str, Any]:
     package = Path(package)
     manifest_path = package / "fx1-manifest.json"
     if not manifest_path.is_file():
-        return {"valid": False, "mismatches": ["fx1-manifest.json"]}
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    mismatches = [name for name, expected in manifest["files"].items() if not (package / name).is_file() or sha256_file(package / name) != expected]
-    if _canonical_hash(manifest["files"]) != manifest["replay_hash"]:
+        return {"valid": False, "mismatches": ["fx1-manifest.json"], "files_verified": 0}
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {"valid": False, "mismatches": ["manifest_structure"], "files_verified": 0}
+    files = manifest.get("files")
+    replay_hash = manifest.get("replay_hash")
+    if not isinstance(files, dict) or not all(isinstance(name, str) and isinstance(digest, str) for name, digest in files.items()):
+        return {"valid": False, "mismatches": ["manifest_structure"], "files_verified": 0}
+    mismatches = []
+    if set(files) != PAYLOAD_FILENAMES or any(Path(name).is_absolute() or Path(name).name != name for name in files):
+        mismatches.append("manifest_file_scope")
+    actual_names = {path.name for path in package.iterdir() if path.is_file()}
+    if actual_names != PAYLOAD_FILENAMES | {"fx1-manifest.json"}:
+        mismatches.append("unexpected_files")
+    for name, expected in files.items():
+        if name not in PAYLOAD_FILENAMES:
+            continue
+        path = package / name
+        if not path.is_file() or sha256_file(path) != expected:
+            mismatches.append(name)
+    if _canonical_hash(files) != replay_hash:
         mismatches.append("replay_hash")
-    return {"valid": not mismatches, "mismatches": sorted(set(mismatches)), "files_verified": len(manifest["files"])}
+    return {"valid": not mismatches, "mismatches": sorted(set(mismatches)), "files_verified": len(files)}
 
 
 def main(argv: list[str] | None = None) -> int:
