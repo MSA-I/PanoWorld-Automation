@@ -1,0 +1,13 @@
+........................................................................ [ 16%]
+........................................................................ [ 33%]
+........................................................................ [ 50%]
+........................................................................ [ 66%]
+........................................................................ [ 83%]
+.......................................................................  [100%]
+============================== warnings summary ===============================
+tests/unit/test_floorplan_builder.py::test_source_binding_png_round_trip_is_pixel_perfect
+tests/unit/test_floorplan_builder.py::test_source_binding_png_round_trip_is_pixel_perfect
+  D:\משה פרוייקטים\פיתוח אתרים\PanoWorld-Automation\tests\unit\test_floorplan_builder.py:189: DeprecationWarning: Image.Image.getdata is deprecated and will be removed in Pillow 14 (2027-10-15). Use get_flattened_data instead.
+    assert list(sanitized.getdata()) == list(original.getdata())
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html

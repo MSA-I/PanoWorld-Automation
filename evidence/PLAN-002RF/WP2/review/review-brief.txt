@@ -1,0 +1,22 @@
+You are an independent, read-only code reviewer with fresh context. You did not author this change and have no prior conversation history. Review the following contract-design change strictly for CORRECTNESS and CONTRACT-INTEGRITY. Do NOT re-run tests. Do NOT edit files. Return ONLY a JSON verdict.
+
+CONTEXT: Additive, new-runs-only contract round (PLAN-002RF WP2) for a floorplan-recognition pipeline. Routes are default-off (no recognition runs). The change adds:
+1. CONTRACTS_BUNDLE_VERSION 1.2.0 -> 1.3.0 (single source of truth in pwa.contracts).
+2. floorplan_parse schema 1.2.0 (additive optional fields: source_class enum [cad_exact,raster_auto,annotation,dxf]; wall kind segment|circular_arc + arc subobject center/radius_m/start_deg/end_deg/bulge/sweep; thickness_m >0; openings type + passage; rooms area_m2 >0).
+3. floorplan_review schema 1.0.0 (new): reviewed_artifact{artifact_id,schema_id,schema_version,content_hash}, verdict enum, findings[], reviewer{agent,provider,model,effort,cross_provider}, lineage{parent_review_id,current_head}.
+4. Frozen source_class vocabulary + arc/bulge/passage/thickness invariants in pwa.floorplan.recognition (pure, no I/O).
+5. Append-only blocking error codes RECOGNITION_*/REVIEW_*/SCHEMA_VERSION_* (all error severity).
+6. contract_rejection_reason(doc, consumer_schema_version) helper for predictable old-consumer rejection.
+7. Historical 1.0.0/1.1.1 schemas remain byte-identical (never edited).
+
+The append-only review chain is a frozen dataclass ReviewHead with chain_ids tuple; append_review raises ValueError on id reuse or missing parent (REVIEW_LINEAGE_CYCLE); supersede() returns a new head tuple=(new_id,) rather than mutating.
+
+QUESTIONS (answer each):
+1. Does the additive floorplan_parse 1.2.0 change preserve backward compatibility (1.1.0 docs remain valid)? Any risk the additive fields unintentionally become required?
+2. Is the floorplan_review lineage model sound (immutable, current-head invalidation via supersede)? Any bug in the cycle/append logic?
+3. Does contract_rejection_reason correctly distinguish "version unsupported" from "additive field unknown to additionalProperties:false consumer"? Any logic error?
+4. Security: any injection, secret, or unsafe-mutation risk in the new pure code?
+5. Is the arc bulge/sweep sign convention consistent (bulge>0 ccw, bulge<0 cw)? Any off-by-sign error?
+
+Return ONLY this JSON (no markdown fences, no prose):
+{"verdict": "APPROVE_OR_APPROVE_WITH_FIXES_OR_NEEDS_REWORK_OR_BLOCKED", "findings": [{"id":"F1","severity":"CRITICAL_OR_MAJOR_OR_MINOR_OR_INFO","message":"..."}], "summary":"one sentence"}

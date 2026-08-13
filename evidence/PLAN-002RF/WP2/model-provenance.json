@@ -1,0 +1,50 @@
+{
+  "document": "WP2 model/provenance runtime record",
+  "task": "t_0fc0a9e4",
+  "recorded_at": "2026-08-14",
+  "governing_policy": "docs/08-מדיניות-ניהול-מודלים-וסוכנים-deepseek-first.md (MODEL-AGENT-MANAGEMENT-v4-AUTONOMOUS) + Moshe full-campaign authorization 2026-08-13",
+  "active_runtime": {
+    "provider": "openrouter",
+    "model": "deepseek/deepseek-v4-pro-0813",
+    "fallback_providers": [],
+    "source": "profiles/panoworld/config.yaml model.default / provider / fallback_providers"
+  },
+  "implementer_identity": {
+    "provider": "openrouter",
+    "model": "deepseek/deepseek-v4-pro-0813"
+  },
+  "omniroute_gateway": {
+    "reachable": true,
+    "base_url": "http://127.0.0.1:20128/v1",
+    "custom_provider_name": "Local (127.0.0.1:20128)",
+    "probe": "GET /v1/models -> HTTP 200; exposes auto/best-*, auto/pro-*, auto/claude-opus, auto/claude-sonnet, aug/* (Anthropic), ddgw/* (DuckDuckGo proxy), felo/*, glm/minimax/mimo/zai/gemma/llama/gemini",
+    "active_for_this_session": false,
+    "note": "OmniRoute is reachable but is NOT the active routing for the implementer session. It was used ONLY to obtain the independent read-only review (cross-provider)."
+  },
+  "independent_review_routing": {
+    "requested_route": "auto/best-coding",
+    "resolved_provider": "felo",
+    "resolved_model": "felo-chat",
+    "authoritative_source": "response HTTP trailer headers x-omniroute-provider / x-omniroute-model",
+    "cross_provider_from_implementer": true,
+    "cross_provider_note": "felo != openrouter/deepseek, so the review is genuinely cross-provider. felo-chat is a general chat model, not a specialist coding/geometry model; its verdict (APPROVE, 5x INFO) is corroborated by a deterministic read-only self-review that found one MINOR example-consistency issue the felo pass did not surface (fixed under TDD)."
+  },
+  "candidate_routes_probed_and_unavailable_this_run": {
+    "auto/claude-opus": "resolves to felo-chat (auto router selects felo for all auto/* right now; no Opus reached)",
+    "auto/claude-sonnet": "resolves to felo-chat",
+    "auto/pro-coding": "403 ChatGPT Sentinel/Turnstile",
+    "aug/opus4.6": "502 Auggie CLI not found (auggie binary missing)",
+    "aug/sonnet4.6": "502 Auggie CLI not found",
+    "ddgw/claude-haiku-4-5": "418 DDG anti-abuse challenge",
+    "ddgw/gpt-5.4-mini": "418 DDG anti-abuse challenge"
+  },
+  "geometry_critical_work": {
+    "new_spatial_design_in_wp2": false,
+    "rationale": "WP2 freezes the already-approved FX1/Opus spatial truth (WP0) and WP1 evaluator/support taxonomy into contract shapes (source_class, arc/bulge, thickness/area, passage, review lineage). No novel geometry reasoning is produced, so no Anthropic-Opus spatial review gate is newly triggered. The arc bulge/sweep sign convention is a WP2 contract addition, documented in recognition.py and locked by tests."
+  },
+  "review_outcome": {
+    "cross_provider_review": "APPROVE (felo-chat via OmniRoute auto/best-coding)",
+    "deterministic_review": "APPROVE_WITH_FIXES (1x MINOR: example payload arc bulge sign vs frozen ccw convention)",
+    "minor_fix": "bulge -1.0 -> +1.0 in round-trip example + new consistency test test_wp2_full_payload_arc_is_consistent_with_invariants"
+  }
+}
