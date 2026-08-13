@@ -1,7 +1,7 @@
 {
   "document": "PLAN-002RF WP1 corpus and evaluator lock evidence index",
   "index_version": "1.0.0",
-  "generated_against_commit": "7b3ac9657e4af0562fd690f1c70845197eed6a49",
+  "generated_against_commit": "0e5ba26e17bdb8737bcb076f6b792f347e3e85e6",
   "controlling_packet_sha256": "95c4cfd8711d4c2335d9905285b977118ba89cff440aa90c1a9cb5aab74422f7",
   "entries": [
     {
@@ -27,6 +27,12 @@
       "git_blob": "716fea0103c64d267bb1f65a754000046706ed5b",
       "sha256": "sha256:c2d9f70fca0769090e09c141a84d1bc9ed2ec57cbc62b48d7b786a46838f104e",
       "bytes": 1449
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP1/RUN-REPORT.md",
+      "git_blob": "68f5ec0100af639396dfa37a4209c12efe36f542",
+      "sha256": "sha256:f57b17cc43628b78095c1fc1dc8e32faa74d279e63f02925b18c7d7d6bc120c9",
+      "bytes": 4246
     },
     {
       "path": "evidence/PLAN-002RF/WP1/lock/wp1-evaluator-spec.json",
@@ -59,6 +65,18 @@
       "bytes": 733
     },
     {
+      "path": "evidence/PLAN-002RF/WP1/test-results/wp1-targeted.log",
+      "git_blob": "b05718ab0c6380b505e998e113dc31f418de77c4",
+      "sha256": "sha256:c5ffdee2b05f8cb9c0cf81f4524a2d0d65025b68eaec55f774a610a73bcdb4cd",
+      "bytes": 463
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP1/test-results/wp1-full-suite.log",
+      "git_blob": "e8c75dd6d43bc584af431e50ad41feb2ca98a100",
+      "sha256": "sha256:0048a52c62372ee2d1954698f479e3da7ecd9a3daca052c174d774ba7829839e",
+      "bytes": 1127
+    },
+    {
       "path": "src/pwa/evaluator/__init__.py",
       "git_blob": "c0d4249feef3bae4071f615377550982b56d9c55",
       "sha256": "sha256:f7ff1cb6264cb384ceb95d4223c7e09b9adc013f8c47444f5b63ed9dc50e7955",
@@ -81,6 +99,12 @@
       "git_blob": "c031d72d99a8de2f339382e638f062ca196f453a",
       "sha256": "sha256:7f294885a6e307bdd0749e46a66494eb3f1bb3d4055be65f8ea4b0a47fb2fcb3",
       "bytes": 9941
+    },
+    {
+      "path": "tools/make_wp1_evidence_index.py",
+      "git_blob": "fc22f3ee4455074ec4327e7f806f40aed9ba6e07",
+      "sha256": "sha256:1f5e7e642a8f7de1cf29befd660e735dd0c94e8eb7134575b5500a2936aa437e",
+      "bytes": 2574
     }
   ]
 }
