@@ -3,14 +3,29 @@
   "decision": "STOP",
   "files": [
     {
+      "bytes": 5360,
+      "path": "docs/decisions/ADR-0006-plan002rf-automatic-routes-and-wp0-feasibility.md",
+      "sha256": "ea381bf5dfaf890e14e5ef346fefe1ea0e7da7206886c6d119630789d2219e03"
+    },
+    {
+      "bytes": 4482,
+      "path": "docs/handoffs/HANDOFF-PLAN-002RF-WP0-to-review.md",
+      "sha256": "9a5eb99eee2d4ae3dfc3805a312c234103dbe593d3b5aa87a38e423fbc71e1ce"
+    },
+    {
+      "bytes": 7466,
+      "path": "evidence/PLAN-002RF/WP0/RUN-REPORT.md",
+      "sha256": "dfd899ca29ced2a0da15914f58ba8e3189eed6221978a35917f7a13c90191683"
+    },
+    {
       "bytes": 2,
       "path": "evidence/PLAN-002RF/WP0/cpu-feasibility-exit-code.txt",
       "sha256": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2"
     },
     {
-      "bytes": 1780,
+      "bytes": 1723,
       "path": "evidence/PLAN-002RF/WP0/cpu-feasibility-result.json",
-      "sha256": "75907d5c2094f5e897d82dfa4061d8d7d14de96c6758c070d2aabfbcb0405d53"
+      "sha256": "3a5d37ce31b15e71ec48ac7bf9d5b6bd5421d48022de6d21e03a7fc230cad8af"
     },
     {
       "bytes": 0,
@@ -18,9 +33,9 @@
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "bytes": 1780,
+      "bytes": 1723,
       "path": "evidence/PLAN-002RF/WP0/cpu-feasibility-stdout.log",
-      "sha256": "75907d5c2094f5e897d82dfa4061d8d7d14de96c6758c070d2aabfbcb0405d53"
+      "sha256": "3a5d37ce31b15e71ec48ac7bf9d5b6bd5421d48022de6d21e03a7fc230cad8af"
     },
     {
       "bytes": 2295,
@@ -33,9 +48,14 @@
       "sha256": "d7be9e9dcf0d993368df12583ac19a63ff599bad49df54d578ba00bcc6ccd09a"
     },
     {
-      "bytes": 5070,
+      "bytes": 14026,
+      "path": "evidence/PLAN-002RF/WP0/independent-openai-review-20260813.md",
+      "sha256": "9f50ed9238dfb4e80cdbe61734c8cca8706c0264ee8e3b6b1c7340f4a0f78d25"
+    },
+    {
+      "bytes": 5266,
       "path": "evidence/PLAN-002RF/WP0/numbered-decisions-u1-u15.md",
-      "sha256": "be9652d55b8739acec6c2e995716a1e0d376a83430dcc0b4df9d746b135e66b1"
+      "sha256": "92532022f6dfd5791a77d27d51d632fe2d857603b7ee8022da57c7902d87f24a"
     },
     {
       "bytes": 48189,
@@ -43,14 +63,14 @@
       "sha256": "125f6e2b6f2440a9a8097cdf111bf42703dc39e9e576a8f910f72c3fa6b9342f"
     },
     {
-      "bytes": 4695,
+      "bytes": 4666,
       "path": "evidence/PLAN-002RF/WP0/opus-spatial-design-memo.md",
-      "sha256": "96a71152e5e42dcc3932529a5934945759360359a81de742937b7d30b719213a"
+      "sha256": "96d6d73b6f9ba5c1f0f218d74d6a8b6d1ed41843ef06b8972b33246d068cad51"
     },
     {
-      "bytes": 694,
+      "bytes": 669,
       "path": "evidence/PLAN-002RF/WP0/opus-spatial-design-metadata.json",
-      "sha256": "b539ac49878429dc45623433b99706da2faf8a8488241f4e1eb611a5929e40b7"
+      "sha256": "060bf2d3262f9e6903ebd00150e84a1d7511f444d72ebce91ab7077d027e5d8e"
     },
     {
       "bytes": 2745,
@@ -68,31 +88,18 @@
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "bytes": 6049,
-      "path": "evidence/PLAN-002RF/WP0/RUN-REPORT.md",
-      "sha256": "37918a43d9e0bf545f26466be75a6bd930948907764e6b982418c13531f13097"
-    },
-    {
-      "bytes": 5360,
-      "path": "docs/decisions/ADR-0006-plan002rf-automatic-routes-and-wp0-feasibility.md",
-      "sha256": "ea381bf5dfaf890e14e5ef346fefe1ea0e7da7206886c6d119630789d2219e03"
-    },
-    {
-      "bytes": 3204,
-      "path": "docs/handoffs/HANDOFF-PLAN-002RF-WP0-to-review.md",
-      "sha256": "1c9dcb4c9cc901c57b0a182b740fe1e1bbe307cf8bc6324fed213ce39d381640"
-    },
-    {
-      "bytes": 5173,
-      "path": "tools/wp0_cpu_feasibility.py",
-      "sha256": "1eff5c2e74360f5276a88137d417237e1bcad42f06304d64a043413f550e22b0"
-    },
-    {
-      "bytes": 2131,
+      "bytes": 3210,
       "path": "tests/unit/test_wp0_cpu_feasibility.py",
-      "sha256": "cd8c3921d507893f9bb11d3cccb1720337b725804cc9f099ee4e14c1358c4de4"
+      "sha256": "e2b9264d1b43b36e8aa24705e9e7f9722e2fe9f5c38c6bf8cd6cc59ce55494d2"
+    },
+    {
+      "bytes": 6321,
+      "path": "tools/wp0_cpu_feasibility.py",
+      "sha256": "979a243a27745575bfb2bd8bfb831aa1b6e4326e0cd0571ba931bc7a77334bed"
     }
   ],
+  "fixture_disposition": "UNSUPPORTED",
   "plan": "PLAN-002RF",
+  "product_b_feasibility": "NOT_EVALUABLE",
   "work_package": "WP0"
 }

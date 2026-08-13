@@ -15,6 +15,7 @@ from PIL import Image, ImageFilter, __version__ as pillow_version
 
 SOFT_MEMORY_LIMIT_BYTES = 1_610_612_736  # 1.5 GiB
 RUNTIME_LIMIT_SECONDS = 60.0
+ALLOWED_RIGHTS_LICENSES = {"public-domain"}
 
 
 def _sha256(path: Path) -> str:
@@ -71,11 +72,42 @@ def evaluate_fixture(image_path: Path, manifest_path: Path, replays: int = 2) ->
         return {**base, "decision": "STOP", "blockers": ["SOURCE_HASH_MISMATCH"]}
 
     blockers: list[str] = []
+    rights = manifest.get("rights", {})
+    if rights.get("status") != "approved":
+        blockers.append("RIGHTS_NOT_APPROVED")
+    if rights.get("license") not in ALLOWED_RIGHTS_LICENSES:
+        blockers.append("RIGHTS_LICENSE_NOT_ALLOWED")
+
     truth = manifest.get("truth", {})
-    if not truth.get("independent") or not truth.get("path"):
+    truth_path_value = truth.get("path")
+    if not truth.get("independent") or not truth_path_value:
         blockers.append("INDEPENDENT_TRUTH_MISSING")
-    if len(manifest.get("scale_anchors", [])) < 2:
+    elif not (manifest_path.parent / str(truth_path_value)).is_file():
+        blockers.append("INDEPENDENT_TRUTH_FILE_MISSING")
+
+    anchors = manifest.get("scale_anchors", [])
+    if len(anchors) < 2:
         blockers.append("TWO_AUTHORITATIVE_SCALE_ANCHORS_MISSING")
+    elif any(
+        not isinstance(anchor, dict)
+        or not anchor.get("id")
+        or not anchor.get("source")
+        or not isinstance(anchor.get("pixel_span"), (int, float))
+        or anchor["pixel_span"] <= 0
+        or not isinstance(anchor.get("real_length_m"), (int, float))
+        or anchor["real_length_m"] <= 0
+        for anchor in anchors
+    ):
+        blockers.append("AUTHORITATIVE_SCALE_ANCHORS_INVALID")
+
+    if blockers:
+        return {
+            **base,
+            "decision": "STOP",
+            "fixture_disposition": "UNSUPPORTED",
+            "product_b_feasibility": "NOT_EVALUABLE",
+            "blockers": blockers,
+        }
 
     durations: list[float] = []
     probes: list[dict[str, Any]] = []

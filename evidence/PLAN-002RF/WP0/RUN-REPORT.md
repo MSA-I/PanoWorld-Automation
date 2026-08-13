@@ -85,3 +85,11 @@ A preflight `uv run` unexpectedly created ignored `.venv` and installed 20 locke
 ## Conclusion
 
 The local CPU can decode and produce deterministic lightweight diagnostics quickly. The `tracemalloc` value is not peak working set and the probe is not the Product-B pipeline, so neither resource threshold passed. This does not establish Product B-AUTO feasibility. WP0 fails closed and requires independent review plus Moshe's explicit next-scope decision; WP1 must not start automatically.
+
+## Independent review and bounded rework (2026-08-13)
+
+The recovered review at `independent-openai-review-20260813.md`, bound to `d9ee296058b2bb7d550f2279ca3a6801c9c4675b`, returned **BLOCKED** with 2 CRITICAL, 8 MAJOR and 2 MINOR findings. Its runtime proves exact model `gpt-5.6-sol` but reports provider alias `headroom` and no fallback field, so cross-provider first-party identity remains unproven and the review cannot close U-8/U-15.
+
+Bounded rework added test-first coverage for an untrusted manifest and changed the diagnostic to refuse before raster processing unless rights are approved/public-domain, independent truth points to an existing local file, and two structurally valid authoritative anchors exist. Machine-readable output now separates `fixture_disposition=UNSUPPORTED` from `product_b_feasibility=NOT_EVALUABLE`. The environment has no installed `pytest`; the RED command failed on missing pytest, and three test functions were then executed directly against real code and passed. No dependency was installed and the fixture was not reprocessed during this rework because all tested paths stop at preflight.
+
+This does not expand the diagnostic into the Product-B recognition pipeline or claim resource/security feasibility. The independent review, installation incident, pinned-environment gap, missing authoritative fixture package, and provider/fallback proof remain fail-closed blockers.
