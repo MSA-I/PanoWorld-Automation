@@ -1,7 +1,7 @@
 # HANDOFF — PLAN-002RF WP0 to independent review / Moshe gate
 
 - Producer task: `t_d025498b`
-- Status: STOP / independent review BLOCKED / Moshe decision required
+- Status: STOP / decisions 1A-2A-3B applied / bounded WP0-FX1 evidence package in progress
 - Approved packet SHA-256: `95c4cfd8711d4c2335d9905285b977118ba89cff440aa90c1a9cb5aab74422f7`
 - Branch: `panoworld-dev/t_d025498b-wp0-activate-approved-plan-002rf-decisio`
 
@@ -46,14 +46,10 @@ Any closure review must bind findings to the corrected exact checkpoint and insp
 
 Return severity-tagged, file/line/evidence-backed findings and verdict. Do not edit. Cross-provider requirement is met only if runtime metadata confirms OpenAI `gpt-5.6-sol` (or the explicitly authorized exact OpenAI model) with no silent substitution.
 
-## Moshe decision required after review
+## Moshe decisions applied (2026-08-13)
 
-Choose explicitly; no automatic WP1:
+- `1A`: authorized separately tracked `WP0-FX1` (`t_c6b406c5`) to create a Local-only, rights-cleared fixture package with frozen independent truth and two authoritative scale anchors.
+- `2A`: accepted the documented `uv run` rollback as incident closure; pinned-environment/full-suite evidence remains pending.
+- `3B`: accepted the existing `gpt-5.6-sol` / provider alias `headroom` review as the cross-provider exception.
 
-- authorize a new bounded WP0 fixture package with independent truth and two authoritative scale anchors;
-- select Product A-only;
-- narrow Product B support while retaining all gates;
-- stop/reject Product B;
-- separately accept or reject the local installation-boundary incident and remediation.
-
-No option may introduce manual product correction or weaken acceptance/security gates.
+The consumer must wait for the `WP0-FX1` exact checkpoint, evidence index and independent read-only review, then reconcile its results without inferring Product-B feasibility. No option introduces manual correction or weakens gates. WP1 remains blocked for separate explicit Moshe approval.

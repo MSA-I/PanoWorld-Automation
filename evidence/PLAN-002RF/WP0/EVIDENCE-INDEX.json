@@ -3,19 +3,19 @@
   "decision": "STOP",
   "files": [
     {
-      "bytes": 5360,
+      "bytes": 6620,
       "path": "docs/decisions/ADR-0006-plan002rf-automatic-routes-and-wp0-feasibility.md",
-      "sha256": "ea381bf5dfaf890e14e5ef346fefe1ea0e7da7206886c6d119630789d2219e03"
+      "sha256": "fb90a149c5ece0a050839ec2c632c865c00afc5572f4f4abe30b99c161ab66aa"
     },
     {
-      "bytes": 4482,
+      "bytes": 4795,
       "path": "docs/handoffs/HANDOFF-PLAN-002RF-WP0-to-review.md",
-      "sha256": "9a5eb99eee2d4ae3dfc3805a312c234103dbe593d3b5aa87a38e423fbc71e1ce"
+      "sha256": "42748ecb8c87ba896b433cd112b1d3f7cae36cc602392d84a0b1275bd79af751"
     },
     {
-      "bytes": 7466,
+      "bytes": 8427,
       "path": "evidence/PLAN-002RF/WP0/RUN-REPORT.md",
-      "sha256": "dfd899ca29ced2a0da15914f58ba8e3189eed6221978a35917f7a13c90191683"
+      "sha256": "a8bb56c2de5249f0c4be9b9d7cde8d9acdba8065f943ff69ce23b7bd171637e1"
     },
     {
       "bytes": 2,
@@ -23,9 +23,9 @@
       "sha256": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2"
     },
     {
-      "bytes": 1723,
+      "bytes": 1780,
       "path": "evidence/PLAN-002RF/WP0/cpu-feasibility-result.json",
-      "sha256": "3a5d37ce31b15e71ec48ac7bf9d5b6bd5421d48022de6d21e03a7fc230cad8af"
+      "sha256": "75907d5c2094f5e897d82dfa4061d8d7d14de96c6758c070d2aabfbcb0405d53"
     },
     {
       "bytes": 0,
@@ -33,9 +33,9 @@
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "bytes": 1723,
+      "bytes": 1780,
       "path": "evidence/PLAN-002RF/WP0/cpu-feasibility-stdout.log",
-      "sha256": "3a5d37ce31b15e71ec48ac7bf9d5b6bd5421d48022de6d21e03a7fc230cad8af"
+      "sha256": "75907d5c2094f5e897d82dfa4061d8d7d14de96c6758c070d2aabfbcb0405d53"
     },
     {
       "bytes": 2295,
@@ -53,9 +53,9 @@
       "sha256": "9f50ed9238dfb4e80cdbe61734c8cca8706c0264ee8e3b6b1c7340f4a0f78d25"
     },
     {
-      "bytes": 5266,
+      "bytes": 5827,
       "path": "evidence/PLAN-002RF/WP0/numbered-decisions-u1-u15.md",
-      "sha256": "92532022f6dfd5791a77d27d51d632fe2d857603b7ee8022da57c7902d87f24a"
+      "sha256": "785aa7e72926262b4caf858229eea9828f828da284b9ac0313ab90a38c3f9c5f"
     },
     {
       "bytes": 48189,
@@ -63,14 +63,14 @@
       "sha256": "125f6e2b6f2440a9a8097cdf111bf42703dc39e9e576a8f910f72c3fa6b9342f"
     },
     {
-      "bytes": 4666,
+      "bytes": 4695,
       "path": "evidence/PLAN-002RF/WP0/opus-spatial-design-memo.md",
-      "sha256": "96d6d73b6f9ba5c1f0f218d74d6a8b6d1ed41843ef06b8972b33246d068cad51"
+      "sha256": "96a71152e5e42dcc3932529a5934945759360359a81de742937b7d30b719213a"
     },
     {
-      "bytes": 669,
+      "bytes": 694,
       "path": "evidence/PLAN-002RF/WP0/opus-spatial-design-metadata.json",
-      "sha256": "060bf2d3262f9e6903ebd00150e84a1d7511f444d72ebce91ab7077d027e5d8e"
+      "sha256": "b539ac49878429dc45623433b99706da2faf8a8488241f4e1eb611a5929e40b7"
     },
     {
       "bytes": 2745,

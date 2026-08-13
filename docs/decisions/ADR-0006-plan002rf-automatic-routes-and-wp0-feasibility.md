@@ -1,6 +1,6 @@
 # ADR-0006 — PLAN-002RF WP0 automatic CAD/raster direction and fail-closed feasibility result
 
-- Status: PROPOSED — WP0 evidence complete enough for a stop decision; independent review and Moshe continuation decision required
+- Status: PROPOSED — STOP preserved; Moshe authorized bounded WP0 fixture evidence only (1A/2A/3B), not WP1 or route activation
 - Date: 2026-08-12
 - Controlling approval packet: `D:/משה פרוייקטים/פיתוח אתרים/PanoWorld-Automation/.hermes/plans/2026-08-11_220700-plan-002rf-final-remediation-approval-packet.md`
 - Approved packet SHA-256: `95c4cfd8711d4c2335d9905285b977118ba89cff440aa90c1a9cb5aab74422f7`
@@ -24,6 +24,14 @@ ADR-0004 remains authoritative for the implemented PLAN-002 baseline. This ADR p
 8. Migration, if later authorized, is additive/new-runs-only. Historical schemas, manifests, bytes, and PLAN-002 evidence remain immutable. Default route stays the current baseline.
 9. Any new error codes are append-only; no severity mutation. Exact schema/catalog/bundle/code shapes remain blocked pending contract design/review.
 10. Local-only boundaries remain: no upload/telemetry/network/model call by product execution, no GPU/H200/cloud/remote, no spend, no G7/G8, no PLAN-003.
+
+## Moshe decisions — 2026-08-13
+
+1. **1A — bounded fixture evidence authorized.** A separately tracked Local-only WP0 package (`t_c6b406c5`, `WP0-FX1`) may create a rights-cleared clean-raster fixture with frozen independent geometry truth and two authoritative scale anchors. This is evidence production only: it does not authorize Product-B implementation, scoring by a nonexistent recognizer, route activation, or WP1.
+2. **2A — installation incident disposition.** Moshe accepts the documented deletion/lock-preservation rollback as closure of the unauthorized `uv run` incident. Pinned-environment replay and the full suite remain pending and may not be inferred from that acceptance.
+3. **3B — reviewer identity exception.** Moshe explicitly accepts the existing `gpt-5.6-sol`, provider-alias `headroom` review as the cross-provider exception despite unavailable first-party/fallback proof. Its BLOCKED findings remain substantive; the exception changes provenance acceptance, not the technical verdict.
+
+These decisions close the prior human-choice gate only. ADR-0006 remains Proposed and the conjunctive result remains STOP until the bounded package and its independent review are consumed. WP1 remains separately blocked for explicit approval.
 
 ## Relationship to ADR-0004
 
