@@ -1,0 +1,14 @@
+{
+  "evidence_source": "Moshe-authorized fresh authoritative OmniRoute probe recorded on Kanban t_c6b406c5",
+  "recorded_at": "2026-08-13",
+  "requested_route": "auto/best-coding",
+  "actual_provider": "cx",
+  "actual_model": "gpt-5.6-sol",
+  "route_strategy": "auto",
+  "route_provider": "cx",
+  "session": "901958b590ba0120",
+  "cache": "MISS",
+  "exact_response_verified": true,
+  "purpose": "Resolve the prior reviewer-runtime identity gap for the approved OmniRoute fallback",
+  "scope_limit": "This identity record resolves routing provenance only; it does not itself approve the reworked checkpoint."
+}

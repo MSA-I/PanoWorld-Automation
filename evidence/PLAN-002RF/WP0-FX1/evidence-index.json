@@ -1,0 +1,116 @@
+{
+  "document": "WP0-FX1 evidence index",
+  "index_version": "1.2.0",
+  "generated_against_commit": "702ae24e461e2fb149ee8e27d2a5b4cd7b2d34ea",
+  "controlling_packet_sha256": "95c4cfd8711d4c2335d9905285b977118ba89cff440aa90c1a9cb5aab74422f7",
+  "entries": [
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/HANDOFF-WP0-FX1-to-t_d025498b.md",
+      "git_blob": "90671d3f27db97458edf2f74ac3500462f5047ad",
+      "sha256": "sha256:ed8a7da6bee0fe0628ed1fb02d7a92690558604f78b20b51d3d4498b94c5be12",
+      "bytes": 2362
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/RUN-REPORT-WP0-FX1.md",
+      "git_blob": "3db02d97aa954a26fab5cc263847c8aae45cd474",
+      "sha256": "sha256:f312a75eeda7c032987b3368c048f948f7de0afeca38a3b42fec4eb6b0374544",
+      "bytes": 3606
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/environment-dependencies.md",
+      "git_blob": "3645189f54584848955827aff60608879f162672",
+      "sha256": "sha256:7b438c9f3537b70fbaa942283de79dd09dec1091710fae480b52f928c6cec857",
+      "bytes": 833
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/fixture/fx1-manifest.json",
+      "git_blob": "40d0a5c7e815c04d3981b58cbb4efe31041b82aa",
+      "sha256": "sha256:5083d0887db1008416f7816b6c38e40c50ec0d8d86560d51eb09b45e86517dae",
+      "bytes": 852
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/fixture/fx1-rights-provenance.json",
+      "git_blob": "82c50824def1d9f4b06673371096ed3da3e934a4",
+      "sha256": "sha256:3dca6f55730d90cc42d92fbf0aa2fe5d9fb3b42f1f1a5ad454fe23ea86408c3c",
+      "bytes": 275
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/fixture/fx1-scale-anchors.json",
+      "git_blob": "b4554e5ec4564b251f12408c6e829f793cc84f80",
+      "sha256": "sha256:51ee3f0503dcb274657cd32e17bcd5f78695518ea06e924445b49e3cc877ca04",
+      "bytes": 1644
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/fixture/fx1-source-geometry.json",
+      "git_blob": "271089836e2367df7523a7db0ccc1702e67367e6",
+      "sha256": "sha256:1766e65d8fef0dc70c91ccccf3644359193d1a2efe428bb3b9fc67d75e881c22",
+      "bytes": 6239
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/fixture/fx1-truth.json",
+      "git_blob": "ba969d7759458b962cb8bca63f5202942e150232",
+      "sha256": "sha256:f4f9c1de5d781c85c66179c00d0c6178a800d4a2c918dd5e09c4e30a5f3dcb9a",
+      "bytes": 8843
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/fixture/fx1.png",
+      "git_blob": "ea6b010a717bbf567f6f91897f6bb14c1b98a4d1",
+      "sha256": "sha256:672203f739aa348a2d0d6eda57d01d279a5ac87b6a63a0a8ed9cf25dd64c6352",
+      "bytes": 15194
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/opus-runtime-metadata.json",
+      "git_blob": "147d686312a7387b0897f1e741985f5ae4c3304d",
+      "sha256": "sha256:86f8e85cde997fb209484ba504cde028ac5ad6e955020cb78b978ee37fc3383f",
+      "bytes": 554
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/opus-spatial-design.md",
+      "git_blob": "2887ec5bfa6478377a1d65d44f9c403c0bcf8cbe",
+      "sha256": "sha256:5fe988f63161530ec9b3e0dd56753bd6a777d129842f45ff2c55cfef44e00302",
+      "bytes": 47912
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/reviews/independent-omniroute-review-60c5978.md",
+      "git_blob": "0fb2f5a10042d1975271596fc0fd6b01c2f2202c",
+      "sha256": "sha256:7b25816f92687275d11560b855dcbe1ccaedea0dabf799583056065e67f535e7",
+      "bytes": 1915
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/reviews/independent-omniroute-rework-review-e2fbd32.md",
+      "git_blob": "3b6eaba2dd7d6defd2386ef9276224b0f0df0383",
+      "sha256": "sha256:4a5a23210dd490a4f47d127e35bd488643a2fe453d522b8a1707dd0b3f959c38",
+      "bytes": 4366
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/reviews/omniroute-authoritative-identity.json",
+      "git_blob": "63d0701f96296c4c29bed86eee229ba7af22d46e",
+      "sha256": "sha256:b6c25e3c6b36e85e5452eee993449f24709beecd57a112975a3f079bcd2be399",
+      "bytes": 610
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/role-independence-ledger.md",
+      "git_blob": "f8795c652c80300dd443b5fab3d09d2546c6fb22",
+      "sha256": "sha256:bbbf47bf606a24b5488a26d44fe25f023c3e8e6f8bd6e95391de8f4657f7e17c",
+      "bytes": 1401
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/test-results/full-suite.log",
+      "git_blob": "5dc7286020cbe3d321f21ba655a9295e68d5bdc5",
+      "sha256": "sha256:2cee895d8e8e1d9ee2b88607480bcc34439d548c0ebb5f62cae2f98f713092db",
+      "bytes": 1149
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/test-results/replay-verify.log",
+      "git_blob": "fbf7c6fed31828953e49f68019faca79785c7a66",
+      "sha256": "sha256:a7da3b8b6208dc54b405e3f6c514a6dd31dcc27c2634d3ae8fd067fa137bc3ee",
+      "bytes": 63
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0-FX1/test-results/targeted.log",
+      "git_blob": "6c3074af9849c7940e290802495d9c492e838805",
+      "sha256": "sha256:83a1593c5b5783693fe3006d1f6597bcb4f3a5968f23b59481ee09a0477f910a",
+      "bytes": 80
+    }
+  ]
+}

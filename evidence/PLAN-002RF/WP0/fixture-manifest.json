@@ -1,0 +1,14 @@
+{
+  "rights": {
+    "status": "approved",
+    "license": "public-domain",
+    "source_sha256": "917a5753feceb65f8401381894bfb0809bd43194879002d2aa2acb74ee80df08"
+  },
+  "truth": {
+    "independent": false,
+    "path": null,
+    "note": "Prior annotation was hand-authored/measured by the project orchestrator and is not independent accuracy truth."
+  },
+  "scale_anchors": [],
+  "fixture_class": "public rights-cleared clean raster with text, furniture, diagonal bay, stairs, door/window motifs, and no authoritative dimensions"
+}

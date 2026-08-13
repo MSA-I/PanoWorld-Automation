@@ -1,0 +1,110 @@
+{
+  "document": "PLAN-002RF WP0 closure evidence index",
+  "index_version": "3.0.0",
+  "generated_against_commit": "5ac1331f5a386f07b80ddbf0a2b6c5baadb097f8",
+  "controlling_packet_sha256": "95c4cfd8711d4c2335d9905285b977118ba89cff440aa90c1a9cb5aab74422f7",
+  "entries": [
+    {
+      "path": "evidence/PLAN-002RF/WP0/CLOSURE-REPORT.md",
+      "git_blob": "e1e2a21056a4cc53bb66688562dfea576f1f76cf",
+      "sha256": "sha256:f50d0234db45d1e6be81b1cc178cbf454da0034c53e1211f6fbb9edbe27c544a",
+      "bytes": 3890
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0/RUN-REPORT.md",
+      "git_blob": "96b0f324a8e9498b91a7cccc0f3caceab558300b",
+      "sha256": "sha256:a8bb56c2de5249f0c4be9b9d7cde8d9acdba8065f943ff69ce23b7bd171637e1",
+      "bytes": 8427
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0/cpu-feasibility-exit-code.txt",
+      "git_blob": "00750edc07d6415dcc07ae0351e9397b0222b7ba",
+      "sha256": "sha256:1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2",
+      "bytes": 2
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0/cpu-feasibility-result.json",
+      "git_blob": "37b9c74fc819a73f558c65cd29b9c57f5e840bc7",
+      "sha256": "sha256:3a5d37ce31b15e71ec48ac7bf9d5b6bd5421d48022de6d21e03a7fc230cad8af",
+      "bytes": 1723
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0/cpu-feasibility-stderr.log",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0/cpu-feasibility-stdout.log",
+      "git_blob": "37b9c74fc819a73f558c65cd29b9c57f5e840bc7",
+      "sha256": "sha256:3a5d37ce31b15e71ec48ac7bf9d5b6bd5421d48022de6d21e03a7fc230cad8af",
+      "bytes": 1723
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0/dependency-license-inventory.md",
+      "git_blob": "943b8d086038328aee46cb99738a54afb8572f1f",
+      "sha256": "sha256:5ca9eea4526c1e5a531c09c213919aaf8d2cf8583e70f5b65044c7f9137c6e5a",
+      "bytes": 2295
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0/fixture-manifest.json",
+      "git_blob": "304ea9aeb45826fe7f87af6ecdda4b0b1e7ede9b",
+      "sha256": "sha256:d7be9e9dcf0d993368df12583ac19a63ff599bad49df54d578ba00bcc6ccd09a",
+      "bytes": 531
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0/independent-openai-review-20260813.md",
+      "git_blob": "c5cceb412bbf175d2cd5327a1c7991349107e6d7",
+      "sha256": "sha256:9f50ed9238dfb4e80cdbe61734c8cca8706c0264ee8e3b6b1c7340f4a0f78d25",
+      "bytes": 14026
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0/numbered-decisions-u1-u15.md",
+      "git_blob": "fa3eac115dffa152b0468072d8d6655504f855de",
+      "sha256": "sha256:9788c30d6e6758f3478a875fc609126cc72c0e3fca8b62f18d650b609156a963",
+      "bytes": 5564
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0/opus-spatial-design-full.md",
+      "git_blob": "e5fe847d128e3cd5559d910da11809f39401802c",
+      "sha256": "sha256:125f6e2b6f2440a9a8097cdf111bf42703dc39e9e576a8f910f72c3fa6b9342f",
+      "bytes": 48189
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0/opus-spatial-design-memo.md",
+      "git_blob": "0515553f9f9e07dca9db4551d39d0c8d3794ed4b",
+      "sha256": "sha256:96d6d73b6f9ba5c1f0f218d74d6a8b6d1ed41843ef06b8972b33246d068cad51",
+      "bytes": 4666
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0/opus-spatial-design-metadata.json",
+      "git_blob": "d3ae65351d25d8bd158dbf8fc8e406f537119571",
+      "sha256": "sha256:060bf2d3262f9e6903ebd00150e84a1d7511f444d72ebce91ab7077d027e5d8e",
+      "bytes": 669
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0/opus-spatial-design-prompt.md",
+      "git_blob": "9f839f9bbc80195065970c18d2228166ea2059e0",
+      "sha256": "sha256:ad443622de3ae08550eb8c8f6fe67faa3822c738a3608963fe5c6421bf005eaf",
+      "bytes": 2745
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0/opus-spatial-design-raw.json",
+      "git_blob": "517e0e3817b0be9e242c9295d3f08bb6e061678f",
+      "sha256": "sha256:aa51b1375d92b601d0482d505b35c95415b17ad5ce3f382316fe9a11714e934f",
+      "bytes": 6078
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0/opus-spatial-design-stderr.log",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0/independent-closure-rereview-e26591d.md",
+      "git_blob": "2e9535ba131d71d8ad8986555d50ebf02b74d611",
+      "sha256": "sha256:e4a19dde5313f392759891526775c3d7da3d7e62eac1230c276f532db0c23895",
+      "bytes": 2255
+    }
+  ]
+}

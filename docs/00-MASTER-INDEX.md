@@ -1,7 +1,7 @@
 # PanoWorld Automation — Master Index
 
 ## סטטוס
-`DEEPSEEK_BLUEPRINT_READY_NOT_ACTIVE` — היסטוריית PLAN-000..002 נשמרת ב־PROGRESS. ב־2026-08-13 נשמר snapshot מלא של גרסת Omni ונוצרה מדיניות DeepSeek V4 Pro חדשה ל־WP0–WP6. התכנון **אינו פעיל** ודורש preflight ואישור הפעלה חדשים.
+`WP0_INTEGRATED_PENDING_MAIN_AUDIT_WP1_SUPERVISION_HOLD` — מדיניות DeepSeek/OpenRouter הופעלה לאחר probes חיים ואישור משה. WP0 מוזג מקומית ל־`main` ב־`STOP / NOT_EVALUABLE` לאחר review חוזר `APPROVE`; WP1 נשאר חסום בשער `t_4f9188e9`. אין push, route activation, H200/GPU/cloud/remote, G7/G8 או PLAN-003.
 
 מבנה בפועל: ‏`schemas/` ‏(envelope+13), ‏`contracts/` ‏(state machine, error codes, עקרונות אבטחה), ‏`src/pwa/` ‏(validator), ‏`tools/`, ‏`tests/` ‏(כולל golden fixture ‏8.3MB), ‏`docs/decisions/` ‏(ADR-0001..0003), ‏`docs/handoffs/`, ‏`evidence/PLAN-000/`.
 
@@ -106,4 +106,4 @@
 
 ## הפעולה הבאה המומלצת
 
-לבצע review אנושי של מסמכים 06 ו־08–10. רק לאחר הגדרת DeepSeek מחוץ לריפו, אישור עלות/פרטיות, probes חיים והוראת activation חדשה ניתן ליישב את הכרטיסים ולהתחיל מה־WP הראשון שאינו `VERIFIED`.
+להשלים audit read-only של `main` הממוזג. גם לאחר סגירת WP0, ‏WP1 נשאר חסום עד שחרור ידני של שער ההשגחה `t_4f9188e9`; verdict של reviewer או merge לבדם אינם מקדמים אותו. route activation נשאר חסום עד החלטת משה נפרדת ב־WP6.

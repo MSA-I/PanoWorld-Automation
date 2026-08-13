@@ -1,11 +1,17 @@
 # PROGRESS — PanoWorld Automation
 
-## DEEPSEEK-AUTOMATION-BLUEPRINT — READY FOR REVIEW, NOT ACTIVE — 2026-08-13
+## WP0 — INTEGRATED TO MAIN; WP1 ON SUPERVISION HOLD — 2026-08-13
+
+- WP0-FX1 נסגר ב־`6c8c378`: fixture סינתטי וזכויות־נקי, truth עצמאי, שלושה scale anchors, replay ‏5/5, ‏7 targeted ו־376 full-suite tests; review עצמאי החזיר APPROVE ללא findings.
+- WP0 נסגר טכנית ב־`STOP / NOT_EVALUABLE`; review חוזר של `e26591d` החזיר **APPROVE**, ודוחו נשמר ב־`evidence/PLAN-002RF/WP0/independent-closure-rereview-e26591d.md`.
+- שרשרת WP0 עד `ee8dd1d` מוזגה מקומית ל־`main` באישור משה. אין push או route activation. ‏WP1 נשאר חסום עד שחרור ידני של שער `t_4f9188e9` ולא מתקדם מכוח review או merge בלבד.
+
+## DEEPSEEK-AUTOMATION — ACTIVE UNDER SUPERVISION — 2026-08-13
 
 - נקראו כל 27 מסמכי Markdown שהיו תחת `docs` לפני העדכון; עותק byte-identical נשמר תחת [`originals-pre-automation-20260813/`](originals-pre-automation-20260813/).
 - גרסת Omni בת 28 מסמכים נשמרה תחת [`omni-automation-20260813/`](omni-automation-20260813/) וזהות hashes אומתה בעת ההעתקה. נכתבו מסמכי DeepSeek חדשים: [08](08-מדיניות-ניהול-מודלים-וסוכנים-deepseek-first.md), [09](09-מדיניות-האוטומציה-DeepSeek-WP0-WP6.md) ו־[10](10-תוכנית-האוטומציה-DeepSeek-WP0-WP6.md), ומסמכי הממשל הפעילים עודכנו.
 - WP0–WP6 הם remediation מקומי; WP6 decision-only. ‏H200/GPU/cloud/remote ו־G7/G8 מחוץ לתחום. PLAN-003 הוא Geometry מקומי אפשרי אך אינו נכלל ב־packet הזה ודורש אישור נפרד.
-- מדיניות DeepSeek **לא הופעלה**. הפעולה הבאה היא review אנושי, הגדרת API מחוץ לריפו, אישור עלות/פרטיות ו־probes חיים; activation דורש הוראה מפורשת חדשה של משה ואינו יורש את אישור Omni ההיסטורי.
+- מדיניות DeepSeek הופעלה לאחר הגדרת credential מחוץ לריפו, אישור פרטיות ו־probes חיים של chat ו־tool calling. ההפעלה אינה משחררת שערי supervision, rights, tests, evidence, scope או route activation.
 
 ## PLAN-002 — כל תנאי השערים סגורים — ממתין לשער הוויזואלי של משה — 2026-08-11
 
