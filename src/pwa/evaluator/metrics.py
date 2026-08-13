@@ -150,12 +150,14 @@ def rule_of_three(successes: int, trials: int, confidence: float = 0.95) -> tupl
 def support_taxon_supported(record: dict[str, Any]) -> bool:
     """Predeclared supported-taxon classifier (the style guide in code form).
 
-    Supported motifs: segment walls, circular-arc walls with a stated sagitta
-    bound, and door/window/passage openings of bounded span. Everything else is
-    unsupported and routes to the refusal path.
+    Supported motifs: segment walls (including the diagonal_3_4_5 orientation
+    variant), circular-arc walls with a stated sagitta bound, and
+    door/window/passage openings of bounded span. Everything else is
+    unsupported and routes to the refusal path. The kind vocabulary here is the
+    frozen contract; it must match wp1-support-taxonomy.json exactly.
     """
     kind = record.get("kind")
-    if kind == "segment":
+    if kind in {"segment", "diagonal_3_4_5"}:
         return True
     if kind == "circular_arc":
         tess = record.get("tessellation_rule") or {}

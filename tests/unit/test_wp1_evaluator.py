@@ -118,6 +118,7 @@ def test_rule_of_three_rejects_invalid_inputs():
 
 def test_support_taxon_classifier():
     assert M.support_taxon_supported({"kind": "segment", "a_mm": [0, 0], "b_mm": [1, 1]}) is True
+    assert M.support_taxon_supported({"kind": "diagonal_3_4_5", "a_mm": [0, 0], "b_mm": [1, 1]}) is True
     assert M.support_taxon_supported({"kind": "circular_arc", "tessellation_rule": {"max_sagitta_px": 0.5}}) is True
     assert M.support_taxon_supported({"kind": "circular_arc", "tessellation_rule": {"max_sagitta_px": 0.6}}) is False
     assert M.support_taxon_supported({"kind": "door"}) is True

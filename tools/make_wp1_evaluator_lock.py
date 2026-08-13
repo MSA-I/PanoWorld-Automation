@@ -87,15 +87,16 @@ def _evaluator_spec() -> dict[str, Any]:
 def _support_taxonomy() -> dict[str, Any]:
     return {
         "document": "wp1-support-taxonomy-style-guide",
-        "version": "1.0.0",
+        "version": "1.0.1",
+        "note": "kind names aligned with support_taxon_supported classifier; diagonal_3_4_5 is an orientation of segment walls, not a separate kind",
         "supported_motifs": [
-            {"taxon": "wall_segment", "rule": "straight wall as a segment, any orientation"},
-            {"taxon": "wall_circular_arc", "rule": "circular-arc wall with max_sagitta_px <= 0.5"},
-            {"taxon": "opening_door", "rule": "door opening, span <= 1500 mm"},
-            {"taxon": "opening_window", "rule": "window opening, span <= 1500 mm"},
-            {"taxon": "opening_passage", "rule": "passage opening, span <= 3000 mm (frozen upper bound)"},
-            {"taxon": "diagonal_3_4_5", "rule": "diagonal wall on the 3-4-5 lattice only"},
+            {"taxon": "segment", "rule": "straight wall as a segment, any orientation including diagonal_3_4_5 lattice"},
+            {"taxon": "circular_arc", "rule": "circular-arc wall with max_sagitta_px <= 0.5"},
+            {"taxon": "door", "rule": "door opening, span <= 1500 mm"},
+            {"taxon": "window", "rule": "window opening, span <= 1500 mm"},
+            {"taxon": "passage", "rule": "passage opening, span <= 3000 mm (frozen upper bound)"},
         ],
+        "orientation_note": "diagonal_3_4_5 is a supported orientation of the segment kind, not a separate taxon",
         "out_of_scope": [
             "double_line_hatched_walls",
             "text_annotations",
