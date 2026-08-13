@@ -18,6 +18,11 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 SCHEMAS_DIR = REPO_ROOT / "schemas"
 _SEMVER_RE = re.compile(r"-(\d+)\.(\d+)\.(\d+)\.schema\.json$")
 
+# Single source of truth for the contracts bundle version (ADR-0002). Bumped to
+# 1.3.0 by PLAN-002RF WP2 for the additive cad_exact/raster_auto contract round;
+# historical finalized manifests keep their recorded (older) bundle version.
+CONTRACTS_BUNDLE_VERSION = "1.3.0"
+
 
 def compute_content_hash(doc: dict) -> str:
     """Normative content_hash (schemas/README.md): sha256 over the canonical
@@ -132,3 +137,56 @@ def validate_artifact(
         raise ValueError("Artifact document has no string schema_version field")
     validator = validator_for(schema_id, schema_version, catalog)
     return sorted(validator.iter_errors(doc), key=lambda e: e.json_path)
+
+
+def contract_rejection_reason(
+    doc: dict,
+    consumer_schema_version: str | None,
+    catalog: dict[tuple[str, str], dict] | None = None,
+) -> dict | None:
+    """Predict and explain an old consumer's rejection of a document.
+
+    Additive/new-runs-only contracts mean a NEWER document (or a newer field) is
+    predictably rejected by an OLDER consumer whose schema pins
+    ``additionalProperties:false``. This helper is purely diagnostic: it returns a
+    machine-readable reason (code + detail), or ``None`` when the consumer's schema
+    version can represent the document. It never mutates ``doc``.
+
+    Returns ``{"code": "SCHEMA_VERSION_UNSUPPORTED_BY_CONSUMER", "detail": ...}``.
+    """
+    catalog = catalog or load_schema_catalog()
+    schema_id = doc.get("schema_id")
+    schema_version = doc.get("schema_version")
+    if not isinstance(schema_id, str) or not isinstance(schema_version, str):
+        return None
+    consumer_key = (schema_id, consumer_schema_version) if consumer_schema_version else None
+    if consumer_key is None or consumer_key not in catalog:
+        # The consumer cannot even load its declared version for this schema id.
+        return {
+            "code": "SCHEMA_VERSION_UNSUPPORTED_BY_CONSUMER",
+            "detail": (
+                f"consumer has no schema for ({schema_id!r}, {consumer_schema_version!r}); "
+                f"document declares {schema_version!r}"
+            ),
+        }
+    if _semver_tuple(schema_version) > _semver_tuple(consumer_schema_version):
+        return {
+            "code": "SCHEMA_VERSION_UNSUPPORTED_BY_CONSUMER",
+            "detail": (
+                f"document schema {schema_version!r} is newer than consumer schema "
+                f"{consumer_schema_version!r}"
+            ),
+        }
+    # Same-or-older version: the consumer's schema can validate the document as-is.
+    # (Any additional-property rejection is then the jsonschema layer's job, and
+    # ``validate_artifact`` reports those precisely.)
+    consumer_errors = validate_artifact(doc, catalog) if doc.get("schema_version") == consumer_schema_version else []
+    if consumer_errors:
+        return {
+            "code": "SCHEMA_VERSION_UNSUPPORTED_BY_CONSUMER",
+            "detail": (
+                f"document is not valid under consumer schema {consumer_schema_version!r}: "
+                f"{consumer_errors[0].message} at {consumer_errors[0].json_path}"
+            ),
+        }
+    return None

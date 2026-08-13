@@ -20,7 +20,9 @@ ARTIFACT_IDS = sorted(EXAMPLES)
 def test_all_artifact_schemas_present():
     schemas = load_all_schemas()
     assert sorted(set(schemas) - {"envelope"}) == ARTIFACT_IDS
-    assert len(ARTIFACT_IDS) == 14
+    # 15 schema ids with the WP2 additive floorplan_review; floorplan_parse and
+    # project_manifest carry multiple versions but one schema id each.
+    assert len(ARTIFACT_IDS) == 15
 
 
 def test_every_schema_file_is_valid_draft_2020_12():

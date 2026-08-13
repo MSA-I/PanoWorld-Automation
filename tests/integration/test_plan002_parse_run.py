@@ -157,7 +157,7 @@ def test_parse_run_finalizes_complete_derived_run(tmp_path):
     assert validate_artifact(floorplan_parse) == []
     assert validate_artifact(assumptions) == []
     assert manifest["schema_version"] == "1.1.0"
-    assert manifest["payload"]["contracts_bundle_version"] == "1.2.0"
+    assert manifest["payload"]["contracts_bundle_version"] == "1.3.0"
     assert (result.final_run / "project" / "source-manifest.json").read_bytes() == source_manifest_bytes
     assert (source_run / "project" / "project_manifest.json").read_bytes() == source_manifest_bytes
     assert floorplan_parse["schema_version"] == "1.1.0"

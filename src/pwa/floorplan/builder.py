@@ -14,7 +14,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from pwa.contracts import compute_content_hash, validate_artifact
+from pwa.contracts import CONTRACTS_BUNDLE_VERSION, compute_content_hash, validate_artifact
 from pwa.files import sha256_file, write_json_exclusive
 from pwa.floorplan.annotation_source import AnnotationSource
 from pwa.floorplan.config import (
@@ -211,7 +211,7 @@ def _failed_scale_artifacts(
     derived_manifest = _artifact(
         "project_manifest",
         "1.1.0",
-        {**source_manifest["payload"], "contracts_bundle_version": "1.2.0"},
+        {**source_manifest["payload"], "contracts_bundle_version": CONTRACTS_BUNDLE_VERSION},
         project_id=source_manifest["project_id"],
         run_id=parse_run_id,
         status="complete",
@@ -912,7 +912,7 @@ def parse_run(
             "1.1.0",
             {
                 **source_manifest["payload"],
-                "contracts_bundle_version": "1.2.0",
+                "contracts_bundle_version": CONTRACTS_BUNDLE_VERSION,
             },
             project_id=source_manifest["project_id"],
             run_id=parse_run_id,

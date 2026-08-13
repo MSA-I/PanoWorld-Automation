@@ -526,5 +526,49 @@
       "status": "created",
       "terminate_verified": false
     }
+  },
+  "floorplan_review": {
+    "valid": {
+      "reviewed_artifact": {
+        "artifact_id": "fp-001",
+        "schema_id": "floorplan_parse",
+        "schema_version": "1.2.0",
+        "content_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "verdict": "APPROVE",
+      "findings": [],
+      "reviewer": {
+        "agent": "independent-reviewer",
+        "provider": "omniroute",
+        "model": "auto/best-reasoning",
+        "effort": "HIGH",
+        "cross_provider": true
+      },
+      "lineage": {
+        "parent_review_id": null,
+        "current_head": true
+      }
+    },
+    "invalid": {
+      "reviewed_artifact": {
+        "artifact_id": "fp-001",
+        "schema_id": "floorplan_parse",
+        "schema_version": "1.2.0",
+        "content_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "verdict": "MAYBE",
+      "findings": [],
+      "reviewer": {
+        "agent": "independent-reviewer",
+        "provider": "omniroute",
+        "model": "auto/best-reasoning",
+        "effort": "HIGH",
+        "cross_provider": true
+      },
+      "lineage": {
+        "parent_review_id": null,
+        "current_head": true
+      }
+    }
   }
 }

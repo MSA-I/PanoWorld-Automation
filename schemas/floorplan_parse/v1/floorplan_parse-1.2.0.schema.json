@@ -1,0 +1,265 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.2.0.schema.json",
+  "title": "floorplan_parse",
+  "$comment": "Additive 1.2.0 (PLAN-002RF WP2). Introduces source_class (cad_exact/raster_auto/annotation/dxf), native arc/bulge wall geometry, sourced thickness, centreline room area, and the passage opening type. Every addition is optional so 1.0.0/1.1.0 documents remain valid; 1.0.0/1.1.0 schemas are byte-identical.",
+  "$defs": {
+    "point2": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "source_class": {
+      "enum": ["cad_exact", "raster_auto", "annotation", "dxf"]
+    },
+    "overlay": {
+      "type": "object",
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": {
+          "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.2.0.schema.json#/$defs/sha256"
+        }
+      },
+      "additionalProperties": false
+    },
+    "normalization": {
+      "type": "object",
+      "required": [
+        "quantum_m",
+        "source_units",
+        "source_unit_scale_m",
+        "translation_m",
+        "y_axis",
+        "source_height_px",
+        "scale_m_per_px"
+      ],
+      "properties": {
+        "quantum_m": { "type": "number", "exclusiveMinimum": 0 },
+        "source_units": { "type": "string", "minLength": 1 },
+        "source_unit_scale_m": { "type": "number", "exclusiveMinimum": 0 },
+        "translation_m": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "y_axis": { "enum": ["up", "flipped_from_raster"] },
+        "source_height_px": { "type": ["integer", "null"], "minimum": 1 },
+        "scale_m_per_px": { "type": ["number", "null"], "exclusiveMinimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "arc": {
+      "type": "object",
+      "required": ["center", "radius_m", "start_deg", "end_deg", "sweep", "bulge"],
+      "properties": {
+        "center": {
+          "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.2.0.schema.json#/$defs/point2"
+        },
+        "radius_m": { "type": "number", "exclusiveMinimum": 0 },
+        "start_deg": { "type": "number" },
+        "end_deg": { "type": "number" },
+        "sweep": { "enum": ["ccw", "cw"] },
+        "bulge": { "type": "number" },
+        "max_sagitta_px": { "type": "number", "minimum": 0 },
+        "tessellation_rule": {
+          "type": "object",
+          "properties": {
+            "n_segments": { "type": "integer", "minimum": 2 },
+            "max_sagitta_px": { "type": "number", "minimum": 0 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "wall_provenance": {
+      "type": "object",
+      "required": ["source_kind", "source_ref", "source_start", "source_end"],
+      "properties": {
+        "source_kind": { "enum": ["dxf", "annotation", "cad_exact", "raster_auto"] },
+        "source_ref": { "type": "string", "minLength": 1 },
+        "source_start": {
+          "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.2.0.schema.json#/$defs/point2"
+        },
+        "source_end": {
+          "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.2.0.schema.json#/$defs/point2"
+        }
+      },
+      "additionalProperties": false
+    },
+    "room_provenance": {
+      "type": "object",
+      "required": ["source_kind", "source_ref", "source_polygon"],
+      "properties": {
+        "source_kind": { "enum": ["dxf", "annotation", "cad_exact", "raster_auto"] },
+        "source_ref": { "type": "string", "minLength": 1 },
+        "source_polygon": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.2.0.schema.json#/$defs/point2"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "opening_provenance": {
+      "type": "object",
+      "required": ["source_kind", "source_ref", "source_center"],
+      "properties": {
+        "source_kind": { "enum": ["dxf", "annotation", "cad_exact", "raster_auto"] },
+        "source_ref": { "type": "string", "minLength": 1 },
+        "source_center": {
+          "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.2.0.schema.json#/$defs/point2"
+        },
+        "source_span": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.2.0.schema.json#/$defs/point2"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "allOf": [
+    {
+      "$ref": "https://panoworld-automation.local/schemas/envelope/v1/envelope-1.0.0.schema.json"
+    },
+    {
+      "properties": {
+        "schema_id": { "const": "floorplan_parse" },
+        "schema_version": { "const": "1.2.0" },
+        "payload": {
+          "type": "object",
+          "required": ["units", "rooms", "walls", "openings"],
+          "properties": {
+            "units": { "const": "m" },
+            "source_class": {
+              "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.2.0.schema.json#/$defs/source_class"
+            },
+            "scale_m_per_px": { "type": ["number", "null"], "exclusiveMinimum": 0 },
+            "normalization": {
+              "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.2.0.schema.json#/$defs/normalization"
+            },
+            "overlay": {
+              "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.2.0.schema.json#/$defs/overlay"
+            },
+            "rooms": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "polygon", "confidence"],
+                "properties": {
+                  "id": { "type": "string", "minLength": 1 },
+                  "name": { "type": "string" },
+                  "polygon": {
+                    "type": "array",
+                    "minItems": 3,
+                    "items": {
+                      "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.2.0.schema.json#/$defs/point2"
+                    }
+                  },
+                  "area_m2": { "type": "number", "exclusiveMinimum": 0 },
+                  "confidence": {
+                    "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.2.0.schema.json#/$defs/confidence"
+                  },
+                  "provenance": {
+                    "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.2.0.schema.json#/$defs/room_provenance"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "walls": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "start", "end", "confidence"],
+                "properties": {
+                  "id": { "type": "string", "minLength": 1 },
+                  "start": {
+                    "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.2.0.schema.json#/$defs/point2"
+                  },
+                  "end": {
+                    "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.2.0.schema.json#/$defs/point2"
+                  },
+                  "kind": { "enum": ["segment", "circular_arc"] },
+                  "arc": {
+                    "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.2.0.schema.json#/$defs/arc"
+                  },
+                  "thickness_m": { "type": "number", "exclusiveMinimum": 0 },
+                  "confidence": {
+                    "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.2.0.schema.json#/$defs/confidence"
+                  },
+                  "provenance": {
+                    "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.2.0.schema.json#/$defs/wall_provenance"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "openings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "type", "wall_id", "center", "width_m", "confidence"],
+                "properties": {
+                  "id": { "type": "string", "minLength": 1 },
+                  "type": { "enum": ["door", "window", "passage"] },
+                  "wall_id": { "type": "string", "minLength": 1 },
+                  "center": {
+                    "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.2.0.schema.json#/$defs/point2"
+                  },
+                  "width_m": { "type": "number", "exclusiveMinimum": 0 },
+                  "confidence": {
+                    "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.2.0.schema.json#/$defs/confidence"
+                  },
+                  "provenance": {
+                    "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.2.0.schema.json#/$defs/opening_provenance"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "texts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["text"],
+                "properties": {
+                  "text": { "type": "string" },
+                  "bbox": {
+                    "type": "array",
+                    "items": { "type": "number" },
+                    "minItems": 4,
+                    "maxItems": 4
+                  },
+                  "confidence": {
+                    "$ref": "https://panoworld-automation.local/schemas/floorplan_parse/v1/floorplan_parse-1.2.0.schema.json#/$defs/confidence"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  ]
+}

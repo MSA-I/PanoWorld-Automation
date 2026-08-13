@@ -84,8 +84,9 @@ def test_schema_catalog_tracks_exact_versions_and_latest_view():
 
     latest = load_all_schemas()
     assert latest["project_manifest"]["allOf"][1]["properties"]["schema_version"]["const"] == "1.1.0"
-    assert latest["floorplan_parse"]["allOf"][1]["properties"]["schema_version"]["const"] == "1.1.0"
+    assert latest["floorplan_parse"]["allOf"][1]["properties"]["schema_version"]["const"] == "1.2.0"
     assert "floorplan_annotation" in latest
+    assert "floorplan_review" in latest
 
 
 def test_project_manifest_1_0_fixture_is_compatible_with_1_1_and_frozen_schema_rejects_new_kind():

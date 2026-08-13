@@ -61,7 +61,7 @@ def test_all_floorplan_formats_keep_original_and_emit_valid_contracts(tmp_path, 
     assert validate_artifact(report) == []
     assert manifest["content_hash"] == compute_content_hash(manifest)
     assert manifest["schema_version"] == "1.1.0"
-    assert manifest["payload"]["contracts_bundle_version"] == "1.2.0"
+    assert manifest["payload"]["contracts_bundle_version"] == "1.3.0"
     assert report["content_hash"] == compute_content_hash(report)
     copied = next((run_root / "project" / "inputs" / "originals").glob("floorplan.*"))
     assert copied.read_bytes() == original

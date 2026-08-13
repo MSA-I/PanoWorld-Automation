@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://panoworld-automation.local/schemas/floorplan_review/v1/floorplan_review-1.0.0.schema.json",
+  "title": "floorplan_review",
+  "$comment": "Immutable, append-only review-chain artifact (PLAN-002RF WP2). Carries the recognizer's read-only provenance review and a lineage whose current head is invalidated when a review is superseded. A review is never edited in place; supersession appends a new head.",
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "reviewed_artifact": {
+      "type": "object",
+      "required": ["artifact_id", "schema_id", "schema_version", "content_hash"],
+      "properties": {
+        "artifact_id": { "type": "string", "minLength": 1 },
+        "schema_id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "schema_version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+        "content_hash": {
+          "$ref": "https://panoworld-automation.local/schemas/floorplan_review/v1/floorplan_review-1.0.0.schema.json#/$defs/sha256"
+        }
+      },
+      "additionalProperties": false
+    },
+    "finding": {
+      "type": "object",
+      "required": ["id", "severity", "message"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "severity": { "enum": ["CRITICAL", "MAJOR", "MINOR", "INFO"] },
+        "message": { "type": "string" },
+        "path": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "reviewer": {
+      "type": "object",
+      "required": ["agent", "provider", "model", "effort", "cross_provider"],
+      "properties": {
+        "agent": { "type": "string", "minLength": 1 },
+        "provider": { "type": "string", "minLength": 1 },
+        "model": { "type": "string", "minLength": 1 },
+        "effort": { "enum": ["MEDIUM", "HIGH", "EXTRA", "MAX", "N/A"] },
+        "cross_provider": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "lineage": {
+      "type": "object",
+      "required": ["current_head"],
+      "properties": {
+        "parent_review_id": { "type": ["string", "null"] },
+        "current_head": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "allOf": [
+    {
+      "$ref": "https://panoworld-automation.local/schemas/envelope/v1/envelope-1.0.0.schema.json"
+    },
+    {
+      "properties": {
+        "schema_id": { "const": "floorplan_review" },
+        "schema_version": { "const": "1.0.0" },
+        "payload": {
+          "type": "object",
+          "required": ["reviewed_artifact", "verdict", "findings", "reviewer", "lineage"],
+          "properties": {
+            "reviewed_artifact": {
+              "$ref": "https://panoworld-automation.local/schemas/floorplan_review/v1/floorplan_review-1.0.0.schema.json#/$defs/reviewed_artifact"
+            },
+            "verdict": { "enum": ["APPROVE", "APPROVE_WITH_FIXES", "NEEDS_REWORK", "BLOCKED"] },
+            "findings": {
+              "type": "array",
+              "items": {
+                "$ref": "https://panoworld-automation.local/schemas/floorplan_review/v1/floorplan_review-1.0.0.schema.json#/$defs/finding"
+              }
+            },
+            "reviewer": {
+              "$ref": "https://panoworld-automation.local/schemas/floorplan_review/v1/floorplan_review-1.0.0.schema.json#/$defs/reviewer"
+            },
+            "lineage": {
+              "$ref": "https://panoworld-automation.local/schemas/floorplan_review/v1/floorplan_review-1.0.0.schema.json#/$defs/lineage"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  ]
+}

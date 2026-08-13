@@ -65,3 +65,22 @@ cases (test-architect §3, as amended by plan-reviewer M-4 and missed-risk 1).
 | `PARSE_LOW_CONFIDENCE` | warn | At least one normalized entity fell below the low-confidence threshold. |
 | `PARSE_UNMAPPED_SOURCE_ENTITY` | warn | A source entity was recorded and ignored because its layer was unmapped. |
 | `PARSE_ROOM_BOUNDARY_UNMATCHED` | warn | Two room boundaries properly cross; Part 1 flags it but stays fail-open under warning semantics. |
+
+## Floorplan recognition / review — append-only blocking vocabulary (WP2)
+
+These codes are append-only and all `error` (fail-closed). A code may be added but
+never removed or re-ranked; changing a meaning or severity requires an ADR.
+Consumers match on codes, never on message text.
+
+| Code | Severity | Meaning |
+|---|---|---|
+| `RECOGNITION_SOURCE_CLASS_INVALID` | error | `source_class` is not one of `cad_exact` / `raster_auto` / `annotation` / `dxf`. |
+| `RECOGNITION_UNSUPPORTED_TAXON` | error | A recognised motif falls outside the predeclared support taxonomy and must route to refusal. |
+| `RECOGNITION_ARC_NO_SAGITTA_BOUND` | error | A circular-arc wall lacks a stated `max_sagitta_px` bound. |
+| `RECOGNITION_ARC_BULGE_SWEEP_MISMATCH` | error | An arc's bulge sign contradicts its declared sweep direction. |
+| `RECOGNITION_PASSAGE_SPAN_EXCEEDS_BOUND` | error | A `passage` opening span exceeds the frozen 3.0 m bound. |
+| `RECOGNITION_THICKNESS_MISSING` | error | A product wall lacks sourced thickness (required for `cad_exact`/`raster_auto`). |
+| `REVIEW_LINEAGE_CYCLE` | error | A review-chain append would form a cycle or reuse an existing review id. |
+| `REVIEW_CURRENT_HEAD_STALE` | error | A review that is no longer the current head was treated as authoritative. |
+| `SCHEMA_VERSION_UNSUPPORTED_BY_CONSUMER` | error | A document's schema version (or additive field) is not representable by the consumer's older schema. |
+

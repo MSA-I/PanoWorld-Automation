@@ -23,7 +23,8 @@ MAX_INPUT_BYTES = 250 * 1024 * 1024
 _ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]{1,63}$")
 _DWG_HEADER_RE = re.compile(rb"^AC10\d{2}")
 _DXF_UNITS = {4: "mm", 5: "cm", 6: "m"}
-CONTRACTS_BUNDLE_VERSION = "1.2.0"
+# Re-exported from pwa.contracts: the single source of truth (WP2 bumps to 1.3.0).
+from pwa.contracts import CONTRACTS_BUNDLE_VERSION as CONTRACTS_BUNDLE_VERSION  # noqa: E402
 
 
 def _artifact(
