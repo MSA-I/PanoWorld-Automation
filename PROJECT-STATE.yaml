@@ -45,31 +45,25 @@ automation_campaign:
 # with Moshe's authorisation, and the worktree's state file came with it. Read
 # this file. There is no other one.
 #
-# READ THIS BEFORE ACTING, updated 2026-08-11.
+# READ THIS BEFORE ACTING, updated 2026-08-13.
 #
-# THE CODE IS NOW ACCEPTED BY REVIEW. G1 IS STILL NOT CLAIMED.
+# THE CODE IS ACCEPTED BY REVIEW AND G1 IS NOW CLAIMED.
 #
 # Five review rounds and five bounded reworks later, the fourth rework (NA-3e)
 # was reviewed by an independent Anthropic reviewer with full diff access and
-# returned ACCEPT: all eight findings closed, GC3-1 through GC3-7 and GC3-11
-# closed, GC3-2 and GC3-3 closed on the invariants and not merely on their
-# literal text, AC-4 and AC-20 raised to MET. That is a real milestone and it is
-# still not acceptance of PLAN-002:
+# returned ACCEPT, then the fifth rework (NA-3g) closed the named residues and
+# was accepted again (NA-3h). GC3-8's PDF-page contract amendment was its own
+# contract round (NA-6, accepted by NA-6b), and AC-13's provenance requirement
+# was enumerated (NA-7) and applied. All of it is merged into main.
 #
-#   * NA-4, the Layer A visual gate, is `REVIEW` - the artifacts exist and are
-#     committed under evidence/PLAN-002/visual-gate/, and section 20 makes the
-#     visual judgement MOSHE'S. The orchestrator accepted their content on his
-#     delegated authority and recorded that no human eye has seen them.
-#   * GC3-8's amended wording is approved by cross-provider review but NOT
-#     implemented, so PLAN-002 section 6 and the code still disagree about
-#     annotating a PDF page.
-#   * AC-13 cannot be judged until the plan enumerates what provenance it
-#     requires, and AC-14's byte-determinism clause needs a second ezdxf.
-#   * NA-3g is closing three residues the accepting review named.
+# The single remaining §20 gate — NA-4, Moshe's visual approval of the Layer A
+# overlay — was APPROVED by Moshe on 2026-08-13 (gate t_f442d3dc). PLAN-002 is
+# therefore accepted for Part 1, its contract half is delivered, and its parser
+# output may be handed to PLAN-003 via docs/handoffs/HANDOFF-PLAN-002-to-PLAN-003-001.md.
 #
-# Nothing here is G1 evidence yet. Do not hand the parser's output to PLAN-003.
-# The newest work is on branch `panoworld-dev/na-3g-residues`; `main` carries
-# everything through the NA-3d evidence.
+# G7/G8 and H200/GPU/cloud/remote remain DEFERRED TO PART 2. PLAN-003 geometry
+# compilation is not auto-authorized and requires its own PLAN/packet and
+# approval.
 # =============================================================================
 
 state_authority:
@@ -140,10 +134,10 @@ delegated_authority:
 project:
   id: panoworld-automation
   phase: implementation
-  overall_status: PLAN_002_ALL_GATES_CLOSED_PENDING_MOSHE_VISUAL_GATE
+  overall_status: PLAN_002_G1_APPROVED_PART_1_CONTRACTS_COMPLETE
   implementation_started: true
-  updated_at: "2026-08-11"
-  updated_by_session: PLAN-002-PART1-COMPLETION-LOOP
+  updated_at: "2026-08-13"
+  updated_by_session: PLAN-002-P1-02-CLOSEOUT
 
 model_policy:
   id: MODEL-ROUTING-v3-OPENROUTER-DEEPSEEK
@@ -198,7 +192,7 @@ orchestration:
 current_plan:
   id: PLAN-002-floorplan-parsing
   title: Floorplan parsing
-  status: THIRD_REWORK_DONE_PENDING_CROSS_PROVIDER_REVIEW
+  status: ACCEPTED_G1_CLAIMED
   open_gate_conditions:
     - id: GC-1
       text: "Validate and contain parse_run_id before any filesystem operation."
@@ -633,6 +627,15 @@ current_plan:
     empirical evidence for section 6's cross-adapter equivalence claim. What still
     stands between here and G1: Moshe's look at the overlay, GC3-8's implementation, and
     AC-13's enumeration.
+
+    UPDATE 2026-08-13, P1-02 closeout: all three are now closed. GC3-8 was implemented
+    as its own contract round (NA-6) and accepted (NA-6b); AC-13's provenance requirement
+    was enumerated (NA-7), independently reviewed and applied; and Moshe APPROVED the
+    Layer A overlay on 2026-08-13 (gate t_f442d3dc), closing NA-4 / the §20 visual gate.
+    PLAN-002 is ACCEPTED and G1 is claimed. See evidence/PLAN-002/acceptance.md and
+    docs/handoffs/HANDOFF-PLAN-002-to-PLAN-003-001.md. The label-overlap/legibility
+    limitation and the straight-wall-only geometry boundary are recorded there as honest,
+    accepted limitations, not defects.
   owner: spatial-architect
   path: docs/plans/PLAN-002-floorplan-parsing.md
   branch: panoworld-dev/t_b7ade39e-p1-02-floorplan-parsing
@@ -1877,19 +1880,19 @@ next_actions:
       after NA-3b first - the NA-3 reviewer listed this as its final gate
       condition (GC3-10).
     blocked_by: null
-    status: REVIEW
+    status: APPROVED
+    approved_by: Moshe
+    approved_at: "2026-08-13"
+    approval_gate: t_f442d3dc
     result: >-
-      Artifacts generated 2026-08-11 from the NA-3e code and SUBMITTED, not approved.
-      Status is REVIEW because section 20 makes the visual judgement Moshe's, and the
-      delegation of 2026-08-10 cannot substitute for a human look - it can only carry
-      the work forward until he takes one. The orchestrator accepted the overlay's
-      CONTENT on delegated authority: source alignment is exact under zoomed inspection
-      in a real browser, the source raster is embedded so the overlay is self-contained,
-      and openings sit on the measured gaps. One honest defect is recorded rather than
-      glossed - every entity's opaque id is drawn as a label and at this entity count
-      they overlap each other and the source, so the overlay is correct and hard to
-      read. That is the unpriced legibility cost of GC3-6's tokenisation and the most
-      likely reason Moshe would overturn this on sight.
+      APPROVED by Moshe on 2026-08-13 (gate t_f442d3dc). The overlay is now
+      sufficient G1 evidence and the parser output may be handed to PLAN-003.
+      Opaque entity labels overlap at the Layer A entity count and reduce
+      legibility; Moshe noted and accepted this as sufficient G1 evidence. The
+      earlier 2026-08-11 REJECTED round (rotated/curved/angled walls omitted,
+      false-positive opening marker, centreline offset/overrun) was remediated
+      through the separately approved PLAN-002RF remediation lifecycle before
+      this renewed approval.
     evidence:
       - evidence/PLAN-002/visual-gate/na4-na5-record-20260811.md
       - evidence/PLAN-002/visual-gate/na4-layer-a-dxf-overlay.svg
@@ -2003,18 +2006,20 @@ human_gates:
   plan_002_approval: "approved by Moshe 2026-08-09 on Kanban t_b7ade39e; all eight PLAN-002 approval-gate items accepted; recorded in ADR-0004 and ADR-0005"
   plan_002_ac20_semantics: "approved by Moshe 2026-08-09 on Kanban t_b7ade39e: all pre-parse source hash mismatches are CLI 2/no final run; incomplete or blocked source quality is CLI 2/no final run; complete blocker-free source with missing or contradictory scale is PARSE_SCALE_UNKNOWN CLI 3/failed diagnostic run"
   plan_002_gc3_8_pdf_page_contract: >-
-    decided by Moshe 2026-08-10: contract-change route. The exact amended
-    section 6 / manifest-vocabulary wording is NOT yet approved - section 20
-    still gates the text before implementation.
+    decided by Moshe 2026-08-10: contract-change route. The amended wording was
+    drafted, independently cross-provider reviewed, implemented (NA-6) and
+    accepted (NA-6b, "GC3-8: CLOSE") and is applied. No longer open.
   plan_002_gc3_9_evidence_privacy: >-
     decided by Moshe 2026-08-10: accept and document the already-committed
     absolute paths and OS user name; no history rewrite, no in-place redaction.
     Retrospective only - new evidence must still comply with section 12.
   plan_002_merge_to_main: >-
     authorised by Moshe 2026-08-10 ("push everything to main"). PLAN-002 is
-    merged into main and pushed to origin with its NEEDS_REWORK status intact -
-    this is a preservation merge, NOT an acceptance of PLAN-002 and NOT a G1
-    claim. Seven bounded fixes GC3-1..GC3-7 (one CRITICAL) remain open on main.
-  geometry_approval: pending
+    merged into main and pushed to origin. This was a preservation merge of
+    reviewed work; the subsequent NA-3b..NA-3h reworks, the GC3-8 contract round
+    and the AC-13 enumeration were reviewed, accepted and merged, and the final
+    NA-4 visual gate was approved by Moshe on 2026-08-13, so PLAN-002 is now
+    accepted and G1 is claimed.
+  geometry_approval: "approved 2026-08-13 (Moshe) via gate t_f442d3dc - Layer A overlay accepted as sufficient G1 evidence"
   source_panorama_approval: pending
   final_output_approval: pending

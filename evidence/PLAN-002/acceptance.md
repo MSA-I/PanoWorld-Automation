@@ -1,37 +1,87 @@
 # PLAN-002 acceptance
 
-- Verification run: `RUN-PLAN002-REWORK-20260810` -- bounded rework closing the 2026-08-10 independent
-  code/security/contracts (`evidence/PLAN-002/reviews/independent-anthropic-code-review-20260810.md`) and
-  spatial/geometry (`evidence/PLAN-002/reviews/independent-anthropic-spatial-review-20260810.md`) review
-  findings; both reviews had returned `NEEDS_REWORK`. Supersedes `RUN-20260809-173417-586650`.
-- Full pytest: **291 passed**, `failures=0`, `errors=0`, `skipped=0` (baseline before this rework: **261 passed**).
-- Full-suite command: `python -m pytest -v --basetemp .tmp/pytest-plan002-rework-20260810 --junitxml evidence/PLAN-002/test-results/RUN-PLAN002-REWORK-20260810/junit.xml --cov=src/pwa --cov-report=xml:evidence/PLAN-002/test-results/RUN-PLAN002-REWORK-20260810/coverage.xml` via repository `.venv` Python 3.11.
-- Failure matrix: `coverage_status=complete`, `rows=65` (added `f-duplicate-opening` for C-1 spatial and
-  `f-opening-not-collinear` for M-2 spatial), `missing_fixture_rows=[]`, `duplicate_fixture_rows=[]`.
-- Layer A raster parse: `complete`, CLI 0. Layer A DXF parse: `complete`, CLI 0.
-- Determinism: canonical projection hash `sha256:e5041ddcf05eb02da0a07176d483ee4eaef311bf885204078710f07fe3b7e77e` for both adapters (unchanged); overlay hashes changed from the pre-rework run (DXF overlay now renders rooms/doors/ids/confidence from independent source primitives per M-4/M-11; raster overlay derives its media type from source bytes per M-5) and are repeat-run identical per adapter, verified across two independent `parse_run()` invocations per adapter.
-- Routing requested: `PROVIDER=openai`, `REQUESTED_MODEL=gpt-5.4`, `EFFORT=high`, `FALLBACK=none`, `MODEL_REASON=approved bounded implementation model`.
-- Routing runtime: `runtime_provider=headroom`, `ACTUAL_MODEL_ID=gpt-5.4` from local Codex session `019fe716-d621-7881-b2b9-f23978c760c0` (`<home>/.codex/sessions/2026/08/09/rollout-2026-08-09T18-14-21-019fe716-d621-7881-b2b9-f23978c760c0.jsonl`) lines 1 and 6. (M-10, code review 2026-08-10: redacted -- §12 forbids absolute paths/user names in tracked evidence; the session id and line numbers keep the claim independently verifiable.)
-- Reviewer routing: `REVIEWER_MODEL=claude-opus-5`, `CROSS_PROVIDER_REVIEW=pending/required`.
-- Git verification: `git diff --check` clean; `git diff -- pyproject.toml uv.lock` empty.
-- Hard boundary statement: no network, install, upload, provisioning, spending, GPU, H200, cloud, or remote execution performed; G7/G8 remain deferred to Part 2.
-- Review readiness: **Part 1 implementation review-ready**. Remaining downstream gates only: fail-closed human visual/geometry approval of first implementation-generated Layer A overlay, and pending cross-provider review.
+## Final acceptance record — 2026-08-13
 
-## Evidence Paths
+PLAN-002 (Floorplan Parsing) is **accepted and G1 evidence is claimed**. Moshe gave the
+final visual/geometry approval on 2026-08-13 on the dedicated human gate
+(`t_f442d3dc`, "P1-02G — Moshe visual approval for PLAN-002 overlay"). With that single
+remaining §20 human gate closed, every acceptance gate the plan reserved is now shut:
 
-- Test results: `evidence/PLAN-002/test-results/RUN-PLAN002-REWORK-20260810/`
-- Canonical parses: `evidence/PLAN-002/parse/layer-a-1-raster.json`, `evidence/PLAN-002/parse/layer-a-1-dxf.json`
-- Canonical overlays: `evidence/PLAN-002/overlays/layer-a-1-raster.svg`, `evidence/PLAN-002/overlays/layer-a-1-dxf.svg`
-- Determinism: `evidence/PLAN-002/determinism/geometry-projection-hashes.json`
-- Failure matrix: `evidence/PLAN-002/failures/parse-failure-matrix.json`
-- Runtime metadata: `evidence/PLAN-002/implementation/runtime-metadata.json`
-- Source pre/post hash evidence: `evidence/PLAN-002/implementation/source-hash-evidence.json`
-- Git verification: `evidence/PLAN-002/implementation/git-verification.json`
-- AC traceability: `evidence/PLAN-002/implementation/ac-traceability.md`
+- Five review rounds and five bounded reworks (NA-3b → NA-3e → NA-3g), each
+  independently cross-provider reviewed, ended in ACCEPT (NA-3f, NA-3h).
+- GC3-8 (annotating one selected intake-generated PDF page) was implemented as its own
+  contract round (NA-6) and independently reviewed (NA-6b): verdict ACCEPT, all nine
+  acceptance criteria MET, "GC3-8: CLOSE".
+- AC-13's provenance requirement was enumerated as a plan amendment (NA-7), reviewed by an
+  independent OpenAI reviewer, and applied — converting a three-round CANNOT_VERIFY into a
+  decidable criterion that the reviewer stated it would now mark MET.
+- NA-4 (Layer A visual/geometry gate) and NA-5 (annotated public-domain sample smoke) are
+  both closed; the two adapters emitted the IDENTICAL canonical projection from one
+  measured geometry, the first empirical evidence for §6's cross-adapter equivalence claim.
+- Moshe APPROVED the Layer A overlay on 2026-08-13 as sufficient G1 evidence.
 
-## Acceptance Notes
+## Fresh verification — closeout
 
-- `f-existing-final` is recorded as `finalized_set=none` and `finalized_new_derived_run=false`; a pre-existing final directory is not counted as a newly finalized derived run.
-- `f-low-confidence` remains unit-only exactly as allowed by the approved brief for unreachable Part 1 source coverage.
-- `real-plan-redacted.json` remains the canonical redacted evidence artifact; hostile-label escaping is evidenced by `tests/unit/test_floorplan_overlay.py::test_hostile_label_escaped` and the `f-hostile-label` row in the failure matrix.
-- 2026-08-10 bounded rework: full disposition table, before/after test counts and explicit no-contract/no-dependency/no-network/no-merge statement are recorded in `evidence/PLAN-002/reviews/rework-report-20260810.md`.
+- Fresh full suite run from a clean state on `main` (2026-08-13), inherited `PYTHONPATH`
+  cleared, root `.venv` Python 3.11:
+  **393 passed**, `failures=0`, `errors=0`, `skipped=0`, exit 0 (~4 min).
+  (Earlier rounds: 261 → 291 → 306 → 316 → 338 → 351 → 356 → 369 → 393. The count grew as
+  each accepted rework and contract round landed on main.)
+- Command: `env -u PYTHONPATH ./.venv/Scripts/python.exe -m pytest --basetemp .tmp/pytest-closeout-fresh`
+- `git diff --check` clean; `pyproject.toml` and `uv.lock` unchanged across the whole line;
+  no tracked file deleted; no path or OS-user-name leak in regenerated evidence (GC3-6 /
+  §12 forward rule holds for new evidence).
+
+## Gate conditions
+
+- Round-2 gate conditions GC-1..GC-7: all settled (GC-6 projected width, GC-7 raster
+  metadata sanitisation — both Moshe-decided and implemented).
+- Round-3 gate conditions GC3-1..GC3-10: all closed. GC3-1..GC3-7 and GC3-11 were bounded
+  code fixes, verified by the orchestrator with proofs-of-concept rather than the
+  implementer's report. GC3-8 (contract, Moshe-decided) implemented/reviewed. GC3-9
+  (evidence privacy, Moshe-decided) accepted-and-documented. GC3-10 (= NA-4 visual gate)
+  is now approved.
+
+## Known limitations — recorded honestly, not glossed
+
+- **Label overlap / legibility.** Every entity's opaque device ID is drawn as a label in the
+  overlay. At the Layer A entity count the labels overlap each other and the source, so the
+  overlay is correct but hard to read. This is the unpriced legibility cost of GC3-6's
+  tokenisation and was called out explicitly to Moshe before approval. Moshe accepted it as
+  sufficient G1 evidence with the overlap "noted". Future plan work (PLAN-003 geometry
+  compilation) should budget for a legible label strategy.
+- **Angled/curved walls.** Part 1's deliberately narrow DXF convention and the manual
+  annotation adapter support straight (axis-aligned) walls. Rotated/curved/angled walls were
+  reported by Moshe during the visual gate; the supported-geometry boundary is documented in
+  PLAN-002 §2, and extending it is future plan work, not a defect of the delivered scope.
+- **JPEG overlay sanitisation is a second lossy encode** (quality pinned at 95), so the
+  embedded image is not bit-identical to the source; the SHA-256 binding still ties it to the
+  exact original bytes. Acceptable for a human-review overlay.
+- **ACK deviation (GC3-9).** The already-committed absolute paths and OS user name in legacy
+  evidence are accepted and documented retroactively; new evidence must comply with §12.
+- `tests/unit/test_floorplan_builder.py` uses `PIL.Image.getdata()`, deprecated for Pillow 14
+  (2027-10-15); cosmetic, switch to `get_flattened_data()` when convenient.
+
+## Hard boundary statement
+
+No network, install, upload, provisioning, spending, GPU, H200, cloud, or remote execution
+was performed at any point in PLAN-002. Model routing stayed local (OpenAI implementer via
+Codex CLI, Anthropic reviewer via `claude` CLI; the documented gpt-5.4 silent-substitution
+deviation was recorded retroactively and the work reviewed rather than reimplemented).
+**G7/G8 and H200/GPU are DEFERRED TO PART 2** (AC-23). PLAN-003 is not started from here.
+
+## Evidence paths
+
+- Visual gate: `evidence/PLAN-002/visual-gate/` (`na4-layer-a-dxf-overlay-rendered.jpg`,
+  `na5-sample-raster-overlay-rendered.jpg`, `na4-na5-record-20260811.md`, `harness-summary.json`).
+- Reviews: `evidence/PLAN-002/reviews/` (five independent rounds + orchestrator verifications).
+- Decisions: `evidence/PLAN-002/decisions/` (GC3-8 amendment, AC-13 enumeration).
+- Test results: `evidence/PLAN-002/test-results/`.
+- Handoff: `docs/handoffs/HANDOFF-PLAN-002-to-PLAN-003-001.md`.
+
+## Rollback
+
+PLAN-002 is merged into `main` as preserved, reviewed, accepted work. Rollback for any future
+change is standard git: branch from `main`, review, and do not force-push or rewrite history
+(append-only evidence policy). The merge was preservation-plus-acceptance; the code carries
+its own immutable derived-run artifacts and never mutates a finalized PLAN-001 run.
