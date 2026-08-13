@@ -2,7 +2,7 @@
 
 - RUN_ID: `KANBAN-61-WP0-FX1`
 - PLAN_ID: `PLAN-002RF / WP0-FX1`
-- Status: bounded review rework verified; fresh exact-checkpoint review pending
+- Status: bounded review rework verified; fresh exact-checkpoint review approved
 - Controlling packet SHA-256: `95c4cfd8711d4c2335d9905285b977118ba89cff440aa90c1a9cb5aab74422f7`
 
 ## Inputs
@@ -38,9 +38,10 @@
 ## Independent review and bounded disposition
 - Recovered read-only OmniRoute review of checkpoint `60c5978`; verdict `BLOCKED` with one identity gap, three MAJOR findings, and one MINOR finding (`reviews/independent-omniroute-review-60c5978.md`).
 - Moshe supplied fresh authoritative route evidence: requested `auto/best-coding`, actual `cx/gpt-5.6-sol`, session `901958b590ba0120`, cache MISS (`reviews/omniroute-authoritative-identity.json`).
-- Accepted code/evidence findings were reworked without threshold, schema, or route changes. A fresh independent read-only review against the resulting exact checkpoint remains required before closure.
+- Accepted code/evidence findings were reworked without threshold, schema, or route changes.
+- Fresh independent read-only review inspected implementation checkpoint `fc3a9c3` and index-only checkpoint `e2fbd32`; verdict `APPROVE` with no findings (`reviews/independent-omniroute-rework-review-e2fbd32.md`).
 
 ## Scope/claim limits
 - This package proves fixture provenance, independent truth, anchors, deterministic replay, and local test behavior only.
 - It makes no Product-B accuracy/yield claim and does not close pending pinned-environment proof.
-- WP1 remains blocked and unauthorized.
+- This subpackage does not activate WP1 or any Product A/B route. Successor work may proceed only through the authorized dependency chain and its fresh gates; WP6 route activation remains a separate human gate.
