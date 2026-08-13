@@ -1,7 +1,7 @@
 # HANDOFF — PLAN-002RF WP0 to independent review / Moshe gate
 
 - Producer task: `t_d025498b`
-- Status: STOP / decisions 1A-2A-3B applied / bounded WP0-FX1 evidence package in progress
+- Status: WP0 closure candidate — `STOP / NOT_EVALUABLE`; WP0-FX1 approved; final exact-checkpoint review required
 - Approved packet SHA-256: `95c4cfd8711d4c2335d9905285b977118ba89cff440aa90c1a9cb5aab74422f7`
 - Branch: `panoworld-dev/t_d025498b-wp0-activate-approved-plan-002rf-decisio`
 
@@ -16,7 +16,7 @@
 
 ## Result the consumer must preserve
 
-The fixture is lawful and the diagnostic is deterministic/cheap, but it is unsupported: it has neither independent truth nor two authoritative scale anchors. Accuracy and yield were not measured and must not be inferred from the previous author-created annotation. Resource feasibility is also unproven because the probe is not the recognition pipeline and `tracemalloc` is not peak working set. Product B-AUTO feasibility is unproven; WP1 and route activation remain blocked.
+The original sample remains unsupported. WP0-FX1 supplies a lawful clean synthetic raster, independent frozen truth and three authoritative scale anchors, and its fresh independent review returned APPROVE with no findings. It is still not a recognizer: accuracy, yield, recognition runtime and peak working set remain `NOT_EVALUABLE`, so WP0 closes truthfully at `STOP`. The successor chain is authorized dependency-by-dependency under docs 08–10, but routes remain default-off and WP6 activation remains a separate human gate.
 
 ## Known deviations/incidents
 
@@ -31,7 +31,7 @@ The recovered read-only review is preserved at `evidence/PLAN-002RF/WP0/independ
 
 The review runtime reports exact model `gpt-5.6-sol`, effort `xhigh`, CLI `0.144.6`, session `019ff98d-150a-7a63-a337-e2f91e712835`, but provider alias `headroom` and no authoritative fallback field. Therefore it is independent review evidence but does **not** satisfy the packet's fail-closed proof of OpenAI first-party/no substitution.
 
-This rework checkpoint fixes the manifest trust bypass, distinguishes unsupported-fixture refusal from Product-B feasibility, and regenerates the evidence index from Git blobs. It does not claim to implement the unapproved full recognition/resource/security protocol. U-8, U-15, WP0 technical closure, and WP1 remain blocked.
+Checkpoint `71b7b7a` fixed the manifest trust bypass and evidence-index defect. WP0-FX1 then fulfilled the bounded rights/truth/anchor package at `6c8c378`; review of `fc3a9c3` + `e2fbd32` returned APPROVE with no findings. U-8 is resolved for WP0 as `STOP / NOT_EVALUABLE`, and U-15 is resolved through durable exact-checkpoint review evidence. Product recognition/resource/security claims remain future gates.
 
 ## Remaining reviewer obligations
 
@@ -52,4 +52,12 @@ Return severity-tagged, file/line/evidence-backed findings and verdict. Do not e
 - `2A`: accepted the documented `uv run` rollback as incident closure; pinned-environment/full-suite evidence remains pending.
 - `3B`: accepted the existing `gpt-5.6-sol` / provider alias `headroom` review as the cross-provider exception.
 
-The consumer must wait for the `WP0-FX1` exact checkpoint, evidence index and independent read-only review, then reconcile its results without inferring Product-B feasibility. No option introduces manual correction or weakens gates. WP1 remains blocked for separate explicit Moshe approval.
+The final reviewer must inspect the reconciled parent checkpoint and verify that it consumes WP0-FX1 without inferring Product-B feasibility, weakening gates, or activating routes. Moshe's later full-campaign authorization removes the prior inter-WP continuation approval requirement; successors still require dependency completion plus fresh evidence/review. WP6 remains decision-only.
+
+## Consumed WP0-FX1 package
+
+- Closure checkpoint: `6c8c3784fd83989ac3cc72733355bf9406ff6688`.
+- Reviewed implementation/index: `fc3a9c3cd75875aa80274827656f4cbc2086ac49` + `e2fbd32fabe868462b421dedc2bdea2426e1624f`.
+- Review: `evidence/PLAN-002RF/WP0-FX1/reviews/independent-omniroute-rework-review-e2fbd32.md` — `APPROVE`, no findings.
+- Verification evidence: 7 targeted passes, 376 full-suite passes with two pre-existing Pillow warnings, and valid deterministic replay of all five fixture payloads.
+- Preserved limit: pinned-environment proof remains pending; existing-environment success is not a substitute.

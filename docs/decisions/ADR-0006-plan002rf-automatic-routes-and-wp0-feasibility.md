@@ -1,6 +1,6 @@
 # ADR-0006 — PLAN-002RF WP0 automatic CAD/raster direction and fail-closed feasibility result
 
-- Status: PROPOSED — STOP preserved; Moshe authorized bounded WP0 fixture evidence only (1A/2A/3B), not WP1 or route activation
+- Status: ACCEPTED — WP0 closed with truthful `STOP / NOT_EVALUABLE`; Local-only successor chain authorized, routes remain default-off
 - Date: 2026-08-12
 - Controlling approval packet: `D:/משה פרוייקטים/פיתוח אתרים/PanoWorld-Automation/.hermes/plans/2026-08-11_220700-plan-002rf-final-remediation-approval-packet.md`
 - Approved packet SHA-256: `95c4cfd8711d4c2335d9905285b977118ba89cff440aa90c1a9cb5aab74422f7`
@@ -18,12 +18,13 @@ ADR-0004 remains authoritative for the implemented PLAN-002 baseline. This ADR p
 2. Product authorship is limited to `cad_exact` and `raster_auto`; human-created truth/evidence is never product output.
 3. Product B is automatic-only and fail-closed. Confidence cannot promote or rescue output.
 4. Native straight and bounded circular-arc geometry, sourced thickness, centreline room basis, and distinct `door`/`window`/`passage` remain required future contract properties.
-5. The WP0 fixture is rights-cleared and computationally cheap, but it has no independent truth and no two authoritative scale anchors. Its prior hand-authored annotation is not independent truth.
-6. Therefore the fixture is unsupported and accuracy/yield are not evaluable. Geometry emission from it would be a CRITICAL outcome inversion. The measured result is `STOP`, despite two byte-identical diagnostic replays. Their time and `tracemalloc` figures are diagnostic-only and cannot establish the 60 s / soft 1.5 GiB recognition thresholds.
-7. No Product B implementation package, corpus scoring, finding closure, activation, or WP1 starts from this result. A new explicit decision may authorize a rights-cleared independently labeled/scale-anchored WP0 fixture set, select Product A-only, narrow scope, or reject the route. Gates may not be weakened.
-8. Migration, if later authorized, is additive/new-runs-only. Historical schemas, manifests, bytes, and PLAN-002 evidence remain immutable. Default route stays the current baseline.
-9. Any new error codes are append-only; no severity mutation. Exact schema/catalog/bundle/code shapes remain blocked pending contract design/review.
-10. Local-only boundaries remain: no upload/telemetry/network/model call by product execution, no GPU/H200/cloud/remote, no spend, no G7/G8, no PLAN-003.
+5. The original WP0 sample remains unsuitable for scoring because its prior author-created annotation is not independent truth and it has no two authoritative scale anchors.
+6. The separately tracked WP0-FX1 package supplies a project-owned, rights-cleared clean synthetic raster, frozen truth derived only from source geometry (`recognizer_inputs=[]`), and three hash-bound authoritative scale anchors at exactly `0.005 m/px`. Its deterministic fixture replay is valid 5/5, targeted tests pass 7/7, and the existing approved environment full suite passes 376/376 with two pre-existing Pillow warnings.
+7. WP0-FX1 is an evidence fixture, not a recognizer. Accuracy, supported yield, recognition runtime and recognition peak working set remain `NOT_EVALUABLE`; the earlier 0.039475 s / 1,692,138-byte probe is diagnostic only. Consequently the binding feasibility verdict is `STOP`, without inferring failure or success of a future Product-B engine.
+8. Moshe's full-campaign authorization of 2026-08-13 permits the already planned Local-only WP1–WP6 technical chain to proceed dependency-by-dependency after fresh evidence and review. It does not activate Product A/B routes, authorize PLAN-003, weaken any gate, or turn this fixture into product output.
+9. Migration, if later authorized, is additive/new-runs-only. Historical schemas, manifests, bytes, and PLAN-002 evidence remain immutable. Default route stays the current baseline.
+10. Any new error codes are append-only; no severity mutation. Exact schema/catalog/bundle/code shapes remain blocked pending contract design/review.
+11. Local-only boundaries remain: no upload/telemetry/network/model call by product execution, no GPU/H200/cloud/remote, no spend, no G7/G8, no PLAN-003.
 
 ## Moshe decisions — 2026-08-13
 
@@ -31,7 +32,7 @@ ADR-0004 remains authoritative for the implemented PLAN-002 baseline. This ADR p
 2. **2A — installation incident disposition.** Moshe accepts the documented deletion/lock-preservation rollback as closure of the unauthorized `uv run` incident. Pinned-environment replay and the full suite remain pending and may not be inferred from that acceptance.
 3. **3B — reviewer identity exception.** Moshe explicitly accepts the existing `gpt-5.6-sol`, provider-alias `headroom` review as the cross-provider exception despite unavailable first-party/fallback proof. Its BLOCKED findings remain substantive; the exception changes provenance acceptance, not the technical verdict.
 
-These decisions close the prior human-choice gate only. ADR-0006 remains Proposed and the conjunctive result remains STOP until the bounded package and its independent review are consumed. WP1 remains separately blocked for explicit approval.
+WP0-FX1 was completed at checkpoint `6c8c3784fd83989ac3cc72733355bf9406ff6688`. Its fresh independent OmniRoute read-only review approved implementation `fc3a9c3cd75875aa80274827656f4cbc2086ac49` plus index checkpoint `e2fbd32fabe868462b421dedc2bdea2426e1624f` with no findings. Moshe's later full-campaign authorization supersedes the inter-WP continuation stop while preserving all substantive gates and the separate WP6 route-activation decision.
 
 ## Relationship to ADR-0004
 
@@ -51,8 +52,8 @@ This ADR explicitly proposes to supersede only ADR-0004's geometry-envelope and 
 ## Consequences
 
 - Positive: no invented accuracy claim, no manual fallback, no provider/model dependency in product execution, and no accidental route activation.
-- Negative: Product B feasibility remains unproven; WP1 and all dependent B metrics remain blocked.
-- Residual: Windows hard-RSS enforcement remains unavailable; current memory measurement is diagnostic-only. One fixture cannot support the approved 30-case clean-raster yield gate or required slices. The no-OCR rule conflicts with an unspecified mechanism for obtaining two machine-readable raster scale anchors; Moshe must resolve that conflict without weakening fail-closed scale semantics.
+- Negative: Product B recognition feasibility remains unproven; no accuracy/yield/resource claim exists yet.
+- Residual: Windows hard-RSS enforcement remains unavailable; current memory measurement is diagnostic-only. One synthetic fixture cannot support the approved 30-case clean-raster yield gate or required slices. The future no-OCR scale-discovery mechanism remains a WP1/WP4 contract and evaluator problem; fixture-side authoritative anchors are evaluation truth, not product input.
 
 ## Rollback
 

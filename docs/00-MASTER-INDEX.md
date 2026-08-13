@@ -1,7 +1,7 @@
 # PanoWorld Automation — Master Index
 
 ## סטטוס
-`AUTOMATION_BLUEPRINT_READY_NOT_ACTIVE` — היסטוריית PLAN-000..002 נשמרת ב־PROGRESS. ב־2026-08-13 הוכנה מדיניות Omni-First ותוכנית אוטומציה מלאה ל־WP0–WP6. התכנון **אינו פעיל**: לא בוצעו unblock, dispatch, merge, push, route activation, H200/GPU/cloud/remote או implementation של PLAN-003.
+`AUTOMATION_ACTIVE_WP0_CLOSURE_REVIEW` — משה הפעיל במפורש ב־2026-08-13 את שרשרת ה־Local-only WP0–WP6 לפי מסמכים 08–10. WP0-FX1 עבר review ו־WP0 נמצא ב־`STOP / NOT_EVALUABLE` אמיתי לפני review סגירה מדויק. אין merge/push, route activation, H200/GPU/cloud/remote, G7/G8 או PLAN-003.
 
 מבנה בפועל: ‏`schemas/` ‏(envelope+13), ‏`contracts/` ‏(state machine, error codes, עקרונות אבטחה), ‏`src/pwa/` ‏(validator), ‏`tools/`, ‏`tests/` ‏(כולל golden fixture ‏8.3MB), ‏`docs/decisions/` ‏(ADR-0001..0003), ‏`docs/handoffs/`, ‏`evidence/PLAN-000/`.
 
@@ -50,7 +50,7 @@
 9. [מדיניות האוטומציה החדשה — WP0–WP6](09-מדיניות-האוטומציה-החדשה-WP0-WP6.md)
    - תכנון מלא מראש, מחזור ביצוע מבוקר לכל WP ומטריצת אישורים.
    - auto-recovery מוגבל, checkpoints, rollback ושערים שאינם ניתנים לעקיפה.
-   - המסמך אינו מפעיל את השרשרת; נדרשת הוראת הפעלה מפורשת של משה.
+   - משה סיפק את הוראת ההפעלה המפורשת ב־2026-08-13; כל שערי security/rights/scope/threshold/activation נשארים מחייבים.
 
 10. [תוכנית האוטומציה המפורטת — WP0–WP6](10-תוכנית-האוטומציה-המפורטת-WP0-WP6.md)
    - מיפוי כל WP ל־inputs, agents, routing, tests, evidence, review, retry, checkpoint, rollback ו-gate.
@@ -103,4 +103,4 @@
 
 ## הפעולה הבאה המומלצת
 
-לבצע review אנושי של מסמכים 08–10 ושל גבולות הקמפיין. רק לאחר הוראת activation מפורשת ניתן לבצע preflight, ליישב את הכרטיסים הקיימים מול ה־blueprint ולהתחיל מה־WP הראשון שאינו `VERIFIED`.
+להשלים review read-only של checkpoint הסגירה המדויק של WP0. לאחר APPROVE ו־evidence index תקין, תלות ה־Kanban רשאית לקדם את WP1 אוטומטית בתוך ה־scope המאושר; route activation נשאר חסום עד החלטת משה נפרדת ב־WP6.

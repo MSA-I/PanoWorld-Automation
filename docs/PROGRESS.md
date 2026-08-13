@@ -1,11 +1,13 @@
 # PROGRESS — PanoWorld Automation
 
-## AUTOMATION-BLUEPRINT — READY FOR REVIEW, NOT ACTIVE — 2026-08-13
+## WP0 — CLOSURE CANDIDATE UNDER FINAL REVIEW; CAMPAIGN ACTIVE — 2026-08-13
 
 - נקראו כל 27 מסמכי Markdown שהיו תחת `docs` לפני העדכון; עותק byte-identical נשמר תחת [`originals-pre-automation-20260813/`](originals-pre-automation-20260813/).
 - נכתבו מסמכים [08](08-מדיניות-ניהול-מודלים-וסוכנים-omni-first.md), [09](09-מדיניות-האוטומציה-החדשה-WP0-WP6.md) ו־[10](10-תוכנית-האוטומציה-המפורטת-WP0-WP6.md), ומסמכי הממשל המרכזיים עודכנו.
-- WP0–WP6 הם remediation מקומי; WP6 decision-only. ‏H200/GPU/cloud/remote ו־G7/G8 מחוץ לתחום. PLAN-003 הוא Geometry מקומי אפשרי אך אינו נכלל ב־packet הזה ודורש אישור נפרד.
-- לא בוצעו activation, unblock, dispatch, merge, push או הרצת מוצר. הפעולה הבאה היא review אנושי; activation דורש הוראה מפורשת חדשה של משה.
+- משה אישר במפורש את שרשרת ה־Local-only WP0–WP6 דרך OmniRoute. המעבר בין WPs מותר רק לאחר dependency, evidence, tests ו-review טריים; WP6 הוא decision-only ו-route activation נשאר שער אנושי נפרד.
+- WP0-FX1 נסגר ב־`6c8c378`: fixture סינתטי וזכויות־נקי, truth עצמאי, שלושה scale anchors, replay ‏5/5, ‏7 targeted ו־376 full-suite tests. review עצמאי של `fc3a9c3` + `e2fbd32` החזיר APPROVE ללא findings.
+- ADR-0006 ו־U-1..U-15 עודכנו: verdict של WP0 הוא `STOP / NOT_EVALUABLE` ליכולת recognition, לא כשל fixture ולא GO מנופח. pinned-environment proof, accuracy/yield ו-resource feasibility של recognizer נשארים gates עתידיים.
+- הפעולה הבאה: review read-only של checkpoint הסגירה המדויק; לאחר APPROVE ה־Kanban dependency רשאי לקדם את WP1. אין merge/push או route activation.
 
 ## PLAN-002 — כל תנאי השערים סגורים — ממתין לשער הוויזואלי של משה — 2026-08-11
 
