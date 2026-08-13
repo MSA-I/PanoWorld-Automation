@@ -1,7 +1,7 @@
 {
   "document": "PLAN-002RF WP0 closure evidence index",
-  "index_version": "2.0.0",
-  "generated_against_worktree_parent": "9ae1b27a63984ed71c92624bc5851683e91e1f7c",
+  "index_version": "2.1.0",
+  "generated_against_commit": "826ece05c6b180a75580ca0b1414d5c8627d3cef",
   "controlling_packet_sha256": "95c4cfd8711d4c2335d9905285b977118ba89cff440aa90c1a9cb5aab74422f7",
   "entries": [
     {
@@ -9,6 +9,12 @@
       "git_blob": "7e6fe22ff3a368752781dff0073d29180a272129",
       "sha256": "sha256:88bd96b4c56e41f39eab1ba0246656fe53bb17fca520ba5ea9988b42cca80e88",
       "bytes": 3529
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP0/RUN-REPORT.md",
+      "git_blob": "96b0f324a8e9498b91a7cccc0f3caceab558300b",
+      "sha256": "sha256:a8bb56c2de5249f0c4be9b9d7cde8d9acdba8065f943ff69ce23b7bd171637e1",
+      "bytes": 8427
     },
     {
       "path": "evidence/PLAN-002RF/WP0/cpu-feasibility-exit-code.txt",
@@ -19,8 +25,8 @@
     {
       "path": "evidence/PLAN-002RF/WP0/cpu-feasibility-result.json",
       "git_blob": "37b9c74fc819a73f558c65cd29b9c57f5e840bc7",
-      "sha256": "sha256:75907d5c2094f5e897d82dfa4061d8d7d14de96c6758c070d2aabfbcb0405d53",
-      "bytes": 1780
+      "sha256": "sha256:3a5d37ce31b15e71ec48ac7bf9d5b6bd5421d48022de6d21e03a7fc230cad8af",
+      "bytes": 1723
     },
     {
       "path": "evidence/PLAN-002RF/WP0/cpu-feasibility-stderr.log",
@@ -31,8 +37,8 @@
     {
       "path": "evidence/PLAN-002RF/WP0/cpu-feasibility-stdout.log",
       "git_blob": "37b9c74fc819a73f558c65cd29b9c57f5e840bc7",
-      "sha256": "sha256:75907d5c2094f5e897d82dfa4061d8d7d14de96c6758c070d2aabfbcb0405d53",
-      "bytes": 1780
+      "sha256": "sha256:3a5d37ce31b15e71ec48ac7bf9d5b6bd5421d48022de6d21e03a7fc230cad8af",
+      "bytes": 1723
     },
     {
       "path": "evidence/PLAN-002RF/WP0/dependency-license-inventory.md",
@@ -67,14 +73,14 @@
     {
       "path": "evidence/PLAN-002RF/WP0/opus-spatial-design-memo.md",
       "git_blob": "0515553f9f9e07dca9db4551d39d0c8d3794ed4b",
-      "sha256": "sha256:96a71152e5e42dcc3932529a5934945759360359a81de742937b7d30b719213a",
-      "bytes": 4695
+      "sha256": "sha256:96d6d73b6f9ba5c1f0f218d74d6a8b6d1ed41843ef06b8972b33246d068cad51",
+      "bytes": 4666
     },
     {
       "path": "evidence/PLAN-002RF/WP0/opus-spatial-design-metadata.json",
       "git_blob": "d3ae65351d25d8bd158dbf8fc8e406f537119571",
-      "sha256": "sha256:b539ac49878429dc45623433b99706da2faf8a8488241f4e1eb611a5929e40b7",
-      "bytes": 694
+      "sha256": "sha256:060bf2d3262f9e6903ebd00150e84a1d7511f444d72ebce91ab7077d027e5d8e",
+      "bytes": 669
     },
     {
       "path": "evidence/PLAN-002RF/WP0/opus-spatial-design-prompt.md",
@@ -93,12 +99,6 @@
       "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
       "sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "bytes": 0
-    },
-    {
-      "path": "evidence/PLAN-002RF/WP0/RUN-REPORT.md",
-      "git_blob": "96b0f324a8e9498b91a7cccc0f3caceab558300b",
-      "sha256": "sha256:a8bb56c2de5249f0c4be9b9d7cde8d9acdba8065f943ff69ce23b7bd171637e1",
-      "bytes": 8427
     }
   ]
 }
