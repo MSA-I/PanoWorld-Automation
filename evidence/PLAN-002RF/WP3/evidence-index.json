@@ -1,0 +1,92 @@
+{
+  "document": "PLAN-002RF WP3 Product A cad_exact evidence index",
+  "index_version": "1.0.0",
+  "generated_against_commit": "01f689c675097a7d8a611fd2c5db81f6573572c7",
+  "controlling_packet_sha256": "95c4cfd8711d4c2335d9905285b977118ba89cff440aa90c1a9cb5aab74422f7",
+  "entries": [
+    {
+      "path": "evidence/PLAN-002RF/WP3/WORKING-PLAN.md",
+      "git_blob": "eedcd9241fd5c085347fa818cdc128aceafb9036",
+      "sha256": "sha256:c2ee703107d7096ec9fe8becbd1418b6b4fd7246b850dc7fa7aa16ce25d26344",
+      "bytes": 6586
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP3/RUN-REPORT.md",
+      "git_blob": "6e06c7bb2eaa9fa5eb7b802d7df4ff901e44f718",
+      "sha256": "sha256:9700699b5fde0ebf75ec2c17d647b679a805318ae5fe9dd466ffdab70271f884",
+      "bytes": 5657
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP3/model-provenance.json",
+      "git_blob": "14c2f6e618e18d84bb13af6444a03575ee6801f0",
+      "sha256": "sha256:9b9e406945bed669c6ebf69243bb20a512e2931fa76d1506384491381cbb9784",
+      "bytes": 2859
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP3/HANDOFF-WP3-to-WP4.md",
+      "git_blob": "1879f8e649c9626396ec94eb7952c6c75b518107",
+      "sha256": "sha256:5562feb8d3f1aee884cd066ca3565bf7d95ad753fcbe18c0556604142d6c0ea3",
+      "bytes": 4586
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP3/review/independent-review-WP3.md",
+      "git_blob": "e486a4b63fa4ef3536ae397e4e4f8390fe2b1670",
+      "sha256": "sha256:a74ad8c0a8d8f078472aaec1be3a14930190a961023b5c4ba1a6d129d35d5d1c",
+      "bytes": 3984
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP3/review/omniroute-review-full.txt",
+      "git_blob": "f7c37f6897aab7de2b994f03604f23167d40b7fd",
+      "sha256": "sha256:3ebb90c407d009bd69759fb31add80111592f1578a94adab0138794c6c34b24c",
+      "bytes": 6441
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP3/review/omniroute-headers.txt",
+      "git_blob": "5bf393eda0f658a7855fd5a3e1ff6301a3c45552",
+      "sha256": "sha256:e297a0d28e0a45697aceef6a022ac2279b31437d067cb3310eb83ad5a7663490",
+      "bytes": 2076
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP3/review/review-brief.txt",
+      "git_blob": "95baec30005f2318e77a4bbf9803076f61f98bf2",
+      "sha256": "sha256:c78903560027cd8ec6d75dea2cb2e99a9a7623279eff48c72d472d84635ffc73",
+      "bytes": 4292
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP3/test-results/wp3-targeted.log",
+      "git_blob": "0c0d9a31c75c8fbfc6737399505f0fc14e7da4c5",
+      "sha256": "sha256:cf30f25c91b392c4a1880bd7470e884474476c65b3556922ac41aec738045d09",
+      "bytes": 463
+    },
+    {
+      "path": "evidence/PLAN-002RF/WP3/test-results/wp3-full-suite.log",
+      "git_blob": "ffcdc69a322de0c401b9e24cc6eae472e437fe67",
+      "sha256": "sha256:b55dc1c208933db30c3331b0478bd813ac02ee8d14660e2c9b5c57d43012502d",
+      "bytes": 1257
+    },
+    {
+      "path": "src/pwa/floorplan/cad_exact_geometry.py",
+      "git_blob": "1250a2dc0e2e673f4c9f98f073482288b26edde0",
+      "sha256": "sha256:e82eb68df935cb9b4b00c8a36506c3edbed2f1298113a3106502a53f585389d7",
+      "bytes": 5370
+    },
+    {
+      "path": "src/pwa/floorplan/cad_exact_worker.py",
+      "git_blob": "ee720f498bffc6179838775134db7cfad5d919c3",
+      "sha256": "sha256:c1be939f8fae544cabe667eaebfb1f74046b88988d45908d0cf3e1b96edaccf0",
+      "bytes": 15525
+    },
+    {
+      "path": "src/pwa/floorplan/cad_exact.py",
+      "git_blob": "9db05260ee10e1db911c6e443bfd53023ad65726",
+      "sha256": "sha256:d039897bd4f01fcd16c023781c19a0ea34ad7666f1f69f542b87609351b32619",
+      "bytes": 15975
+    },
+    {
+      "path": "tests/unit/test_wp3_cad_exact.py",
+      "git_blob": "81964e141f70837c0b29abca0b880b8d6dc8535a",
+      "sha256": "sha256:ce0b8b3d7f7d8625ee2f95ab528b968cac5d7e3be14e47a15315eb9113e1e33c",
+      "bytes": 24579
+    }
+  ]
+}
