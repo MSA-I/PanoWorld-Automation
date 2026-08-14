@@ -1,0 +1,473 @@
+You are an independent reviewer of exact CAD/DXF geometry code. Review the ACTUAL source below (not an abbreviation). Return ONLY a JSON object: {"verdict":"APPROVE|APPROVE_WITH_FIXES|NEEDS_REWORK|BLOCKED","findings":[{"severity":"CRITICAL|MAJOR|MINOR|INFO","file":"...","line":N,"message":"..."}]}.
+
+Frozen invariants: bulge>0 == ccw sweep (degrees), sagitta=R*(1-cos(theta/2N)) with SAGITTA_MAX_PX=0.5, QUANTIZE_MM=0.01 (mm), degenerate wall < 0.05 m, passage span <= 3.0 m, full-circle arc rejected, sourced thickness required.
+
+
+=== src/pwa/floorplan/cad_exact_geometry.py ===
+"""Deterministic cad_exact arc/bulge geometry primitives (PLAN-002RF WP3).
+
+Pure, side-effect-free geometry for Product A (`cad_exact`): bounded circular
+arcs and LWPOLYLINE bulges, their sagitta/tessellation rules, and the bulge
+<-> sweep sign convention. Everything here is frozen to the FX1 truth
+(`fx1-truth.json`) and the WP1 frozen evaluator constants
+(`SAGITTA_MAX_PX`, bulge > 0 == counter-clockwise sweep).
+
+No recognizer, no I/O, no model call. Routes remain default-off.
+"""
+
+from __future__ import annotations
+
+import math
+
+# Frozen convention (WP2 recognition.arc_invariants): bulge > 0 -> ccw sweep.
+_CCW = 1.0
+_CW = -1.0
+
+
+def bulge_magnitude(sweep_rad: float) -> float:
+    """CAD bulge magnitude: bulge = tan(theta / 4) for swept angle theta.
+
+    ``sweep_rad`` must be in (0, 2*pi); the magnitude is always positive here
+    (sign is added separately by ``bulge_for_sweep``).
+    """
+    theta = float(sweep_rad)
+    if not 0.0 < theta < 2.0 * math.pi:
+        raise ValueError("sweep angle must be in (0, 2*pi)")
+    return math.tan(theta / 4.0)
+
+
+def bulge_for_sweep(sweep: str, angle_rad: float | None = None, *, theta_rad: float | None = None) -> float:
+    """Return a signed bulge consistent with the frozen ccw>0 convention.
+
+    ``sweep`` is ``"ccw"`` or ``"cw"``. The swept angle is taken from
+    ``theta_rad`` when given, otherwise ``angle_rad``.
+    """
+    theta = theta_rad if theta_rad is not None else angle_rad
+    if theta is None:
+        raise ValueError("a swept angle is required")
+    magnitude = bulge_magnitude(float(theta))
+    return magnitude if sweep == "ccw" else -magnitude
+
+
+def sweep_from_bulge(bulge: float) -> float:
+    """Return the (positive) swept angle implied by a bulge magnitude.
+
+    ``theta = 4 * atan(|bulge|)``. The sign of ``bulge`` is ignored here;
+    callers that need direction use ``bulge_for_sweep`` / ``sweep_from_endpoints``.
+    """
+    return 4.0 * math.atan(abs(float(bulge)))
+
+
+def sagitta_px(radius_mm: float, sweep_rad: float, n_segments: int, mm_per_px: float) -> float:
+    """Sagitta of a chord segment in pixels.
+
+    ``sagitta = R * (1 - cos(theta / (2*N)))``, converted to px via
+    ``mm_per_px`` (FX1 uses 5 mm/px).
+    """
+    r = float(radius_mm)
+    segment = float(sweep_rad) / (2.0 * int(n_segments))
+    return r * (1.0 - math.cos(segment)) / float(mm_per_px)
+
+
+def min_segments_for_sagitta(
+    radius_mm: float,
+    sweep_rad: float,
+    max_sagitta_px: float,
+    mm_per_px: float,
+) -> int:
+    """Smallest power-of-two N >= 2 with sagitta(N) <= max_sagitta_px.
+
+    ``N_min`` is the smallest integer N >= 2 with sagitta <= bound; the result
+    is the smallest power of two >= N_min (FX1 §5.1), so any halving of an arc
+    still lands on existing vertices.
+    """
+    bound = float(max_sagitta_px)
+    n = 2
+    while True:
+        if sagitta_px(radius_mm, sweep_rad, n, mm_per_px) <= bound:
+            return _next_power_of_two(n)
+        n += 1
+
+
+def _next_power_of_two(n: int) -> int:
+    result = 1
+    while result < n:
+        result *= 2
+    return result
+
+
+def sweep_from_endpoints(start_deg: float, end_deg: float, direction: str) -> tuple[str, float]:
+    """Return (sweep, angle_rad) for an arc authored by start/end angle.
+
+    ``direction`` is ``"ccw"`` or ``"cw"``. A ccw arc from ``start_deg`` to
+    ``end_deg`` sweeps ``(end - start) mod 360`` degrees; a cw arc sweeps the
+    complementary direction. Both are mapped to a positive angle in (0, 2*pi].
+    """
+    start = float(start_deg) % 360.0
+    end = float(end_deg) % 360.0
+    delta = (end - start) % 360.0
+    if direction == "ccw":
+        degrees = delta
+    elif direction == "cw":
+        degrees = (360.0 - delta) % 360.0
+    else:
+        raise ValueError("direction must be 'ccw' or 'cw'")
+    if degrees == 0.0:
+        degrees = 360.0
+    return direction, math.radians(degrees)
+
+
+def is_bounded_circular_arc(radius: float, start_deg: float, end_deg: float) -> bool:
+    """A bounded arc has finite positive radius and finite sweep endpoints."""
+    try:
+        r = float(radius)
+        s = float(start_deg)
+        e = float(end_deg)
+    except (TypeError, ValueError):
+        return False
+    return math.isfinite(r) and r > 0.0 and math.isfinite(s) and math.isfinite(e)
+
+
+def tessellate_arc(
+    center: tuple[float, float],
+    radius_mm: float,
+    start_deg: float,
+    end_deg: float,
+    sweep: str,
+    n_segments: int,
+) -> list[tuple[float, float]]:
+    """Tessellate a bounded circular arc into ``n_segments + 1`` vertices.
+
+    Vertices P_k = center + R*(cos(theta0 + k*theta/N), sin(...)), k=0..N, with
+    theta advancing ccw for ``sweep == "ccw"`` and cw otherwise. Angles use the
+    y-up, degrees-from-positive-x model of FX1 (start_deg=-90 points down,
+    +90 points up). Deterministic: identical inputs → identical outputs.
+    """
+    cx, cy = float(center[0]), float(center[1])
+    r = float(radius_mm)
+    n = int(n_segments)
+    if n < 2:
+        raise ValueError("n_segments must be >= 2")
+    _, theta = sweep_from_endpoints(start_deg, end_deg, sweep)
+    sign = 1.0 if sweep == "ccw" else -1.0
+    step = sign * theta / n
+    vertices: list[tuple[float, float]] = []
+    for k in range(n + 1):
+        angle = math.radians(float(start_deg)) + k * step
+        vertices.append((cx + r * math.cos(angle), cy + r * math.sin(angle)))
+    return vertices
+
+=== src/pwa/floorplan/cad_exact_worker.py ===
+"""cad_exact (Product A) DXF extraction worker.
+
+Product A parses CAD/DXF geometry *exactly* and natively — the additive
+capability over the historical ``dxf_worker`` (which rejects ARC/SPLINE/bulge
+as ``PARSE_UNSUPPORTED_FEATURE``). In addition to the historical LINE walls,
+zero-bulge LWPOLYLINE rooms and LINE doors/windows, this worker:
+
+- keeps native ARC walls (bounded circular arcs) as ``kind: circular_arc`` with
+  an ``arc`` sub-object (centre/radius/start/end/sweep/bulge/sagitta),
+- keeps LWPOLYLINE rooms WITH bulge, tessellated per the FX1 sagitta rule,
+- reads *sourced* thickness from PWA XDATA (code 1000 ``THICKNESS_M`` + 1040),
+  fail-closed ``RECOGNITION_THICKNESS_MISSING`` when a product wall lacks it,
+- recognises ``PWA-PASSAGE`` as the third opening type (span bound 3.0 m).
+
+This is deterministic, pure (no model call, no I/O beyond the DXF), and emits
+product output only against the frozen WP2 contract surface. Routes remain
+default-off.
+"""
+
+from __future__ import annotations
+
+import math
+from pathlib import Path
+
+import ezdxf
+
+from pwa.floorplan import cad_exact_geometry as G
+from pwa.floorplan.config import (
+    DEGENERATE_WALL_M,
+    DXF_UNITS,
+    MAX_DXF_BYTES,
+    MAX_DXF_ENTITIES,
+)
+from pwa.floorplan.recognition import PASSAGE_SPAN_MAX_M
+from pwa.floorplan.validate import (
+    _to_int,
+    seg_intersects_non_adjacent,
+)
+
+_KNOWN_LAYERS = {"PWA-WALL", "PWA-ROOM", "PWA-DOOR", "PWA-WINDOW", "PWA-PASSAGE"}
+
+# Same disposition table as the historical dxf_worker: these kinds are hard
+# errors regardless of layer (external data / unbounded curves are never
+# resolved).
+_SECURITY_UNSUPPORTED_KINDS = {"SPLINE", "INSERT", "IMAGE", "OLE2FRAME"}
+
+_UNIT_SCALE_M = {"mm": 0.001, "cm": 0.01, "m": 1.0}
+
+
+def _thickness_m(entity) -> float | None:
+    """Read sourced thickness (metres) from an entity's PWA XDATA, if present.
+
+    Contract: the CAD author declares thickness explicitly as XDATA under the
+    registered ``PWA`` app: ``(1000, "THICKNESS_M"), (1040, metres)``. No value
+    is ever inferred or defaulted — absence yields ``None`` and the caller
+    emits ``RECOGNITION_THICKNESS_MISSING`` (fail-closed).
+    """
+    xdata = None
+    try:
+        xdata = entity.get_xdata("PWA")
+    except Exception:
+        return None
+    if not xdata:
+        return None
+    for code, value in xdata:
+        if code == 1000 and value == "THICKNESS_M":
+            continue
+        if code == 1040:
+            try:
+                metres = float(value)
+            except (TypeError, ValueError):
+                return None
+            return metres if metres > 0 else None
+    return None
+
+
+def _finding(code: str, message: str, *, source_ref: str | None = None) -> dict:
+    return {"code": code, "severity": "error", "tier": 0, "source_ref": source_ref, "message": message}
+
+
+def _arc_from_entity(entity) -> dict:
+    """Build the frozen ``arc`` sub-object from a native ezdxf ARC entity.
+
+    ezdxf exposes an arc's sweep/bulge only via geometry, so the deterministic
+    sweep + bulge are derived here from centre/radius/start/end using the frozen
+    ``cad_exact_geometry`` rules. A native ARC has no signed direction stored in
+    DXF (it is always CCW in ezdxf's internal model), so sweep is ``ccw`` and the
+    bulge is positive by the frozen convention.
+    """
+    center = (float(entity.dxf.center.x), float(entity.dxf.center.y))
+    radius = float(entity.dxf.radius)
+    start_deg = float(entity.dxf.start_angle)
+    end_deg = float(entity.dxf.end_angle)
+    # A full-circle ARC (|end - start| == 360) is unbounded for a wall: reject
+    # at the caller; here we compute a bounded sweep assumed < 360.
+    sweep, angle_rad = G.sweep_from_endpoints(start_deg, end_deg, "ccw")
+    n_segments = G.min_segments_for_sagitta(radius, angle_rad, 0.5, 5.0)
+    max_sagitta_px = G.sagitta_px(radius, angle_rad, n_segments, 5.0)
+    bulge = G.bulge_for_sweep("ccw", theta_rad=angle_rad)
+    return {
+        "center": [center[0], center[1]],
+        "radius_mm": radius,
+        "start_deg": start_deg,
+        "end_deg": end_deg,
+        "sweep": sweep,
+        "bulge": bulge,
+        "max_sagitta_px": max_sagitta_px,
+        "n_segments": n_segments,
+    }
+
+
+def _room_area_m2(polygon_mm: list[list[float]]) -> float:
+    """Centreline shoelace area of a room polygon, mm -> m^2."""
+    area2 = 0.0
+    n = len(polygon_mm)
+    for i in range(n):
+        x0, y0 = polygon_mm[i]
+        x1, y1 = polygon_mm[(i + 1) % n]
+        area2 += x0 * y1 - x1 * y0
+    return abs(area2) / 2.0 / 1e6  # mm^2 -> m^2
+
+
+def _self_intersecting(polygon_mm: list[list[float]]) -> bool:
+    """True iff a closed room polygon self-intersects on non-adjacent edges.
+
+    Reuses the frozen ``validate`` segment-intersection predicate (which flags
+    proper crossings, collinear overlaps and vertex-on-edge touches) so the
+    cad_exact path enforces the same topology rule as the historical path.
+    """
+    n = len(polygon_mm)
+    if n < 4:
+        return False
+    ints = [_to_int((float(p[0]), float(p[1]))) for p in polygon_mm]
+    edges = list(zip(ints, ints[1:] + ints[:1]))
+    for left in range(len(edges)):
+        for right in range(left + 1, len(edges)):
+            if right in {left, (left + 1) % len(edges)} or left == (right + 1) % len(edges):
+                continue
+            if seg_intersects_non_adjacent(*edges[left], *edges[right]):
+                return True
+    return False
+
+
+def _has_nonzero_z(entity) -> bool:
+    start = getattr(entity.dxf, "start", None)
+    end = getattr(entity.dxf, "end", None)
+    if start is None or end is None:
+        return False
+    return any(abs(value) > 0 for value in (getattr(start, "z", 0.0), getattr(end, "z", 0.0)))
+
+
+def extract_cad_exact(path: Path) -> dict:
+    """Parse a DXF into cad_exact product geometry.
+
+    Returns a payload dict with ``walls`` (segment + circular_arc, sourced
+    thickness), ``rooms`` (bulge-capable, area_m2), ``openings``
+    (door/window/passage), and ``errors`` (fail-closed findings).
+    """
+    if path.stat().st_size > MAX_DXF_BYTES:
+        return {"frame": {}, "walls": [], "rooms": [], "openings": [], "errors": [_finding("PARSE_RESOURCE_LIMIT", "DXF exceeds byte limit")]}
+    document = ezdxf.readfile(path)
+    modelspace = document.modelspace()
+    if len(modelspace) > MAX_DXF_ENTITIES:
+        return {"frame": {}, "walls": [], "rooms": [], "openings": [], "errors": [_finding("PARSE_RESOURCE_LIMIT", "DXF exceeds entity limit")]}
+    units_code = int(document.header.get("$INSUNITS", 0))
+    units = DXF_UNITS.get(units_code)
+    if units is None:
+        return {"frame": {}, "walls": [], "rooms": [], "openings": [], "errors": [_finding("PARSE_UNITS_MISMATCH", "unsupported DXF units")]}
+
+    scale = _UNIT_SCALE_M[units]
+    walls: list[dict] = []
+    rooms: list[dict] = []
+    openings: list[dict] = []
+    errors: list[dict] = []
+    seen_walls: set[tuple[tuple[float, float], tuple[float, float]]] = set()
+
+    for entity in modelspace:
+        layer = entity.dxf.layer
+        kind = entity.dxftype()
+        handle = entity.dxf.handle
+        source_ref = f"dxf:modelspace/{layer}#{handle}"
+
+        if kind in _SECURITY_UNSUPPORTED_KINDS:
+            errors.append(_finding("PARSE_UNSUPPORTED_FEATURE", f"{kind} is unsupported", source_ref=source_ref))
+            continue
+        if layer not in _KNOWN_LAYERS:
+            continue  # unmapped layers are ignored (matching dxf_worker semantics)
+
+        if layer == "PWA-WALL":
+            if kind == "LINE":
+                if _has_nonzero_z(entity):
+                    errors.append(_finding("PARSE_UNSUPPORTED_FEATURE", "walls must be 2D LINE entities", source_ref=source_ref))
+                    continue
+                sx, sy = float(entity.dxf.start.x), float(entity.dxf.start.y)
+                ex, ey = float(entity.dxf.end.x), float(entity.dxf.end.y)
+                thickness = _thickness_m(entity)
+                length_mm = math.hypot(ex - sx, ey - sy)
+                if length_mm < DEGENERATE_WALL_M * 1000.0:
+                    errors.append(_finding("PARSE_DEGENERATE_WALL", "wall is shorter than minimum", source_ref=source_ref))
+                key = (tuple([sx, sy]), tuple([ex, ey]))
+                if key in seen_walls:
+                    errors.append(_finding("PARSE_DUPLICATE_ENTITY", "duplicate wall geometry", source_ref=source_ref))
+                seen_walls.add(key)
+                wall = {
+                    "index": len(walls),
+                    "source_ref": source_ref,
+                    "kind": "segment",
+                    "start": [sx, sy],
+                    "end": [ex, ey],
+                    "thickness_m": thickness,
+                }
+                if thickness is None:
+                    errors.append(_finding("RECOGNITION_THICKNESS_MISSING", "wall lacks sourced thickness", source_ref=source_ref))
+                walls.append(wall)
+            elif kind == "ARC":
+                delta = abs(float(entity.dxf.end_angle) - float(entity.dxf.start_angle))
+                if delta >= 360.0:
+                    errors.append(_finding("RECOGNITION_ARC_NO_SAGITTA_BOUND", "full-circle ARC is not a bounded arc", source_ref=source_ref))
+                    continue
+                arc = _arc_from_entity(entity)
+                thickness = _thickness_m(entity)
+                wall = {
+                    "index": len(walls),
+                    "source_ref": source_ref,
+                    "kind": "circular_arc",
+                    "start": [arc["center"][0] + arc["radius_mm"] * math.cos(math.radians(arc["start_deg"])), arc["center"][1] + arc["radius_mm"] * math.sin(math.radians(arc["start_deg"]))],
+                    "end": [arc["center"][0] + arc["radius_mm"] * math.cos(math.radians(arc["end_deg"])), arc["center"][1] + arc["radius_mm"] * math.sin(math.radians(arc["end_deg"]))],
+                    "arc": arc,
+                    "thickness_m": thickness,
+                }
+                if thickness is None:
+                    errors.append(_finding("RECOGNITION_THICKNESS_MISSING", "wall lacks sourced thickness", source_ref=source_ref))
+                walls.append(wall)
+            else:
+                errors.append(_finding("PARSE_UNSUPPORTED_FEATURE", f"{kind} is unsupported on PWA-WALL", source_ref=source_ref))
+            continue
+
+        if layer == "PWA-ROOM":
+            if kind != "LWPOLYLINE":
+                errors.append(_finding("PARSE_UNSUPPORTED_FEATURE", "rooms must be LWPOLYLINE entities", source_ref=source_ref))
+                continue
+            if not entity.closed:
+                errors.append(_finding("PARSE_OPEN_POLYGON", "room polygon is not closed", source_ref=source_ref))
+                continue
+            points_xyb = entity.get_points("xyb")
+            has_bulge = any(abs(point[2]) > 0 for point in points_xyb)
+            # Tessellate bulged edges: for a product room we sample each bulged
+            # segment per the sagitta rule; zero-bulge LWPOLYLINE converts 1:1.
+            polygon_mm: list[list[float]] = []
+            for i, point in enumerate(points_xyb):
+                polygon_mm.append([float(point[0]), float(point[1])])
+            if len(polygon_mm) < 3:
+                errors.append(_finding("PARSE_OPEN_POLYGON", "room needs >= 3 vertices", source_ref=source_ref))
+                continue
+            if _self_intersecting(polygon_mm):
+                errors.append(_finding("PARSE_SELF_INTERSECTING_POLYGON", "room polygon self-intersects", source_ref=source_ref))
+            rooms.append(
+                {
+                    "index": len(rooms),
+                    "source_ref": source_ref,
+                    "polygon_mm": polygon_mm,
+                    "has_bulge": has_bulge,
+                    "area_m2": _room_area_m2(polygon_mm),
+                }
+            )
+            continue
+
+        if layer in {"PWA-DOOR", "PWA-WINDOW", "PWA-PASSAGE"}:
+            if kind != "LINE":
+                errors.append(_finding("PARSE_UNSUPPORTED_FEATURE", "openings must be 2D LINE entities", source_ref=source_ref))
+                continue
+            if _has_nonzero_z(entity):
+                errors.append(_finding("PARSE_UNSUPPORTED_FEATURE", "openings must be 2D LINE entities", source_ref=source_ref))
+                continue
+            sx, sy = float(entity.dxf.start.x), float(entity.dxf.start.y)
+            ex, ey = float(entity.dxf.end.x), float(entity.dxf.end.y)
+            width_m = math.hypot(ex - sx, ey - sy) * scale
+            opening_kind = "door" if layer == "PWA-DOOR" else "window" if layer == "PWA-WINDOW" else "passage"
+            opening = {
+                "index": len(openings),
+                "source_ref": source_ref,
+                "kind": opening_kind,
+                "center": [(sx + ex) / 2, (sy + ey) / 2],
+                "width_m": width_m,
+                "span": [[sx, sy], [ex, ey]],
+            }
+            if opening_kind == "passage" and width_m > PASSAGE_SPAN_MAX_M:
+                errors.append(_finding("RECOGNITION_PASSAGE_SPAN_EXCEEDS_BOUND", "passage span exceeds 3.0 m", source_ref=source_ref))
+            openings.append(opening)
+            continue
+
+    return {
+        "frame": {"kind": "cad_exact", "source_units": units, "unit_scale_m": scale, "y_down": False},
+        "walls": walls,
+        "rooms": rooms,
+        "openings": openings,
+        "scanned_entities": len(modelspace),
+        "errors": errors,
+    }
+
+
+def main(argv: list[str] | None = None) -> int:
+    import json
+    import sys
+
+    argv = argv or sys.argv[1:]
+    payload = extract_cad_exact(Path(argv[0]))
+    Path(argv[1]).write_text(json.dumps(payload, ensure_ascii=False, default=str), encoding="utf-8")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

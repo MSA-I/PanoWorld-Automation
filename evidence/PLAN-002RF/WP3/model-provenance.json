@@ -1,0 +1,51 @@
+{
+  "document": "WP3 model/provenance runtime record",
+  "task": "t_aa5fb2fb",
+  "recorded_at": "2026-08-14",
+  "governing_policy": "docs/08-מדיניות-ניהול-מודלים-וסוכנים-deepseek-first.md (MODEL-AGENT-MANAGEMENT-v4-AUTONOMOUS) + Moshe full-campaign authorization 2026-08-13",
+  "active_runtime": {
+    "provider": "openrouter",
+    "model": "deepseek/deepseek-v4-pro-0813",
+    "fallback_providers": [],
+    "source": "profiles/panoworld/config.yaml model.default / provider / fallback_providers"
+  },
+  "implementer_identity": {
+    "provider": "openrouter",
+    "model": "deepseek/deepseek-v4-pro-0813"
+  },
+  "omniroute_gateway": {
+    "reachable": true,
+    "base_url": "http://127.0.0.1:20128/v1",
+    "probe": "GET /v1/models -> HTTP 200 (382 models). Used ONLY for the independent read-only review; not the implementer routing.",
+    "active_for_this_session": false
+  },
+  "independent_review_routing": {
+    "requested_route": "anthropic opus-level (critical geometry) -> felo/felo-chat",
+    "resolved_provider": "felo",
+    "resolved_model": "felo-chat",
+    "authoritative_source": "response HTTP headers x-omniroute-provider / x-omniroute-model",
+    "cross_provider_from_implementer": true,
+    "verdict": "APPROVE_WITH_FIXES"
+  },
+  "candidate_routes_probed_and_unavailable_this_run": {
+    "oc/claude-opus-5": "HTTP 000 timeout",
+    "opencode/claude-opus-5": "HTTP 000 timeout",
+    "auto/claude-opus": "HTTP 000 timeout",
+    "oc/claude-opus-4-8": "HTTP 401 missing API key",
+    "opencode/claude-fable-5": "HTTP 401 missing API key",
+    "tllm/CLAUDE_4_6_OPUS": "HTTP 403 egress blocked by Vercel",
+    "mcode/mimo-auto": "HTTP 400 unsupported model",
+    "pepper/pepper-1": "HTTP 502 fetch failed",
+    "auto/best-*": "resolve to felo-chat behind the scenes"
+  },
+  "geometry_critical_work": {
+    "new_spatial_design_in_wp3": true,
+    "rationale": "WP3 is the FIRST recognizer and produces NEW native arc/bulge geometry, sagitta tessellation, and quantized junctions — the Anthropic-Opus spatial review gate is triggered. Opus routes were unreachable (see above); the pre-approved fallback was applied: independent cross-provider review preserved via felo-chat (cross-provider vs openrouter implementer), thresholds never weakened, and a deterministic line-by-line self-review corroborated the LLM review.",
+    "fallback_impact": "The Opus-level spatial review could not be proven reachable; fallback recorded per Moshe 2026-08-13 authorization. No accuracy/acceptance threshold was weakened."
+  },
+  "review_outcome": {
+    "cross_provider_review": "APPROVE_WITH_FIXES (felo-chat)",
+    "crash_fixed": "CRITICAL-1: bulged LWPOLYLINE room edges now tessellated per FX1 sagitta rule (TDD-locked)",
+    "deterministic_review": "identified + closed topology/resource/adversarial/rollback acceptance gates"
+  }
+}

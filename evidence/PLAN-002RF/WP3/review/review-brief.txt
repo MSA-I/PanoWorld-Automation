@@ -1,0 +1,68 @@
+INDEPENDENT READ-ONLY CODE REVIEW — PLAN-002RF WP3 (Product A: cad_exact)
+
+Verdict format required: return a JSON object with:
+  verdict: APPROVE | APPROVE_WITH_FIXES | NEEDS_REWORK | BLOCKED
+  findings: [{severity: CRITICAL|MAJOR|MINOR|INFO, file, line, message}]
+
+REVIEW RULES (fail closed):
+- You are reviewing a NEW additive DXF parser ("cad_exact") for the approved local-only geometry envelope.
+- It must be exact/deterministic (no float nondeterminism in output), fail-closed on:
+  scale (unit), topology (degenerate wall, self-intersecting room, duplicate wall,
+  open polygon, full-circle arc), resource (entity/byte caps), security (SPLINE/
+  INSERT/IMAGE/OLE2FRAME refuse), sourced thickness (missing => block), passage
+  span > 3.0 m (block).
+- It must NOT change the historical dxf_worker (which rejects ARC/bulge). Verify
+  additive-only.
+- Arc bulge sign convention is frozen: bulge > 0 == counter-clockwise (ccw) sweep.
+- Output is scored exactly by frozen evaluator canonical_key (mm, quantized to 0.01).
+- Routes remain default-off; no activation; no remote/GPU/spend.
+
+CONTEXT (frozen contracts):
+- recognition.arc_invariants: bulge > 0 => ccw, bulge < 0 => cw; mismatch => blocking.
+- evaluator QUANTIZE_MM = 0.01; SAGITTA_MAX_PX = 0.5; sagitta = R*(1-cos(theta/2N)).
+- check_thickness: thickness None or <= 0 => RECOGNITION_THICKNESS_MISSING (block).
+- PASSAGE_SPAN_MAX_M = 3.0.
+- MAX_DXF_BYTES = 50 MiB; MAX_DXF_ENTITIES = 200000; DEGENERATE_WALL_M = 0.05 m.
+
+=== FILES UNDER REVIEW (abbreviated) ===
+
+=== src/pwa/floorplan/cad_exact_geometry.py (pure arc/bulge math) ===
+bulge_magnitude(sweep_rad): tan(theta/4), theta in (0,2pi)
+bulge_for_sweep(sweep, theta): +magnitude if ccw else -magnitude
+sweep_from_bulge(bulge): 4*atan(|bulge|)
+sagitta_px(radius_mm, sweep_rad, n, mm_per_px): R*(1-cos(segment)) / mm_per_px, segment=theta/(2N)
+min_segments_for_sagitta(...): smallest power-of-two N>=2 with sagitta<=bound
+sweep_from_endpoints(start,end,dir): ccw delta=(end-start)%360; cw=(360-delta)%360
+is_bounded_circular_arc(radius,start,end): finite, radius>0, finite endpoints
+tessellate_arc(center,radius,start,end,sweep,n): n+1 vertices, ccw->+step, cw->-step
+
+=== src/pwa/floorplan/cad_exact_worker.py (DXF extraction, in-process) ===
+- reads $INSUNITS -> DXF_UNITS {4:mm,5:cm,6:m}; unknown => PARSE_UNITS_MISMATCH
+- byte limit (MAX_DXF_BYTES) and entity limit (MAX_DXF_ENTITIES) checked up front
+- _SECURITY_UNSUPPORTED_KINDS = {SPLINE, INSERT, IMAGE, OLE2FRAME} => PARSE_UNSUPPORTED_FEATURE
+- PWA-WALL: LINE (2D only, rejects nonzero-Z) => segment wall with sourced thickness;
+  ARC => circular_arc (bounded; full-circle rejected); missing thickness => RECOGNITION_THICKNESS_MISSING
+- degenerate wall (< DEGENERATE_WALL_M) => PARSE_DEGENERATE_WALL; duplicate wall => PARSE_DUPLICATE_ENTITY
+- PWA-ROOM: LWPOLYLINE closed; bulge flagged; self-intersecting => PARSE_SELF_INTERSECTING_POLYGON;
+  <3 vertices => PARSE_OPEN_POLYGON; area via shoelace
+- PWA-DOOR/WINDOW/PASSAGE: LINE 2D; passage width > 3.0 => RECOGNITION_PASSAGE_SPAN_EXCEEDS_BOUND
+- output: frame{kind:cad_exact, unit_scale_m}, walls, rooms, openings, errors
+
+=== src/pwa/floorplan/cad_exact.py (emitter + FX1 scorer) ===
+- emit_floorplan_parse: mm-in-metres? NO — inputs are METRES; quantizes to frozen grid (0.01mm),
+  declares source_class="cad_exact", emits arc sub-object, thickness, openings;
+  returns (payload, recognition_findings).
+- resolve opening host by span collinearity / radial distance for arcs.
+- score_against_truth: projects truth+pred to mm-only, exact canonical-key match,
+  supportable count, accuracy = correct/supportable.
+- render_cad_exact_svg: deterministic SVG; arcs render as native A-paths.
+
+=== tests/unit/test_wp3_cad_exact.py ===
+Sections A-E + G: bulge math, worker parse, emitter+scorer, FX1 1.000 end-to-end,
+migration (historical dxf still rejects arc/bulge), SVG render, and G:
+topology (degenerate/self-intersect/duplicate), resource (entity+byte caps),
+adversarial (nonzero-Z), rollback (pure/idempotent/deterministic).
+
+Your job: identify defects in the geometry math, unit conversion (mm vs m), the
+bulge/sweep sign convention, the fail-closed refusal coverage, and any additive
+violation of the historical path. Be precise and evidence-backed (file/line).

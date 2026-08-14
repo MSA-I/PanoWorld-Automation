@@ -1,0 +1,650 @@
+{
+ "verdict": "APPROVE_WITH_FIXES",
+ "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "Bulged LWPOLYLINE room edges are not tessellated. The code reads bulge values (has_bulge) but appends only the raw vertex coordinates to polygon_mm, ignoring the bulge. This violates the frozen invariant that bulged edges must be tessellated per the sagitta rule (SAGITTA_MAX_PX=0.5). The resulting room polygon and area are geometrically incorrect for any bulged room."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
+    },
+    {
+      "severity": "MAJOR",
+      "file": "src/pwa/floorplan/cad_exact_worker.py",
+      "line": 300,
+      "message": "The room polygon is not tessellated for bulged edges, so the self-intersection check and area calculation operate on the wrong geometry. This can produce false negatives/positives for topology validation and incorrect area_m2 values."
