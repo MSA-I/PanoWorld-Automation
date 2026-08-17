@@ -12,7 +12,7 @@ WP2 (contracts):
 - 2-parameter (theta, rho) Hough accumulator for segment walls;
 - contour following + Kasa/Pratt algebraic circle fit (RMS residual) for arcs;
 - paired-edge thickness recovery;
-- two-anchor scale validation (median residual + disagreement);
+- multi-anchor (>= 3) scale validation (median residual + disagreement);
 - face/topology derivation + fail-closed refusals.
 
 The fixture is ``evidence/PLAN-002RF/WP0-FX1/fixture/fx1.png`` (2400x2000
@@ -117,25 +117,48 @@ def test_circle_fit_rejects_noise_with_high_residual():
     assert residual > 10.0
 
 
-def test_two_anchor_scale_median_residual_and_disagreement():
-    # Two anchors, each m/px = span px / real metres. All agree -> residual ~0.
+def test_scale_fit_requires_at_least_three_anchors():
+    # U-2 (n=2 collapse): with only two anchors the median residual and the
+    # pairwise disagreement collapse to the same quantity (disagreement ==
+    # 2 * median_residual), so a single wrong anchor can never be detected.
+    # Fewer than three admissible anchors must resolve to a null fit so the
+    # worker fails closed on SCALE_ANCHORS_INSUFFICIENT.
     anchors = [
         {"span_px": 1000.0, "real_length_m": 5.0},   # 0.005 m/px
         {"span_px": 1200.0, "real_length_m": 6.0},   # 0.005 m/px
     ]
     fit = G.fit_scale(anchors)
+    assert fit["m_per_px"] is None
+    assert fit["count"] == 2
+    assert fit["median_residual"] == float("inf")
+    assert fit["disagreement"] == float("inf")
+
+
+def test_scale_fit_three_agreeing_anchors_resolve_exactly():
+    # The three FX1 anchors all give 0.005 m/px exactly; n=3 makes median and
+    # disagreement genuinely distinct and both must be ~0.
+    anchors = [
+        {"span_px": 1000.0, "real_length_m": 5.0},   # 0.005 m/px (A-S)
+        {"span_px": 1200.0, "real_length_m": 6.0},   # 0.005 m/px (A-W)
+        {"span_px": 400.0, "real_length_m": 2.0},    # 0.005 m/px (A-D)
+    ]
+    fit = G.fit_scale(anchors)
     assert fit["m_per_px"] == pytest.approx(0.005)
+    assert fit["count"] == 3
     assert fit["median_residual"] < 0.01
     assert fit["disagreement"] < 0.02
 
 
-def test_two_anchor_scale_rejects_contradictory_anchors():
-    # A 17% disagreement (the NA-5 case) must fail closed.
+def test_scale_fit_rejects_contradictory_anchor_among_three():
+    # A ~17% off anchor (the NA-5 case) among three must fail the disagreement
+    # bound even though the median is still the correct value.
     anchors = [
-        {"span_px": 1000.0, "real_length_m": 5.0},   # 0.005 m/px
-        {"span_px": 1000.0, "real_length_m": 5.85},  # ~0.00585 m/px -> ~17% off
+        {"span_px": 1000.0, "real_length_m": 5.0},    # 0.005 m/px
+        {"span_px": 1200.0, "real_length_m": 6.0},    # 0.005 m/px
+        {"span_px": 1000.0, "real_length_m": 5.85},   # ~0.00585 m/px -> ~17% off
     ]
     fit = G.fit_scale(anchors)
+    assert fit["m_per_px"] == pytest.approx(0.005)   # median still the good value
     assert fit["disagreement"] > 0.02
 
 

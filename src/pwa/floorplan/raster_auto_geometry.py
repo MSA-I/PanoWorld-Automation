@@ -31,6 +31,7 @@ MAX_SUPPRESSED_INK_FRACTION = 0.25
 MAX_UNEXPLAINED_INK_FRACTION = 0.10
 SCALE_MEDIAN_RESIDUAL_MAX = 0.01  # AT-15: median anchor residual <= 1%
 SCALE_DISAGREEMENT_MAX = 0.02     # AT-15: anchor disagreement <= 2%
+MIN_SCALE_ANCHORS = 3             # U-2: <3 anchors cannot detect a wrong anchor (n=2 collapse)
 HOUGH_THETA_STEP_DEG = 0.25
 ARC_RMS_RESIDUAL_MAX_PX = 1.0    # U-3 (draft): arc fit acceptance bound
 
@@ -328,18 +329,24 @@ def min_anchor_span_px(anchors: list[dict]) -> float:
 
 
 def fit_scale(anchors: list[dict]) -> dict:
-    """Two-anchor (or multi-anchor) scale fit, frozen AT-15 semantics.
+    """Multi-anchor scale fit, frozen AT-15 semantics, n >= MIN_SCALE_ANCHORS.
 
     Each anchor contributes ``m_per_px = real_length_m / span_px``. The fit
     returns the median ``m_per_px``, the median-residual (max relative
     deviation from the median) and the disagreement (max pairwise relative
-    spread). An empty list yields a null fit (residual/disagreement inf).
+    spread).
+
+    Requires at least ``MIN_SCALE_ANCHORS`` (3) admissible anchors. With only
+    two anchors the median residual and the pairwise disagreement collapse to
+    the same quantity (``disagreement == 2 * median_residual``), so a single
+    wrong anchor can never be detected -- a two-anchor "agreement" is not
+    evidence of agreement at all (U-2). Fewer than ``MIN_SCALE_ANCHORS``
+    admissible anchors yields a null fit (residual/disagreement inf) so the
+    caller fails closed.
     """
-    if not anchors:
-        return {"m_per_px": None, "median_residual": float("inf"), "disagreement": float("inf"), "count": 0}
     mpp = [float(a["real_length_m"]) / float(a["span_px"]) for a in anchors if float(a["span_px"]) > 0]
-    if not mpp:
-        return {"m_per_px": None, "median_residual": float("inf"), "disagreement": float("inf"), "count": 0}
+    if len(mpp) < MIN_SCALE_ANCHORS:
+        return {"m_per_px": None, "median_residual": float("inf"), "disagreement": float("inf"), "count": len(mpp)}
     median = float(np.median(mpp))
     residuals = [abs(v - median) / median for v in mpp]
     disagreement = 0.0
