@@ -98,6 +98,20 @@ def test_hough_line_votes_recover_horizontal_and_vertical():
     assert any(abs(t - 0.0) <= 1.0 for t in thetas), ("vertical line -> theta 0", thetas)
 
 
+def test_hough_physical_lines_merges_theta_wrap_into_one_line():
+    # The same physical wall at theta and theta+180 has rho of opposite sign; the
+    # old merge compared rho without negating the wrapped branch, so a single
+    # vertical wall was emitted twice (theta~0 rho=+c AND theta~180 rho=-c).
+    mask = np.zeros((120, 120), dtype=np.uint8)
+    mask[20:100, 60:63] = 1  # vertical 3px stroke, x in [60,62]
+    lines = G.hough_physical_lines(mask, theta_step_deg=0.25, min_votes=30)
+    wall_band = [l for l in lines if 55 <= abs(l["rho"]) <= 70]
+    # After the wrap fix, no representative of this wall sits at theta ~ 180.
+    assert not any(round(l["theta_deg"]) >= 170 for l in wall_band), [
+        f"{l['theta_deg']:.1f}@{l['rho']:.0f}" for l in wall_band
+    ]
+
+
 def test_circle_fit_recovers_center_and_radius():
     # Points on a circle radius 20 around (30, 30); Kasa fit must recover it.
     cx, cy, r = 30.0, 30.0, 20.0

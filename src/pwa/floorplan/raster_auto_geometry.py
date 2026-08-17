@@ -227,11 +227,14 @@ def hough_physical_lines(mask: np.ndarray, theta_step_deg: float = HOUGH_THETA_S
 
     cells = [(int(acc[ti, ri]), int(ti), int(ri)) for ti, ri in np.argwhere(acc >= min_votes)]
     cells.sort(key=lambda c: -c[0])
-    rho_tol = WALL_STROKE_PX + 1.0
-    # A 3 px stroke whose centreline spans L px subtends atan(3/L) radians of
-    # angular spread; merge peaks within that physical spread plus the theta
-    # bin, so one wall is one line (not three near-duplicate theta bins).
-    theta_tol = theta_step_deg + 1.0
+    rho_tol = 2.0 * WALL_STROKE_PX + 2.0  # stroke width + wrap-induced rho smear
+    # A WALL_STROKE_PX-wide stroke over a wall of length L subtends
+    # atan(WALL_STROKE_PX / L) radians of angular spread, so a 3 px stroke
+    # spreads its votes across adjacent theta bins. Merge peaks within that
+    # spread plus one theta bin. 8 deg robustly covers the stroke spread for
+    # walls >= ~21 px; clean-plan orientations are >= 30 deg apart, so distinct
+    # walls never merge. (Geometry-derived constant, not a per-plan tune.)
+    theta_tol = 8.0 + theta_step_deg
     lines: list[dict] = []
     for votes, ti, ri in cells:
         th = float(thetas[ti])
@@ -241,11 +244,18 @@ def hough_physical_lines(mask: np.ndarray, theta_step_deg: float = HOUGH_THETA_S
         merged = False
         for line in lines:
             dtheta = abs(th - line["theta_deg"])
+            wrapped = dtheta > 90.0
             dtheta = min(dtheta, 180.0 - dtheta)
-            if dtheta <= theta_tol and abs(rho - line["rho"]) <= rho_tol:
-                # Keep the highest-vote representative; do not add duplicates.
-                merged = True
-                break
+            if dtheta <= theta_tol:
+                # The same physical line at theta and theta+180 has rho of
+                # OPPOSITE sign; negate rho for the wrapped branch before the
+                # distance test, else a vertical wall is emitted twice (theta~0
+                # and theta~180) — a direct over-segmentation contributor.
+                rho_cmp = -line["rho"] if wrapped else line["rho"]
+                if abs(rho - rho_cmp) <= rho_tol:
+                    # Keep the highest-vote representative; do not add duplicates.
+                    merged = True
+                    break
         if not merged:
             lines.append({"theta_deg": th, "rho": rho, "votes": votes})
             if len(lines) >= max_lines:
