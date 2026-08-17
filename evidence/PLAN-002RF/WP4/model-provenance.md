@@ -30,8 +30,10 @@
 
 ## Independent review routing (filled after the review completes)
 
-- requested: anthropic opus-level (critical geometry) -> cross-provider fallback
-- resolved_provider: (from response headers)
-- resolved_model: (from response headers)
-- cross_provider_from_implementer: (openrouter -> <review provider>)
-- verdict: (pending)
+- requested: anthropic opus-level (critical geometry) — NOT via OmniRoute (user-directed).
+- method: `claude -p --model opus` (Claude Code CLI), read-only, code pasted as data.
+- resolved_provider: anthropic (Claude Code CLI)
+- resolved_model: `claude-opus-5` (confirmed from transcript `"model":"claude-opus-5"`)
+- cross_provider_from_implementer: openrouter (deepseek) -> anthropic (claude-opus-5)
+- verdict: **NEEDS_REWORK** (2 CRITICAL, 7 MAJOR, 4 MINOR, 1 INFO) —
+  see `independent-review-opus-20260817.md`.

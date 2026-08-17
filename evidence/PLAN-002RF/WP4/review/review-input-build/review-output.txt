@@ -1,0 +1,94 @@
+Permission allow rule (C:\Users\art1\.claude\settings.json): Write(D:/משה פרוייקטים/**) is not matched by file permission checks — only Edit(path) rules are. Use Edit(D:/משה פרוייקטים/**) instead (Edit rules cover all file-editing tools).
+```json
+{
+  "findings": [
+    {
+      "file": "src/pwa/floorplan/raster_auto.py",
+      "severity": "CRITICAL",
+      "message": "Fail-closed violation: geometry IS emitted alongside blocking findings. `parse_raster_auto` empties the payload only for `source_errors` (worker findings). `emit_raster_auto_parse` returns a fully populated payload together with `recognition_findings` produced by `recognition.check_thickness`, `recognition.arc_invariants` and `recognition.check_passage_span` — all of which are severity \"error\" in `recognition._SEVERITIES` (RECOGNITION_THICKNESS_MISSING, RECOGNITION_ARC_NO_SAGITTA_BOUND, RECOGNITION_ARC_BULGE_SWEEP_MISMATCH, RECOGNITION_PASSAGE_SPAN_EXCEEDS_BOUND). Concrete path: a wall with `thickness_m: None` (which `_finalize_units` produces whenever mm_per_px is None) or an opening whose 620 px gap converts to 3.1 m > PASSAGE_SPAN_MAX_M yields the blocking code AND the geometry. The claimed W-17/AT-18 property holds only for the worker's error channel, not for the contract layer."
+    },
+    {
+      "file": "src/pwa/floorplan/raster_auto_worker.py",
+      "severity": "CRITICAL",
+      "message": "Resource exhaustion: post-decode guards record findings but never short-circuit. RASTER_LOW_CONTRAST and the INK_FRACTION_BAND breach are appended to `errors` and execution continues into `G.connected_components(ink)` — a pure-Python triple nested per-pixel loop with union-find, run on up to MAX_SOURCE_PIXELS = 100,000,000 pixels — then a per-ink-pixel Hough accumulation, then a SECOND full `connected_components` pass in `_recover_arc_walls`, then `_paint_segment_coverage` (walls x 800 steps x 289 inner iterations in Python). A 100 MP or high-ink raster is hours of CPU and multiple ~400 MB int32 label/coverage arrays, with no timeout applied (PARSER_TIMEOUT_S exists in config but is not enforced on this path). The intake guards are described as firing \"before any pixel allocation\"; the clutter/contrast guards do not."
+    },
+    {
+      "file": "src/pwa/floorplan/raster_auto_worker.py",
+      "severity": "MAJOR",
+      "message": "`_classify_gap_motif` can never return \"door\". `_offset_stroke_length` starts sampling at off=1 from (cen_x, cen_y), which is the CENTRE OF THE GAP — empty by construction — so it breaks immediately and returns 0 for both directions. `perp_run > par_run` is therefore `0 > 0` = False on every gap, so any gap with ink at normal offset 3..11 is classified \"window\" and every other gap is \"passage\". Jamb ticks are never inspected at all. Implementation claim 4 (door/window/passage motif classification per WP0 §4.1) is not met; the door and jamb-tick branches are unreachable code."
+    },
+    {
+      "file": "src/pwa/floorplan/raster_auto_worker.py",
+      "severity": "MAJOR",
+      "message": "`_derive_rooms` returns `[]` on both branches (early return when mm_per_px is None, and an unconditional `return []` after the comment). It is called after `_finalize_units` and overwrites the `rooms` list. The engine can therefore NEVER emit a room, so the frozen 3-room FX1 envelope and the AT-07 clean-emit gate are structurally unreachable even if wall recovery were perfect. The over-segmentation refusal is masking a second, independent implementation gap."
+    },
+    {
+      "file": "src/pwa/floorplan/raster_auto_worker.py",
+      "severity": "MAJOR",
+      "message": "Arc angle conversion is wrong in two places. (1) `_recover_arc_walls` derives the angular extent as `degrees(angles.min())` / `degrees(angles.max())` over `arctan2` output in (-180,180]; an arc crossing the ±180 branch cut reports ~358° instead of its true span, and min/max are not the arc endpoints. (2) `_finalize_units` sets `start_deg = -(start_img % 360.0)`, producing values in (-360, 0], and hardcodes `sweep = \"ccw\"` regardless of the measured direction; the y-flip also swaps the start/end roles, which is not handled. Since `score_against_truth` matches arcs exact-by-key on `start_deg`/`end_deg`, a negative-degree arc can never match a frozen truth arc even when geometrically identical."
+    },
+    {
+      "file": "src/pwa/floorplan/raster_auto_geometry.py",
+      "severity": "MAJOR",
+      "message": "`hough_physical_lines` merge predicate wraps theta (`dtheta = min(dtheta, 180.0 - dtheta)`) but does NOT negate rho for the wrapped branch. At theta and theta+180 the same physical line has rho of opposite sign, so peaks near theta≈0 and theta≈179.75 pass the angular test and fail `abs(rho - line[\"rho\"]) <= 4.0` by ~2r, and are emitted as two distinct physical lines. This is a direct, fixable contributor to the RASTER_OVERSEGMENTED outcome for axis-aligned vertical walls, not an inherent limit of the approach."
+    },
+    {
+      "file": "src/pwa/floorplan/raster_auto_geometry.py",
+      "severity": "MAJOR",
+      "message": "`collinear_runs` projects the ENTIRE ink mask onto each candidate line and keeps every pixel within 2 px perpendicular, so ink belonging to crossing or nearby walls is absorbed into the run set for that line. `merge_collinear_segments` then joins runs across gaps up to 620 px unconditionally, with no verification that the gap is actually an opening (no motif check, no jamb evidence). Together these manufacture long spurious walls spanning unrelated geometry — the second main driver of the over-segmentation the engine then refuses on."
+    },
+    {
+      "file": "src/pwa/floorplan/raster_auto_geometry.py",
+      "severity": "MAJOR",
+      "message": "Scale-dependent thresholds are frozen in PIXELS from the FX1 5 mm/px assumption but applied independently of the resolved manifest scale: `WALL_OPENING_GAP_PX = 620.0` (\"3.0 m passage / 5 mm-per-px\") and `MIN_WALL_LENGTH_PX = 10.0` (\"DEGENERATE_WALL_M = 0.05 m -> 10 px\"). The scale IS available from `fit_scale` before wall recovery but is not used. On any raster at a different resolution the U-4 gap bound no longer corresponds to PASSAGE_SPAN_MAX_M = 3.0 m (at 25 mm/px it silently merges across 15.5 m), so the claim that the merge bound is derived from a frozen span is only true for one fixture."
+    },
+    {
+      "file": "src/pwa/floorplan/raster_auto.py",
+      "severity": "MAJOR",
+      "message": "Truth-in-labelling: the worker never sets a `confidence` key on any wall, room or opening, so `emit_raster_auto_parse`'s `wall.get(\"confidence\", 1.0)` stamps every automatically-recognised entity with `confidence: 1.0` — indistinguishable from a deterministic exact-source parse. An automatic pixel recognizer that has not converged on its only fixture should not be able to emit 1.0 confidence by default."
+    },
+    {
+      "file": "src/pwa/floorplan/raster_auto.py",
+      "severity": "MAJOR",
+      "message": "Provenance loss: `emit_raster_auto_parse` hardcodes `\"scale_m_per_px\": None` even when the manifest scale resolved and was used for every px->mm conversion. `parse_raster_auto` computes `mm_per_px` and passes it to `_wall_to_metres`, `_room_to_metres` and `_opening_to_metres`, where the parameter is unused in all three. The emitted artifact therefore denies the scale its own coordinates depend on, and the anchors that justified it are unrecorded."
+    },
+    {
+      "file": "src/pwa/floorplan/raster_auto_worker.py",
+      "severity": "MINOR",
+      "message": "`_estimate_unexplained_ink` paints radius-4 bands around every EMITTED wall and radius-12 discs around every emitted opening, then counts the remainder. The guard is anti-correlated with correctness: the more spurious over-segmented walls the extractor produces, the more ink is 'explained' and the closer unexplained ink goes to zero. RASTER_UNEXPLAINED_INK is therefore vacuous in exactly the failure mode it is meant to catch."
+    },
+    {
+      "file": "src/pwa/floorplan/raster_auto_geometry.py",
+      "severity": "MINOR",
+      "message": "`fit_scale` returns `median_residual = max(residuals)` — the MAXIMUM relative deviation from the median, not a median residual — and the worker reports it as \"scale anchor median residual exceeds 1%\" against AT-15's named 'median anchor residual <= 1%'. The check is stricter than the criterion so it fails closed rather than open, but the implemented quantity is not the one the acceptance gate names, and the docstring asserts it is."
+    },
+    {
+      "file": "src/pwa/floorplan/raster_auto.py",
+      "severity": "MINOR",
+      "message": "`render_raster_auto_svg` arc path is geometrically wrong for the evidence overlay: the large-arc-flag is hardcoded to 0, so any arc > 180° renders as its minor complement; and the sweep-flag maps ccw->0 without compensating for the y negation applied to every coordinate (`-y`), which reverses orientation, so the drawn direction is inverted. The SVG also has no viewBox/width/height, so extents are undefined for a reviewer."
+    },
+    {
+      "file": "src/pwa/floorplan/raster_auto_worker.py",
+      "severity": "MINOR",
+      "message": "`_decode` opens the image with `Image.open(path)` and never closes it (no context manager, no `.close()` on any return path, including the four refusal returns). On Windows this leaks descriptors and holds a file lock across repeated worker runs. Separately, `_load_authoritative_anchors` reads the whole raster a second time via `path.read_bytes()` for hashing (up to MAX_SOURCE_RASTER_BYTES = 50 MB held twice) instead of streaming."
+    },
+    {
+      "file": "src/pwa/floorplan/raster_auto_worker.py",
+      "severity": "MINOR",
+      "message": "`_load_authoritative_anchors` resolves the manifest as `Path(__file__).resolve().parents[3] / \"evidence\" / ...`, which breaks for any installed or relocated package, and binds anchors to exactly one raster SHA-256. `derive_scale=True` can therefore never resolve scale for any raster other than fx1.png, which is a structural blocker for the R0=30 corpus AT-07 requires — not merely a missing corpus."
+    },
+    {
+      "file": "tests/unit/test_wp4_raster_auto.py",
+      "severity": "MINOR",
+      "message": "The tests cannot catch the fail-closed violation they claim to cover. `test_emit_raster_auto_parse_fails_closed_on_missing_thickness` only asserts the finding string is present; it never asserts the payload's walls list is empty, so it passes while geometry is emitted alongside a blocking error code. `test_extract_raster_auto_recovers_wall_count_with_anchors` uses `assert walls == [] or all(err[\"code\"] in {...})`, which is satisfied by the refusal branch regardless of what geometry is present. `test_otsu_tie_break_is_lowest_index` asserts only `f(x) == f(x)` and verifies nothing about the tie-break."
+    },
+    {
+      "file": "src/pwa/floorplan/raster_auto_worker.py",
+      "severity": "INFO",
+      "message": "Dead/misleading code, in aggregate large enough to mislead a reader about what is implemented: `labels` from the first `connected_components` call is never used (only `n_components`, for the diagnostic `frame[\"components\"]`) — the most expensive computation in the pipeline exists to fill one diagnostic integer; `occupied = ~empty` is computed then re-derived inline; the patch-clipping block in `_classify_gap_motif` ends in `pass`; `_arc_wall_opening` unconditionally returns None so the arc-hosted opening can never be found; `rooms`/`openings` are initialised then immediately reassigned; `main()` indexes `argv[0]` without a length check and uses `json.dumps(..., default=str)`, which silently stringifies numpy scalars rather than failing."
+    }
+  ],
+  "verdict": "NEEDS_REWORK",
+  "summary": "The over-segmentation refusal is itself an honest fail-closed outcome, but the contract layer breaks the same property by emitting full geometry alongside blocking WP2 recognition errors, the clutter/contrast guards do not short-circuit before unbounded pure-Python labelling of up to 100 MP, and three claimed capabilities (door motif, room derivation, arc-hosted opening) are unreachable in code."
+}
+```
