@@ -39,9 +39,12 @@ def _finding(code: str, message: str, *, source_ref: str | None = None) -> dict:
 
 _ALLOWED_FORMATS = {"PNG", "JPEG"}
 
-# Minimum Hough votes for a recognisable straight wall segment (versioned,
-# documented; a wall spans a bounded minimum pixel length before it is accepted).
-MIN_WALL_VOTES = 50
+# Minimum Hough votes for a recognisable straight wall segment on the 1 px
+# wall skeleton (versioned, documented). A 1 px centreline contributes ~1 vote
+# per pixel (vs ~3 for the original 3 px stroke), so the threshold is lower
+# than the pre-skeleton value to keep the shortest FX1 wall (50 px -> ~48 px
+# after erosion) recognisable.
+MIN_WALL_VOTES = 20
 
 # Threshold for the dominant wall orientations (axis-aligned + 3-4-5 diagonal).
 # A clean plan uses a bounded set of machine-consistent angles; anything else is
@@ -172,8 +175,9 @@ def extract_raster_auto(path: object, *, derive_scale: bool) -> dict:
     # --- wall recovery (pixel space) ----------------------------------------
     walls, rooms, openings = [], [], []
 
-    segment_walls = _recover_segment_walls(ink)
-    arc_walls = _recover_arc_walls(ink, segment_walls)
+    wall_ink = G.wall_centerlines(ink)   # 1 px wall skeleton, opening motifs removed
+    segment_walls = _recover_segment_walls(wall_ink, thickness_ink=ink)
+    arc_walls = _recover_arc_walls(wall_ink, segment_walls)
     walls = segment_walls + arc_walls
 
     # --- opening recovery (motif-based, on gaps in the recovered walls) -----
@@ -257,8 +261,12 @@ def _load_authoritative_anchors(path: Path) -> list[dict]:
     return anchors
 
 
-def _recover_segment_walls(ink: np.ndarray) -> list[dict]:
+def _recover_segment_walls(ink: np.ndarray, thickness_ink: np.ndarray | None = None) -> list[dict]:
     """Recover straight segment walls from the ink mask (pixel space).
+
+    ``ink`` is the wall skeleton (1 px centrelines from ``wall_centerlines``);
+    ``thickness_ink`` is the full structural ink used only to recover the stroke
+    thickness (the skeleton is 1 px wide and carries no thickness signal).
 
     Physical-line clustering of the Hough accumulator over the structural ink
     yields the distinct wall orientations; for each line we extract collinear
@@ -266,6 +274,7 @@ def _recover_segment_walls(ink: np.ndarray) -> list[dict]:
     wall. Segments are split at genuine discontinuities (the apse junction
     between the upper and lower east wall). Deterministic and pure.
     """
+    thickness_ink = thickness_ink if thickness_ink is not None else ink
     lines = G.hough_physical_lines(ink, min_votes=MIN_WALL_VOTES)
     walls: list[dict] = []
     seen: set[tuple] = set()
@@ -291,7 +300,7 @@ def _recover_segment_walls(ink: np.ndarray) -> list[dict]:
                 "kind": "segment",
                 "start_px": [float(a[0]), float(a[1])],
                 "end_px": [float(b[0]), float(b[1])],
-                "thickness_px": _stroke_thickness(ink, a, b),
+                "thickness_px": _stroke_thickness(thickness_ink, a, b),
                 "orientation_deg": theta,
             })
     return walls

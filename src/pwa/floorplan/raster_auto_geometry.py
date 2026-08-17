@@ -127,6 +127,21 @@ def binarize_structural(image: np.ndarray) -> np.ndarray:
     return (a == 0).astype(np.uint8)
 
 
+def wall_centerlines(mask: np.ndarray) -> np.ndarray:
+    """Isolate wall strokes from opening motifs by stroke width (FX1 envelope).
+
+    The FX1 clean envelope draws walls as 3 px strokes and opening motifs (door
+    leaves, glazing, jamb ticks) as 2 px strokes, all at the same structural
+    value. A single binary erosion by a 3x3 structuring element removes the
+    2 px motifs outright and thins each 3 px wall to its 1 px centreline — the
+    exact wall skeleton the Hough stage should vote on, free of the motif ink
+    that previously drove over-segmentation (review MAJOR #5/#7).
+    """
+    from scipy import ndimage
+
+    return ndimage.binary_erosion(mask, structure=np.ones((3, 3)), iterations=1).astype(np.uint8)
+
+
 def connected_components(mask: np.ndarray) -> tuple[np.ndarray, int]:
     """8-connected two-pass union-find labelling, deterministic.
 
