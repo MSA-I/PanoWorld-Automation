@@ -26,6 +26,18 @@ Status: the raster_auto engine recovers **72 walls** on the FX1 fixture instead 
    cleanest path. This also fixes the W-E-A/W-E-B merge-across-the-arc (the merge
    threshold `WALL_OPENING_GAP_PX`=620px > the ~600px apse gap).
 
+   **Measured blocker (2026-08-18):** the 3x3 `wall_centerlines` erosion FRAGMENTS
+   the arc. The arc is rendered as a 32-chord polyline (Pillow `draw.line` width=3);
+   the erosion collapses it from ~1862 px (structural, 3px) to ~348 px across 52
+   tiny connected components (largest ~55 px). A RANSAC+guard prototype recovered
+   the FX1 arc correctly (center 1795/1350, r=303) but the fragmentation defeats
+   the contiguity/density guards, and no threshold tune made it robust. Two fix
+   paths: (a) render the arc as a TRUE arc (`ImageDraw.arc` or a dense polyline,
+   not 32 chords) so the erosion leaves a clean 1px arc — cascades to re-freeze FX1
+   + rebuild the corpus; (b) detect the arc from the STRUCTURAL mask (pre-erosion,
+   clean 3px arc) and remove it before erosion. Path (b) is preferred (no fixture
+   churn).
+
 2. **Diagonal via staircase, not Hough.** A 3-4-5 diagonal staircase must be
    recovered by fitting a line to the staircase's pixel cloud (RANSAC/least
    squares at the known 3-4-5 orientation 36.87deg / complement 53.13deg), or by
