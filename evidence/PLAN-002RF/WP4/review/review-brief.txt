@@ -1,0 +1,51 @@
+# WP4 (t_f2830a3e) — Independent cross-provider read-only review brief
+
+- Task: `t_f2830a3e` — WP4 Product B-AUTO (`raster_auto`) clean-raster engine.
+- Commitment: local-only Part 1; no H200/GPU/cloud/remote/spend/G7-G8/Product C/PLAN-003.
+- Code under review: `src/pwa/floorplan/raster_auto{,_geometry,_worker}.py` +
+  `tests/unit/test_wp4_raster_auto.py`, committed at HEAD `560b752` (local only).
+- Controlling packet SHA-256: `95c4cfd8711d4c2335d9905285b977118ba89cff440aa90c1a9cb5aab74422f7`.
+
+## What was implemented
+
+Deterministic CPU-only, no-OCR, no-learned-model recognition of a supported
+clean raster floorplan into `floorplan_parse` 1.2.0 (`source_class: raster_auto`):
+
+1. Intake + containment + canonical decode (fail-closed before pixel allocation).
+2. Thresholding (global Otsu + separability gate) + connected-component labelling.
+3. Line/arc voting (2-parameter Hough + physical-line clustering; Kasa circle fit
+   for the bounded arc) + stroke thickness recovery.
+4. Opening motif classification (door/window/passage per WP0 §4.1: gap + jamb
+   ticks + leaf/glazing/nothing).
+5. Two-anchor scale validation (median residual + disagreement) from the
+   hash-bound manifest.
+6. Fail-closed refusals: low-contrast, clutter-over-band, unexplained ink,
+   over-segmentation (`RASTER_OVERSEGMENTED`), unsupported format, missing/oversized.
+7. FX1-truth scorer (exact-by-key via the frozen WP1 evaluator) + deterministic SVG.
+
+## Honest state (not a claim of acceptance)
+
+The pixel-recognition extraction does NOT yet converge to the exact 9-wall /
+6-opening / 3-room / 1-arc frozen-truth envelope on the single real fixture
+(`fx1.png`): Hough over-segmentation produces many collinear-fragment walls and
+the opening motifs are partially conflated with wall ink. The engine therefore
+DETECTS this (`RASTER_OVERSEGMENTED`) and emits ZERO geometry — the correct
+fail-closed behavior — rather than emitting a manufactured partial plan (W-17).
+
+The ≥29/30 clean-emit acceptance gate (AT-07) requires the R0=30 corpus, which
+does not exist in this repository (n=1 fixture). U-2/U-3/U-4/U-5 remain BLOCKED;
+AT-21 (blind truth) has no realised labeler output. These are human-gated
+prerequisites, not technical failures; this WP blocks on them rather than
+fabricating accuracy.
+
+## Review request
+
+Read-only review of the committed code + tests. Flag (a) any security/resource
+defect, (b) any logic/determinism defect, (c) any place the "fail-closed"
+property is violated (geometry emitted alongside a blocking finding), and
+(d) whether the over-segmentation refusal is a defensible fail-closed outcome
+versus a defect that should instead produce a correct clean plan. Severity:
+CRITICAL / MAJOR / MINOR / INFO; verdict APPROVE / APPROVE_WITH_FIXES /
+NEEDS_REWORK / BLOCKED.
+
+The review is read-only: do not edit any file.

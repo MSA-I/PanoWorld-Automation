@@ -1,0 +1,10 @@
+============================= test session starts =============================
+platform win32 -- Python 3.11.15, pytest-9.1.1, pluggy-1.6.0
+rootdir: D:\משה פרוייקטים\פיתוח אתרים\PanoWorld-Automation
+configfile: pyproject.toml
+plugins: anyio-4.12.1
+collected 25 items
+
+tests\unit\test_wp4_raster_auto.py .........................             [100%]
+
+============================= 25 passed in 49.40s =============================
