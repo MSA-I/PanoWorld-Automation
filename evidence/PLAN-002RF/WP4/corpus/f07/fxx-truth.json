@@ -1,7 +1,7 @@
 {
   "document": "fxx-frozen-independent-truth",
   "version": "1.0.0",
-  "source_sha256": "sha256:ff5d3b09758dbc4b67e052d90a1c1cc1932f3ed5371ff3537f8deb48ad0b30bc",
+  "source_sha256": "sha256:59d9bec225877dc679a854463d0599832fcb8c3f65c67d792bb93a487e7bb757",
   "derived_only_from": [
     "fxx-source-geometry.json"
   ],
@@ -365,6 +365,14 @@
       "width_basis": "arc_length"
     }
   ],
-  "topology": [],
+  "topology": [
+    {
+      "a": "R-W",
+      "b": "R-E",
+      "opening_ids": [
+        "O-1"
+      ]
+    }
+  ],
   "clutter": []
 }

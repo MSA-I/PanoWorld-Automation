@@ -1,7 +1,7 @@
 {
   "document": "fxx-frozen-independent-truth",
   "version": "1.0.0",
-  "source_sha256": "sha256:248aab157d1a039bde3c1c29b87676e3fadf06ce3edfd70f19e1a52e166e5930",
+  "source_sha256": "sha256:8f3186882ff5afdd8a36b97bee05afbc211635d418cc07ec6404ff2db24ac340",
   "derived_only_from": [
     "fxx-source-geometry.json"
   ],
@@ -133,23 +133,6 @@
   ],
   "rooms": [
     {
-      "id": "R-NW",
-      "polygon_mm": [
-        [
-          500,
-          7000
-        ],
-        [
-          2500,
-          8500
-        ],
-        [
-          500,
-          8500
-        ]
-      ]
-    },
-    {
       "id": "R-W",
       "polygon_mm": [
         [
@@ -165,8 +148,12 @@
           8500
         ],
         [
-          500,
+          2500,
           8500
+        ],
+        [
+          500,
+          7000
         ]
       ]
     },
@@ -244,12 +231,20 @@
         7450
       ],
       "b_mm": [
-        2100,
-        8200
+        2060,
+        8170
       ],
       "width_mm": 1200
     }
   ],
-  "topology": [],
+  "topology": [
+    {
+      "a": "R-W",
+      "b": "R-E",
+      "opening_ids": [
+        "O-1"
+      ]
+    }
+  ],
   "clutter": []
 }

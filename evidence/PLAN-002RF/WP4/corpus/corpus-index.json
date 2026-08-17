@@ -6,25 +6,25 @@
     {
       "id": "f00",
       "kind": "rect",
-      "walls": 6,
-      "rooms": 4,
-      "openings": 4,
+      "walls": 7,
+      "rooms": 6,
+      "openings": 5,
       "clutter": 2
     },
     {
       "id": "f01",
       "kind": "rect",
-      "walls": 7,
-      "rooms": 6,
-      "openings": 5,
+      "walls": 6,
+      "rooms": 4,
+      "openings": 4,
       "clutter": 0
     },
     {
       "id": "f02",
       "kind": "rect",
-      "walls": 6,
-      "rooms": 4,
-      "openings": 4,
+      "walls": 8,
+      "rooms": 8,
+      "openings": 6,
       "clutter": 0
     },
     {
@@ -39,16 +39,16 @@
       "id": "f04",
       "kind": "diag",
       "walls": 6,
-      "rooms": 3,
+      "rooms": 2,
       "openings": 4,
       "clutter": 0
     },
     {
       "id": "f05",
       "kind": "rect",
-      "walls": 8,
-      "rooms": 8,
-      "openings": 6,
+      "walls": 7,
+      "rooms": 4,
+      "openings": 5,
       "clutter": 0
     },
     {
@@ -70,16 +70,16 @@
     {
       "id": "f08",
       "kind": "rect",
-      "walls": 7,
-      "rooms": 6,
-      "openings": 5,
+      "walls": 8,
+      "rooms": 8,
+      "openings": 6,
       "clutter": 0
     },
     {
       "id": "f09",
       "kind": "diag",
       "walls": 6,
-      "rooms": 3,
+      "rooms": 2,
       "openings": 4,
       "clutter": 0
     },
@@ -87,7 +87,7 @@
       "id": "f10",
       "kind": "rect",
       "walls": 6,
-      "rooms": 3,
+      "rooms": 4,
       "openings": 4,
       "clutter": 0
     },
@@ -102,24 +102,24 @@
     {
       "id": "f12",
       "kind": "rect",
-      "walls": 6,
-      "rooms": 4,
-      "openings": 4,
+      "walls": 7,
+      "rooms": 6,
+      "openings": 5,
       "clutter": 2
     },
     {
       "id": "f13",
       "kind": "rect",
-      "walls": 6,
-      "rooms": 4,
-      "openings": 4,
+      "walls": 7,
+      "rooms": 6,
+      "openings": 5,
       "clutter": 0
     },
     {
       "id": "f14",
       "kind": "diag",
       "walls": 6,
-      "rooms": 3,
+      "rooms": 2,
       "openings": 4,
       "clutter": 0
     },
@@ -135,7 +135,7 @@
       "id": "f16",
       "kind": "rect",
       "walls": 6,
-      "rooms": 3,
+      "rooms": 4,
       "openings": 4,
       "clutter": 0
     },
@@ -150,9 +150,9 @@
     {
       "id": "f18",
       "kind": "rect",
-      "walls": 6,
-      "rooms": 4,
-      "openings": 4,
+      "walls": 5,
+      "rooms": 2,
+      "openings": 3,
       "clutter": 2
     },
     {
@@ -174,16 +174,16 @@
     {
       "id": "f21",
       "kind": "rect",
-      "walls": 7,
-      "rooms": 6,
-      "openings": 5,
+      "walls": 6,
+      "rooms": 4,
+      "openings": 4,
       "clutter": 2
     },
     {
       "id": "f22",
       "kind": "rect",
       "walls": 7,
-      "rooms": 6,
+      "rooms": 4,
       "openings": 5,
       "clutter": 0
     },
@@ -199,7 +199,7 @@
       "id": "f24",
       "kind": "diag",
       "walls": 6,
-      "rooms": 3,
+      "rooms": 2,
       "openings": 4,
       "clutter": 0
     },
@@ -215,7 +215,7 @@
       "id": "f26",
       "kind": "rect",
       "walls": 6,
-      "rooms": 3,
+      "rooms": 4,
       "openings": 4,
       "clutter": 0
     },
@@ -239,16 +239,16 @@
       "id": "f29",
       "kind": "diag",
       "walls": 6,
-      "rooms": 3,
+      "rooms": 2,
       "openings": 4,
       "clutter": 0
     },
     {
       "id": "f30",
       "kind": "rect",
-      "walls": 7,
-      "rooms": 6,
-      "openings": 5,
+      "walls": 8,
+      "rooms": 8,
+      "openings": 6,
       "clutter": 2
     },
     {

@@ -180,7 +180,13 @@ def _render(source: dict[str, Any]) -> Image.Image:
             draw.line([a, b], fill=0, width=2)
             draw.line([(a[0] + 4, a[1] + 4), (b[0] + 4, b[1] + 4)], fill=0, width=2)
         elif opening["type"] == "door":
-            draw.line([a, (a[0], a[1] - 180)], fill=0, width=2)
+            dx = b[0] - a[0]
+            dy = b[1] - a[1]
+            length = math.hypot(dx, dy) or 1.0
+            # Leaf drawn PERPENDICULAR to the host wall (image space, y-down),
+            # not always "up": a vertical wall's leaf must be horizontal, else it
+            # collinearly refills the opening gap and the raster contradicts truth.
+            draw.line([a, (a[0] + dy / length * 180.0, a[1] - dx / length * 180.0)], fill=0, width=2)
         else:
             for x, y in (a, b):
                 draw.line([(x - 10, y), (x + 10, y)], fill=0, width=2)

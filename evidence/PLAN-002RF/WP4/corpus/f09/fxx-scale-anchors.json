@@ -1,9 +1,9 @@
 {
   "document": "fxx-authoritative-scale-anchors",
   "version": "1.0.0",
-  "source_sha256": "sha256:248aab157d1a039bde3c1c29b87676e3fadf06ce3edfd70f19e1a52e166e5930",
-  "raster_sha256": "sha256:355b86e1efe42c395118d9eee6525a103e517b9df04f75b7f7a1addae43a5e77",
-  "truth_sha256": "sha256:d24542d59e2a92bff9e32ab4fd7d03e976a8416c2b56d3e4d5803641d3fbe91c",
+  "source_sha256": "sha256:8f3186882ff5afdd8a36b97bee05afbc211635d418cc07ec6404ff2db24ac340",
+  "raster_sha256": "sha256:10799247b80a1d171062362d024a13ac8c99a664484643b0abbf8362a77f77bf",
+  "truth_sha256": "sha256:9b8c94e19b3ba0a1a8cf34b1caad95ece2c149150f57997fc601c20aaed7f0ad",
   "anchors": [
     {
       "id": "A-N",

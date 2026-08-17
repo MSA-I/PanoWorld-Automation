@@ -1,9 +1,9 @@
 {
   "document": "fxx-authoritative-scale-anchors",
   "version": "1.0.0",
-  "source_sha256": "sha256:ff5d3b09758dbc4b67e052d90a1c1cc1932f3ed5371ff3537f8deb48ad0b30bc",
-  "raster_sha256": "sha256:43fbbf98eef8ef81db44811f5ee75cfb2aadcd01ee30033ea22e5f4f76ad43a1",
-  "truth_sha256": "sha256:0e22eaa4ed90929c64745c8cc8536dff85be3d3cf6a85d73042e67d9db931d78",
+  "source_sha256": "sha256:3c1517afbecc2ed56ed447e56532a88c5943d5098c07b17023b31701c0edbef6",
+  "raster_sha256": "sha256:8d09a610b330d8a8e84edf0eabf9d1a6c3c8b1d939ca24d072f6601c417bb731",
+  "truth_sha256": "sha256:fb90c1beff6bb20dcac1e546790dcd47150acf1bbd080d64b28266b005f06709",
   "anchors": [
     {
       "id": "A-N",
@@ -32,21 +32,21 @@
     {
       "id": "A-E",
       "a_mm": [
-        10000,
+        9500,
         500
       ],
       "b_mm": [
-        10000,
+        9500,
         5500
       ],
       "real_length_m": 5.0,
       "placement_region": "east_margin",
       "a_px": [
-        2000,
+        1900,
         1900
       ],
       "b_px": [
-        2000,
+        1900,
         900
       ],
       "span_px": 1000.0,
@@ -56,21 +56,21 @@
     {
       "id": "A-D",
       "a_mm": [
-        10000,
+        9500,
         6500
       ],
       "b_mm": [
-        10600,
+        10100,
         7300
       ],
       "real_length_m": 1.0,
       "placement_region": "northeast_margin",
       "a_px": [
-        2000,
+        1900,
         700
       ],
       "b_px": [
-        2120,
+        2020,
         540
       ],
       "span_px": 200.0,

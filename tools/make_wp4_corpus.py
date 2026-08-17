@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import random
 import sys
 from pathlib import Path
@@ -99,11 +100,17 @@ def _shift(source: dict[str, Any], dx: int, dy: int) -> dict[str, Any]:
 
 def _rect_source(i: int, rng: random.Random) -> dict[str, Any]:
     """A rectangle split into 2-4 rooms by axis-aligned partition walls."""
-    W = rng.choice([8000, 9000, 10000])
-    H = rng.choice([6000, 7000, 8000])
-    # partition walls at DISTINCT x positions (plus one horizontal for variety)
+    W = 8000 + (i % 3) * 1000
+    H = 6000 + ((i // 3) % 3) * 1000
+    # partition walls at DISTINCT x positions, kept clear of the perimeter
+    # openings (north window + south door are centred at W//2), plus one
+    # horizontal partition for variety.
     n_part = rng.choice([1, 2, 3])
-    xs = rng.sample([3000, 4000, 5000, 6000, 7000], n_part)
+    cx = W // 2
+    candidates = [x for x in [3000, 4000, 5000, 6000, 7000] if abs(x - cx) >= 800]
+    if len(candidates) < n_part:
+        n_part = max(1, len(candidates))
+    xs = rng.sample(candidates, n_part)
     parts = [{"id": f"P-{k + 1}", "x0": x, "y0": 0, "x1": x, "y1": H} for k, x in enumerate(xs)]
     if rng.random() < 0.5:
         y = rng.choice([2500, 3500, 4500])
@@ -153,7 +160,7 @@ def _rect_source(i: int, rng: random.Random) -> dict[str, Any]:
             {"id": "C-2", "kind": "circle", "center_mm": [cx, cy], "radius_mm": 400},
         ]
 
-    return _assemble(W, H, walls, openings, rooms, anchors, clutter, topology=[])
+    return _assemble(W, H, walls, openings, rooms, anchors, clutter, topology=_topology(rooms, openings, walls))
 
 
 def _rooms_from_rect(W: int, H: int, parts: list[dict]) -> list[dict]:
@@ -175,8 +182,10 @@ def _rooms_from_rect(W: int, H: int, parts: list[dict]) -> list[dict]:
 
 def _arc_source(i: int, rng: random.Random) -> dict[str, Any]:
     """A rectangle whose east wall is replaced by an apse arc (like FX1)."""
-    W, H = 7000, 7000
-    R = 1500
+    k = (i - 3) // 4  # arc fixture ordinal 0..7 -> unique (W,H,R)
+    W = [6000, 7000, 8000, 6500, 7500, 6000, 8000, 7000][k]
+    H = [6000, 7000, 6000, 7000, 6500, 7500, 7000, 6000][k]
+    R = [1000, 1500, 1000, 1500, 1200, 1000, 1500, 1200][k]
     walls = [
         {"id": "W-S", "kind": "segment", "a_mm": [0, 0], "b_mm": [W, 0]},
         {"id": "W-E-A", "kind": "segment", "a_mm": [W, 0], "b_mm": [W, H // 2 - R]},
@@ -198,15 +207,15 @@ def _arc_source(i: int, rng: random.Random) -> dict[str, Any]:
     ]
     anchors = [
         {"id": "A-N", "a_mm": [0, H + 750], "b_mm": [5000, H + 750], "real_length_m": 5.0, "placement_region": "north_margin"},
-        {"id": "A-E", "a_mm": [W + 2500, 0], "b_mm": [W + 2500, 5000], "real_length_m": 5.0, "placement_region": "east_margin"},
-        {"id": "A-D", "a_mm": [W + 2500, 6000], "b_mm": [W + 3100, 6800], "real_length_m": 1.0, "placement_region": "northeast_margin"},
+        {"id": "A-E", "a_mm": [W + R + 1000, 0], "b_mm": [W + R + 1000, 5000], "real_length_m": 5.0, "placement_region": "east_margin"},
+        {"id": "A-D", "a_mm": [W + R + 1000, 6000], "b_mm": [W + R + 1600, 6800], "real_length_m": 1.0, "placement_region": "northeast_margin"},
     ]
-    return _assemble(W, H, walls, openings, rooms, anchors, [], topology=[])
+    return _assemble(W, H, walls, openings, rooms, anchors, [], topology=[{"a": "R-W", "b": "R-E", "opening_ids": ["O-1"]}])
 
 
 def _diag_source(i: int, rng: random.Random) -> dict[str, Any]:
     """A rectangle with a 3-4-5 diagonal wall in the north-west corner."""
-    W, H = 9000, 8000
+    W, H = {4: (8000, 7000), 9: (9000, 8000), 14: (10000, 7500), 24: (8500, 7000), 29: (9500, 8000)}[i]
     walls = [
         {"id": "W-S", "kind": "segment", "a_mm": [0, 0], "b_mm": [W, 0]},
         {"id": "W-E", "kind": "segment", "a_mm": [W, 0], "b_mm": [W, H]},
@@ -219,15 +228,54 @@ def _diag_source(i: int, rng: random.Random) -> dict[str, Any]:
         {"id": "O-0", "type": "door", "host_id": "W-S", "a_mm": [W // 2 - 450, 0], "b_mm": [W // 2 + 450, 0], "width_mm": 900},
         {"id": "O-1", "type": "door", "host_id": "W-PV", "a_mm": [W // 2, 2500], "b_mm": [W // 2, 3400], "width_mm": 900},
         {"id": "O-2", "type": "window", "host_id": "W-E", "a_mm": [W, H // 2 - 600], "b_mm": [W, H // 2 + 600], "width_mm": 1200},
-        {"id": "O-3", "type": "window", "host_id": "W-DIAG", "a_mm": [600, H - 1050], "b_mm": [1600, H - 300], "width_mm": 1200},
+        {"id": "O-3", "type": "window", "host_id": "W-DIAG", "a_mm": [600, H - 1050], "b_mm": [1560, H - 330], "width_mm": 1200},
     ]
     rooms = [
-        {"id": "R-NW", "polygon_mm": [[0, H - 1500], [2000, H], [0, H]]},
-        {"id": "R-W", "polygon_mm": [[0, 0], [W // 2, 0], [W // 2, H], [0, H]]},
+        {"id": "R-W", "polygon_mm": [[0, 0], [W // 2, 0], [W // 2, H], [2000, H], [0, H - 1500]]},
         {"id": "R-E", "polygon_mm": [[W // 2, 0], [W, 0], [W, H], [W // 2, H]]},
     ]
     anchors = _plan_anchors(W, H)
-    return _assemble(W, H, walls, openings, rooms, anchors, [], topology=[])
+    return _assemble(W, H, walls, openings, rooms, anchors, [], topology=[{"a": "R-W", "b": "R-E", "opening_ids": ["O-1"]}])
+
+
+def _point_in_polygon(px: float, py: float, poly: list[list[int]]) -> bool:
+    inside = False
+    j = len(poly) - 1
+    for i in range(len(poly)):
+        xi, yi = poly[i]
+        xj, yj = poly[j]
+        if ((yi > py) != (yj > py)) and (px < (xj - xi) * (py - yi) / (yj - yi) + xi):
+            inside = not inside
+        j = i
+    return inside
+
+
+def _topology(rooms: list[dict], openings: list[dict], walls: list[dict]) -> list[dict]:
+    """Adjacency edges: each door connects the room on either side of its host wall."""
+    walls_by_id = {w["id"]: w for w in walls}
+    edges = []
+    for o in openings:
+        if o.get("type") != "door" or "a_mm" not in o:
+            continue
+        host = walls_by_id.get(o["host_id"])
+        if not host:
+            continue
+        mx = (o["a_mm"][0] + o["b_mm"][0]) / 2.0
+        my = (o["a_mm"][1] + o["b_mm"][1]) / 2.0
+        wx = host["b_mm"][0] - host["a_mm"][0]
+        wy = host["b_mm"][1] - host["a_mm"][1]
+        L = math.hypot(wx, wy) or 1.0
+        nx, ny = -wy / L, wx / L
+        sides = []
+        for s in (400.0, -400.0):
+            px, py = mx + nx * s, my + ny * s
+            for r in rooms:
+                if "polygon_mm" in r and _point_in_polygon(px, py, r["polygon_mm"]):
+                    sides.append(r["id"])
+                    break
+        if len(sides) == 2 and sides[0] != sides[1]:
+            edges.append({"a": sides[0], "b": sides[1], "opening_ids": [o["id"]]})
+    return edges
 
 
 def _assemble(W, H, walls, openings, rooms, anchors, clutter, topology) -> dict[str, Any]:

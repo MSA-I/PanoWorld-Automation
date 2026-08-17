@@ -4,12 +4,12 @@
   "kind": "rect",
   "files": {
     "fxx-rights-provenance.json": "sha256:3dca6f55730d90cc42d92fbf0aa2fe5d9fb3b42f1f1a5ad454fe23ea86408c3c",
-    "fxx-scale-anchors.json": "sha256:feb22e43cb77d83066e161a098f9454c13d2ee8d1f94c0e048a6392708ab1f16",
-    "fxx-source-geometry.json": "sha256:829e6c7aaacaad739fe4e2728a46f1791979eb42e193abb82baf37d9ccafa51c",
-    "fxx-truth.json": "sha256:e994bb918099d6d195e93ec476ebaa8bf283cfbc9e12c26999582d54647bd537",
-    "fxx.png": "sha256:a6857bcede3f5b0736234128ed15e40d5c7e65594c150c8330d4ee5afb9844ef"
+    "fxx-scale-anchors.json": "sha256:8be2b021bc05c6140309e1fa0929cc64768a90795f68bb33fd47149615e5ce05",
+    "fxx-source-geometry.json": "sha256:c9bc00464850c61ba053d2d7d99f195532d217aa5129a1b15a04a74ace1ecde7",
+    "fxx-truth.json": "sha256:24a69d0269e1b0ffbeae1ddd4a0161d3bafb85af137672f81250b472db20e98e",
+    "fxx.png": "sha256:166262030e9fd43992b51abac3beca518e122efd7cdfeb3e20cbe24efc8008ea"
   },
-  "replay_hash": "sha256:67200c3dc110ac8e665092b38c013ec5b7cad69af9147cc925588b2b5bbf8917",
+  "replay_hash": "sha256:5040764fcb99ea2c198e1d6018e4653e988e7a4facdaeaba3bf3b94deb8753b2",
   "dependency_policy": "existing local environment only; no install performed",
   "recognition_or_scoring_performed": false
 }

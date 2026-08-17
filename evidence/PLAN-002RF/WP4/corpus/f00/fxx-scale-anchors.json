@@ -1,29 +1,29 @@
 {
   "document": "fxx-authoritative-scale-anchors",
   "version": "1.0.0",
-  "source_sha256": "sha256:003ce95fe1f6185dc326e02c15b847c5005732f819d5d19ec2a91f4d3cd84a73",
-  "raster_sha256": "sha256:f962730a01b4f6ab76e39bc06b69c93040be4cdb4fb3dc39fd653fd171e03aec",
-  "truth_sha256": "sha256:c5b47957f581ca85af91f84af2dd6c88aa8b77e28d350c0628676b0fdef60271",
+  "source_sha256": "sha256:89ee0a41d7b04cde05c508d927c9372c173b655eb7ec0236582406817da1053c",
+  "raster_sha256": "sha256:34f16a63dda15f34bd6e8be33b16ed03ab4ac761cd15b8015942da0955511b1a",
+  "truth_sha256": "sha256:83355475549f9d83873fe3f6593359428ad979961d1eb256378d0183c413aced",
   "anchors": [
     {
       "id": "A-N",
       "a_mm": [
         500,
-        9250
+        7250
       ],
       "b_mm": [
         5500,
-        9250
+        7250
       ],
       "real_length_m": 5.0,
       "placement_region": "north_margin",
       "a_px": [
         100,
-        150
+        550
       ],
       "b_px": [
         1100,
-        150
+        550
       ],
       "span_px": 1000.0,
       "provenance": "fxx-source-geometry.json#anchors/A-N",
@@ -32,21 +32,21 @@
     {
       "id": "A-E",
       "a_mm": [
-        10250,
+        9250,
         500
       ],
       "b_mm": [
-        10250,
+        9250,
         5500
       ],
       "real_length_m": 5.0,
       "placement_region": "east_margin",
       "a_px": [
-        2050,
+        1850,
         1900
       ],
       "b_px": [
-        2050,
+        1850,
         900
       ],
       "span_px": 1000.0,
@@ -56,22 +56,22 @@
     {
       "id": "A-D",
       "a_mm": [
-        10000,
-        9000
+        9000,
+        7000
       ],
       "b_mm": [
-        10600,
-        9800
+        9600,
+        7800
       ],
       "real_length_m": 1.0,
       "placement_region": "northeast_margin",
       "a_px": [
-        2000,
-        200
+        1800,
+        600
       ],
       "b_px": [
-        2120,
-        40
+        1920,
+        440
       ],
       "span_px": 200.0,
       "provenance": "fxx-source-geometry.json#anchors/A-D",

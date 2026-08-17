@@ -184,7 +184,15 @@
       ]
     }
   ],
-  "topology": [],
+  "topology": [
+    {
+      "a": "R-W",
+      "b": "R-E",
+      "opening_ids": [
+        "O-1"
+      ]
+    }
+  ],
   "clutter": [],
   "anchors": [
     {
