@@ -65,3 +65,22 @@ cases (test-architect §3, as amended by plan-reviewer M-4 and missed-risk 1).
 | `PARSE_LOW_CONFIDENCE` | warn | At least one normalized entity fell below the low-confidence threshold. |
 | `PARSE_UNMAPPED_SOURCE_ENTITY` | warn | A source entity was recorded and ignored because its layer was unmapped. |
 | `PARSE_ROOM_BOUNDARY_UNMATCHED` | warn | Two room boundaries properly cross; Part 1 flags it but stays fail-open under warning semantics. |
+
+## Geometry compiler — append-only `GEOM_*` vocabulary (PLAN-003)
+
+| Code | Severity | Meaning |
+|---|---|---|
+| `GEOM_SOURCE_HASH_MISMATCH` | error | Consumed parse artifact content_hash does not match its canonical hash. |
+| `GEOM_RESOURCE_LIMIT` | error | A configured count/byte/coordinate bound was exceeded, or a field is non-finite/malformed. |
+| `GEOM_EMPTY_GEOMETRY` | error | Parse payload did not contain at least one wall and one room. |
+| `GEOM_DUPLICATE_ENTITY` | error | Derived geometry IDs collided within one run; no silent merge or renumber. |
+| `GEOM_OPEN_POLYGON` | error | A room polygon is not closed. |
+| `GEOM_SELF_INTERSECTING_POLYGON` | error | A room polygon is zero-area or self-crossing. |
+| `GEOM_DEGENERATE_WALL` | error | A wall is shorter than the minimum allowed metric length. |
+| `GEOM_OPENING_UNRESOLVED_WALL` | error | An opening references no wall. |
+| `GEOM_OPENING_AMBIGUOUS_WALL_REF` | error | An opening resolves to more than one wall candidate (fail-closed). |
+| `GEOM_OPENING_OFF_WALL` | error | An opening centre lies outside the allowed offset from its host wall. |
+| `GEOM_OPENING_WIDTH_EXCEEDS_WALL` | error | Opening span does not fit within its host wall. |
+| `GEOM_OPENING_ABOVE_WALL` | error | `sill_m + height_m` exceeds the host wall height. |
+| `GEOM_OPEN_ROOM_BOUNDARY` | warn | A wall endpoint is off every room vertex, or a room edge has no supporting wall (fail-open, reported). |
+
