@@ -1,0 +1,250 @@
+{
+  "document": "fxx-frozen-independent-truth",
+  "version": "1.0.0",
+  "source_sha256": "sha256:14e4431efc3270f545c40feecb92110b13060cc24b19355f77646b00c9a6eda0",
+  "derived_only_from": [
+    "fxx-source-geometry.json"
+  ],
+  "recognizer_inputs": [],
+  "frozen_before_recognition": true,
+  "scale_m_per_px": 0.005,
+  "walls": [
+    {
+      "id": "W-S",
+      "kind": "segment",
+      "a_mm": [
+        500,
+        500
+      ],
+      "b_mm": [
+        9500,
+        500
+      ],
+      "a_px": [
+        100,
+        1900
+      ],
+      "b_px": [
+        1900,
+        1900
+      ]
+    },
+    {
+      "id": "W-E",
+      "kind": "segment",
+      "a_mm": [
+        9500,
+        500
+      ],
+      "b_mm": [
+        9500,
+        7500
+      ],
+      "a_px": [
+        1900,
+        1900
+      ],
+      "b_px": [
+        1900,
+        500
+      ]
+    },
+    {
+      "id": "W-N",
+      "kind": "segment",
+      "a_mm": [
+        2500,
+        7500
+      ],
+      "b_mm": [
+        9500,
+        7500
+      ],
+      "a_px": [
+        500,
+        500
+      ],
+      "b_px": [
+        1900,
+        500
+      ]
+    },
+    {
+      "id": "W-DIAG",
+      "kind": "segment",
+      "orientation": "diagonal_3_4_5",
+      "a_mm": [
+        500,
+        6000
+      ],
+      "b_mm": [
+        2500,
+        7500
+      ],
+      "a_px": [
+        100,
+        800
+      ],
+      "b_px": [
+        500,
+        500
+      ]
+    },
+    {
+      "id": "W-W",
+      "kind": "segment",
+      "a_mm": [
+        500,
+        500
+      ],
+      "b_mm": [
+        500,
+        6000
+      ],
+      "a_px": [
+        100,
+        1900
+      ],
+      "b_px": [
+        100,
+        800
+      ]
+    },
+    {
+      "id": "W-PV",
+      "kind": "segment",
+      "a_mm": [
+        5000,
+        500
+      ],
+      "b_mm": [
+        5000,
+        7500
+      ],
+      "a_px": [
+        1000,
+        1900
+      ],
+      "b_px": [
+        1000,
+        500
+      ]
+    }
+  ],
+  "rooms": [
+    {
+      "id": "R-W",
+      "polygon_mm": [
+        [
+          500,
+          500
+        ],
+        [
+          5000,
+          500
+        ],
+        [
+          5000,
+          7500
+        ],
+        [
+          2500,
+          7500
+        ],
+        [
+          500,
+          6000
+        ]
+      ]
+    },
+    {
+      "id": "R-E",
+      "polygon_mm": [
+        [
+          5000,
+          500
+        ],
+        [
+          9500,
+          500
+        ],
+        [
+          9500,
+          7500
+        ],
+        [
+          5000,
+          7500
+        ]
+      ]
+    }
+  ],
+  "openings": [
+    {
+      "id": "O-0",
+      "type": "door",
+      "host_id": "W-S",
+      "a_mm": [
+        4550,
+        500
+      ],
+      "b_mm": [
+        5450,
+        500
+      ],
+      "width_mm": 900
+    },
+    {
+      "id": "O-1",
+      "type": "door",
+      "host_id": "W-PV",
+      "a_mm": [
+        5000,
+        3000
+      ],
+      "b_mm": [
+        5000,
+        3900
+      ],
+      "width_mm": 900
+    },
+    {
+      "id": "O-2",
+      "type": "window",
+      "host_id": "W-E",
+      "a_mm": [
+        9500,
+        3400
+      ],
+      "b_mm": [
+        9500,
+        4600
+      ],
+      "width_mm": 1200
+    },
+    {
+      "id": "O-3",
+      "type": "window",
+      "host_id": "W-DIAG",
+      "a_mm": [
+        1100,
+        6450
+      ],
+      "b_mm": [
+        2060,
+        7170
+      ],
+      "width_mm": 1200
+    }
+  ],
+  "topology": [
+    {
+      "a": "R-W",
+      "b": "R-E",
+      "opening_ids": [
+        "O-1"
+      ]
+    }
+  ],
+  "clutter": []
+}

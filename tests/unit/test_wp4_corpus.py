@@ -27,13 +27,13 @@ def _source(d: Path) -> dict:
     return json.loads((d / "fxx-source-geometry.json").read_text(encoding="utf-8"))
 
 
-def test_corpus_has_thirty_two_valid_fixtures():
+def test_corpus_has_sixty_valid_fixtures():
     assert CORPUS.is_dir(), "corpus directory missing (run tools/make_wp4_corpus.py)"
     dirs = _fixtures()
-    assert len(dirs) == 32, f"expected 32 fixtures, found {len(dirs)}"
+    assert len(dirs) == 60, f"expected 60 fixtures, found {len(dirs)}"
 
     index = json.loads((CORPUS / "corpus-index.json").read_text(encoding="utf-8"))
-    assert index["count"] == 32
+    assert index["count"] == 60
     # U-5 style spread: at least one of each kind (rect / arc / diagonal).
     assert index["by_kind"]["rect"] >= 1
     assert index["by_kind"]["arc"] >= 1
@@ -56,7 +56,7 @@ def test_corpus_fixtures_are_unique():
     # Every fixture must be a DISTINCT plan — a duplicated fixture would inflate
     # any per-fixture acceptance score (review CRITICAL: 13/32 were duplicates).
     hashes = {sha256_file(d / "fxx-source-geometry.json") for d in _fixtures()}
-    assert len(hashes) == 32, f"only {len(hashes)} distinct source geometries (duplicates present)"
+    assert len(hashes) == 60, f"only {len(hashes)} distinct source geometries (duplicates present)"
 
 
 def test_corpus_openings_lie_on_their_host_wall():

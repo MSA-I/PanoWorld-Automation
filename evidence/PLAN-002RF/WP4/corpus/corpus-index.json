@@ -1,6 +1,6 @@
 {
   "document": "wp4-r0-corpus-index",
-  "count": 32,
+  "count": 60,
   "seed": 20260817,
   "fixtures": [
     {
@@ -258,11 +258,235 @@
       "rooms": 2,
       "openings": 4,
       "clutter": 0
+    },
+    {
+      "id": "f32",
+      "kind": "rect",
+      "walls": 7,
+      "rooms": 6,
+      "openings": 5,
+      "clutter": 0
+    },
+    {
+      "id": "f33",
+      "kind": "rect",
+      "walls": 6,
+      "rooms": 4,
+      "openings": 4,
+      "clutter": 2
+    },
+    {
+      "id": "f34",
+      "kind": "diag",
+      "walls": 6,
+      "rooms": 2,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f35",
+      "kind": "arc",
+      "walls": 7,
+      "rooms": 2,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f36",
+      "kind": "rect",
+      "walls": 6,
+      "rooms": 3,
+      "openings": 4,
+      "clutter": 2
+    },
+    {
+      "id": "f37",
+      "kind": "rect",
+      "walls": 6,
+      "rooms": 3,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f38",
+      "kind": "rect",
+      "walls": 7,
+      "rooms": 6,
+      "openings": 5,
+      "clutter": 0
+    },
+    {
+      "id": "f39",
+      "kind": "arc",
+      "walls": 7,
+      "rooms": 2,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f40",
+      "kind": "rect",
+      "walls": 8,
+      "rooms": 8,
+      "openings": 6,
+      "clutter": 0
+    },
+    {
+      "id": "f41",
+      "kind": "rect",
+      "walls": 6,
+      "rooms": 3,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f42",
+      "kind": "rect",
+      "walls": 5,
+      "rooms": 2,
+      "openings": 3,
+      "clutter": 2
+    },
+    {
+      "id": "f43",
+      "kind": "arc",
+      "walls": 7,
+      "rooms": 2,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f44",
+      "kind": "diag",
+      "walls": 6,
+      "rooms": 2,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f45",
+      "kind": "rect",
+      "walls": 7,
+      "rooms": 4,
+      "openings": 5,
+      "clutter": 2
+    },
+    {
+      "id": "f46",
+      "kind": "rect",
+      "walls": 6,
+      "rooms": 3,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f47",
+      "kind": "arc",
+      "walls": 7,
+      "rooms": 2,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f48",
+      "kind": "rect",
+      "walls": 5,
+      "rooms": 2,
+      "openings": 3,
+      "clutter": 2
+    },
+    {
+      "id": "f49",
+      "kind": "diag",
+      "walls": 6,
+      "rooms": 2,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f50",
+      "kind": "rect",
+      "walls": 6,
+      "rooms": 3,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f51",
+      "kind": "arc",
+      "walls": 7,
+      "rooms": 2,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f52",
+      "kind": "rect",
+      "walls": 8,
+      "rooms": 8,
+      "openings": 6,
+      "clutter": 0
+    },
+    {
+      "id": "f53",
+      "kind": "rect",
+      "walls": 5,
+      "rooms": 2,
+      "openings": 3,
+      "clutter": 0
+    },
+    {
+      "id": "f54",
+      "kind": "diag",
+      "walls": 6,
+      "rooms": 2,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f55",
+      "kind": "arc",
+      "walls": 7,
+      "rooms": 2,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f56",
+      "kind": "rect",
+      "walls": 8,
+      "rooms": 8,
+      "openings": 6,
+      "clutter": 0
+    },
+    {
+      "id": "f57",
+      "kind": "rect",
+      "walls": 8,
+      "rooms": 8,
+      "openings": 6,
+      "clutter": 2
+    },
+    {
+      "id": "f58",
+      "kind": "rect",
+      "walls": 7,
+      "rooms": 4,
+      "openings": 5,
+      "clutter": 0
+    },
+    {
+      "id": "f59",
+      "kind": "arc",
+      "walls": 7,
+      "rooms": 2,
+      "openings": 4,
+      "clutter": 0
     }
   ],
   "by_kind": {
-    "rect": 19,
-    "arc": 8,
-    "diag": 5
+    "rect": 36,
+    "arc": 15,
+    "diag": 9
   }
 }

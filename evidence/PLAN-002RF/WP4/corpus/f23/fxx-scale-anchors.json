@@ -1,29 +1,29 @@
 {
   "document": "fxx-authoritative-scale-anchors",
   "version": "1.0.0",
-  "source_sha256": "sha256:e8b779a63a3c75172e0b9767d8147d5537eadb7bb117d867dd11b5ed800faaa0",
-  "raster_sha256": "sha256:8823ee0295ef9a522811db25e7761777e9566096e5f6c7d0649bc0529d7388b2",
-  "truth_sha256": "sha256:c8da358ca22b34d3b402d8f80410e0e795ae99ad1b7fa6de85a1a27cccd93950",
+  "source_sha256": "sha256:0db227f30c585a806ee5704df85ed44d0f2f87b5cce0f0c3201c16ac44839059",
+  "raster_sha256": "sha256:d7ae851114bd31376cb6ed341704e16b0736e81c1dd59d1b2d1d22ac2b054280",
+  "truth_sha256": "sha256:11f8f227f962269ff2e7fb2c2d5776ec121d982ccdd0fc9c89218378e3890db9",
   "anchors": [
     {
       "id": "A-N",
       "a_mm": [
         500,
-        8750
+        8250
       ],
       "b_mm": [
         5500,
-        8750
+        8250
       ],
       "real_length_m": 5.0,
       "placement_region": "north_margin",
       "a_px": [
         100,
-        250
+        350
       ],
       "b_px": [
         1100,
-        250
+        350
       ],
       "span_px": 1000.0,
       "provenance": "fxx-source-geometry.json#anchors/A-N",
@@ -32,21 +32,21 @@
     {
       "id": "A-E",
       "a_mm": [
-        8500,
+        10500,
         500
       ],
       "b_mm": [
-        8500,
+        10500,
         5500
       ],
       "real_length_m": 5.0,
       "placement_region": "east_margin",
       "a_px": [
-        1700,
+        2100,
         1900
       ],
       "b_px": [
-        1700,
+        2100,
         900
       ],
       "span_px": 1000.0,
@@ -56,21 +56,21 @@
     {
       "id": "A-D",
       "a_mm": [
-        8500,
+        10500,
         6500
       ],
       "b_mm": [
-        9100,
+        11100,
         7300
       ],
       "real_length_m": 1.0,
       "placement_region": "northeast_margin",
       "a_px": [
-        1700,
+        2100,
         700
       ],
       "b_px": [
-        1820,
+        2220,
         540
       ],
       "span_px": 200.0,

@@ -1,0 +1,15 @@
+{
+  "document": "fxx-deterministic-replay-manifest",
+  "version": "1.0.0",
+  "kind": "rect",
+  "files": {
+    "fxx-rights-provenance.json": "sha256:3dca6f55730d90cc42d92fbf0aa2fe5d9fb3b42f1f1a5ad454fe23ea86408c3c",
+    "fxx-scale-anchors.json": "sha256:b2e6e40a6b80c6cbe3a0186a9fe9fc49ee4c08ed857ed14cb67d87e4274874fe",
+    "fxx-source-geometry.json": "sha256:4d9efcefb3ae67c4b16d3f65f965185b2f3a41181d5beb7486e199b46f09df09",
+    "fxx-truth.json": "sha256:ed8a978dd80e27ba4613cdaf62338a67fea7bd3c9bc5ce54f70a0476b10c4f56",
+    "fxx.png": "sha256:5449c2b60b62297b16f2d635199ddfd3d5284dad21b3d908b5bffbec9fbc83b9"
+  },
+  "replay_hash": "sha256:94e3ce3f4d7e493dc38cccfb3c76019067fc2381a79329f0a022f3039219ffe7",
+  "dependency_policy": "existing local environment only; no install performed",
+  "recognition_or_scoring_performed": false
+}

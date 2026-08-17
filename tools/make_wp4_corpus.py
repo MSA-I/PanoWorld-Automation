@@ -36,7 +36,7 @@ WIDTH_PX = 2400
 HEIGHT_PX = 2000
 MM_PER_PX = 5
 SCALE_M_PER_PX = 0.005
-COUNT = 32
+COUNT = 60
 SEED = 20260817
 
 
@@ -179,10 +179,10 @@ def _rooms_from_rect(W: int, H: int, parts: list[dict]) -> list[dict]:
 
 def _arc_source(i: int, rng: random.Random) -> dict[str, Any]:
     """A rectangle whose east wall is replaced by an apse arc (like FX1)."""
-    k = (i - 3) // 4  # arc fixture ordinal 0..7 -> unique (W,H,R)
-    W = [6000, 7000, 8000, 6500, 7500, 6000, 8000, 7000][k]
-    H = [6000, 7000, 6000, 7000, 6500, 7500, 7000, 6000][k]
-    R = [1000, 1500, 1000, 1500, 1200, 1000, 1500, 1200][k]
+    k = (i - 3) // 4  # arc fixture ordinal 0..14 -> unique (W,H,R)
+    W = 6000 + (k % 3) * 1000
+    H = 6000 + ((k // 3) % 3) * 1000
+    R = 1000 + ((k // 9) % 2) * 500
     walls = [
         {"id": "W-S", "kind": "segment", "a_mm": [0, 0], "b_mm": [W, 0]},
         {"id": "W-E-A", "kind": "segment", "a_mm": [W, 0], "b_mm": [W, H // 2 - R]},
@@ -212,7 +212,11 @@ def _arc_source(i: int, rng: random.Random) -> dict[str, Any]:
 
 def _diag_source(i: int, rng: random.Random) -> dict[str, Any]:
     """A rectangle with a 3-4-5 diagonal wall in the north-west corner."""
-    W, H = {4: (8000, 7000), 9: (9000, 8000), 14: (10000, 7500), 24: (8500, 7000), 29: (9500, 8000)}[i]
+    W, H = {
+        4: (8000, 7000), 9: (8500, 7500), 14: (9000, 8000),
+        24: (8500, 7000), 29: (9500, 7500), 34: (8000, 7500),
+        44: (9000, 7000), 49: (9500, 8000), 54: (8500, 8000),
+    }[i]
     walls = [
         {"id": "W-S", "kind": "segment", "a_mm": [0, 0], "b_mm": [W, 0]},
         {"id": "W-E", "kind": "segment", "a_mm": [W, 0], "b_mm": [W, H]},
