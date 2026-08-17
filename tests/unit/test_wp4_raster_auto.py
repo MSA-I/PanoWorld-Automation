@@ -266,6 +266,26 @@ def test_emit_raster_auto_parse_fails_closed_on_missing_thickness():
         rooms=[], openings=[],
     )
     assert "RECOGNITION_THICKNESS_MISSING" in findings
+    # Fail-closed (CRITICAL fix): geometry must NOT be emitted alongside a
+    # blocking recognition finding — the payload is empty.
+    assert payload["walls"] == []
+    assert payload["rooms"] == []
+    assert payload["openings"] == []
+
+
+def test_emit_raster_auto_parse_fails_closed_on_passage_span_exceeds():
+    # A passage wider than PASSAGE_SPAN_MAX_M (3.0 m) is a blocking finding and
+    # must empty the payload, not emit the geometry next to the error code.
+    payload, findings = R.emit_raster_auto_parse(
+        walls=[{"index": 0, "source_ref": "raster:seg#0", "kind": "segment",
+                "start": [1.0, 1.5], "end": [9.0, 1.5], "thickness_m": 0.24, "confidence": 0.9}],
+        rooms=[],
+        openings=[{"index": 0, "source_ref": "raster:seg#0:opening#0", "kind": "passage",
+                   "center": [5.0, 1.5], "width_m": 3.5, "wall_id": 0}],
+    )
+    assert "RECOGNITION_PASSAGE_SPAN_EXCEEDS_BOUND" in findings
+    assert payload["openings"] == []
+    assert payload["walls"] == []
 
 
 def test_emit_raster_auto_parse_is_schema_valid():
@@ -313,6 +333,12 @@ def test_extract_raster_auto_refuses_low_contrast(tmp_path):
     img.save(path)
     payload = extract_raster_auto(path, derive_scale=False)
     assert any(err["code"] in {"RASTER_LOW_CONTRAST", "PARSE_EMPTY_GEOMETRY"} for err in payload["errors"])
+    # CRITICAL resource guard: refuse BEFORE any component/Hough work -> no
+    # geometry and an empty frame (short-circuit, not just a recorded finding).
+    assert payload["walls"] == []
+    assert payload["rooms"] == []
+    assert payload["openings"] == []
+    assert payload["frame"] == {}
 
 
 def test_extract_raster_auto_refuses_unsupported_format(tmp_path):

@@ -136,6 +136,13 @@ def extract_raster_auto(path: object, *, derive_scale: bool) -> dict:
     if not (G.INK_FRACTION_BAND[0] <= ink_fraction <= G.INK_FRACTION_BAND[1]):
         errors.append(_finding("RASTER_CLUTTER_EXCEEDS_ENVELOPE", f"ink fraction {ink_fraction:.4f} out of band", source_ref=str(path.name)))
 
+    if errors:
+        # CRITICAL resource guard: refuse a degenerate (low-contrast) or
+        # out-of-band (clutter) raster BEFORE any per-pixel component/Hough
+        # work, rather than recording the finding and continuing into the
+        # expensive pure-Python labelling path (up to MAX_SOURCE_PIXELS).
+        return {"frame": {}, "walls": [], "rooms": [], "openings": [], "errors": errors}
+
     labels, n_components = G.connected_components(ink)
 
     # --- scale anchors ------------------------------------------------------

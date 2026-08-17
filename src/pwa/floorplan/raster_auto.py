@@ -117,6 +117,11 @@ def emit_raster_auto_parse(walls: list[dict], rooms: list[dict], openings: list[
         "walls": out_walls,
         "openings": out_openings,
     }
+    if recognition_findings:
+        # Fail-closed (W-17 / AT-18): never emit geometry alongside a blocking
+        # recognition finding. The contract layer must hold the same property as
+        # the worker's source-error channel.
+        return _empty_payload(), recognition_findings
     return payload, recognition_findings
 
 
