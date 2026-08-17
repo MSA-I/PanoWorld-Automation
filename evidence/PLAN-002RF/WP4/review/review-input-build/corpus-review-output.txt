@@ -1,0 +1,99 @@
+Permission allow rule (C:\Users\art1\.claude\settings.json): Write(D:/משה פרוייקטים/**) is not matched by file permission checks — only Edit(path) rules are. Use Edit(D:/משה פרוייקטים/**) instead (Edit rules cover all file-editing tools).
+```json
+{
+  "findings": [
+    {
+      "file": "tools/make_wp4_corpus.py",
+      "severity": "CRITICAL",
+      "message": "13 of the 32 fixtures are byte-identical duplicates: `_arc_source(i, rng)` and `_diag_source(i, rng)` never read `i` or `rng` (W, H, R, walls, openings, rooms, anchors are all literals), so every arc fixture and every diag fixture is the same plan. Verified in the shipped corpus: f03/f07/f11/f15/f19/f23/f27/f31 all carry source_sha256 sha256:ff5d3b09758dbc4b67e052d90a1c1cc1932f3ed5371ff3537f8deb48ad0b30bc, and f04/f09/f14/f24/f29 all carry sha256:248aab157d1a039bde3c1c29b87676e3fadf06ce3edfd70f19e1a52e166e5930. The effective corpus is 21 distinct plans, not 32, and the U-5 'style spread' is 19 rect variants + 1 arc + 1 diag. Any per-fixture score is inflated by 13 correlated repeats."
+    },
+    {
+      "file": "tools/make_wp0_fx1_fixture.py",
+      "severity": "CRITICAL",
+      "message": "The door motif is only valid for horizontal host walls. `_render` draws every door leaf as `draw.line([a, (a[0], a[1] - 180)], fill=0, width=2)` — always straight up in image space, 180 px = 900 mm. WP4 places doors on VERTICAL walls (every rect partition P-n, plus W-PV in the arc and diag sources), where that leaf is collinear with the wall and exactly refills the gap the opening cut: e.g. corpus f05 O-1 a_mm=[4500,2000], b_mm=[4500,2900] -> a_px=[900,1600], leaf ends at [900,1420] = b_px. The raster therefore shows an unbroken vertical line (3 px wall, 2 px in the door span) where the truth declares an opening. Every one of the 32 fixtures contains at least one such door, so the whole corpus has rasters that contradict their own frozen truth. FX1 itself never hit this (its only vertical-wall opening is a passage, whose jamb ticks are perpendicular)."
+    },
+    {
+      "file": "tools/make_wp4_corpus.py",
+      "severity": "MAJOR",
+      "message": "_diag_source O-3 declares width_mm=1200 but its endpoints give 1250 mm: a_mm=[600, H-1050], b_mm=[1600, H-300] -> delta (1000, 750) -> hypot = 1250. Confirmed in the shipped truth (f04: a_mm=[1100,7450], b_mm=[2100,8200], width_mm 1200). The width field is a hand-authored constant that is NOT a pure function of the source geometry, so the frozen truth is internally inconsistent for all 5 diag fixtures. FX1's equivalent (O-W3, delta 960/720 = 1200) is correct, so this is a transcription error in the WP4 copy."
+    },
+    {
+      "file": "tools/make_wp4_corpus.py",
+      "severity": "MAJOR",
+      "message": "_diag_source room truth is geometrically wrong. Walls run W-W (0,0)->(0,H-1500), W-DIAG (0,H-1500)->(2000,H), W-N (2000,H)->(W,H), so the triangle (0,H-1500)/(0,H)/(2000,H) is OUTSIDE the envelope. R-NW is declared as exactly that outside triangle, and R-W is declared as the full rectangle [[0,0],[W/2,0],[W/2,H],[0,H]], which both overlaps R-NW and extends past W-DIAG outside the building (its west edge y=H-1500..H and part of its north edge have no wall at all). FX1 models the same corner correctly as a pentagon (R-HALL). Affects all 5 diag fixtures; verified in f04 (R-NW = [[500,7000],[2500,8500],[500,8500]])."
+    },
+    {
+      "file": "tools/make_wp4_corpus.py",
+      "severity": "MAJOR",
+      "message": "Rect partition walls run straight through perimeter openings. Partition x positions are sampled from {3000,4000,5000,6000,7000} while the north window is centred at W//2 +/-600 and the south door at W//2 +/-450, with W in {8000,9000,10000} (W//2 in {4000,4500,5000}) — the two sets intersect. Confirmed in shipped f05: P-3 at x=5500 lies inside window O-4 (4900..6100) AND inside south door O-5 (5050..5950), so a full-height 3 px partition wall terminates in the middle of both opening gaps. The plan is physically impossible and the raster is ambiguous exactly where the opening is supposed to be recognised. Nothing in the generator excludes partition x values from the opening spans."
+    },
+    {
+      "file": "tools/make_wp4_corpus.py",
+      "severity": "MAJOR",
+      "message": "Every fixture is assembled with `topology=[]`, and `_truth` copies it into the frozen truth as `\"topology\": []`. That is a positive assertion that no two rooms are connected, which is false: each rect partition, W-PV in arc/diag, and the perimeter door all connect rooms. FX1 populates topology (including a `sealed_adjacency` case), so the WP4 truth is not merely incomplete but wrong for any topology-scored acceptance test."
+    },
+    {
+      "file": "tools/make_wp0_fx1_fixture.py",
+      "severity": "MAJOR",
+      "message": "The arc-hosted opening motif violates the documented raster convention and is indistinguishable from the wall. `_render` draws the arc opening as a single polyline on the host wall's own centreline (same centre, same radius) at width=2, filling the gap that was cut out of the width=3 arc. The stated convention is 'window = two offset parallel lines' (as implemented for straight walls: `a-b` plus a (+4,+4) px offset copy). So for the 8 arc fixtures the window reduces to a 1 px width change in an otherwise continuous arc. The fix under review correctly replaced the hardcoded apse with `host[\"center_mm\"]/host[\"radius_mm\"]`, but the motif shape itself is still wrong."
+    },
+    {
+      "file": "tests/unit/test_wp4_corpus.py",
+      "severity": "MAJOR",
+      "message": "The test cannot fail on any of the defects above. `len(truth[\"walls\"]) == len(source[\"walls\"])` is tautological (truth walls are built 1:1 from source walls in `_truth`), and `frozen_before_recognition is True` / `scale_m_per_px == 0.005` assert literals the generator hardcodes; the comment claiming this proves 'truth is derived ONLY from source geometry' is unearned. Missing: openings lie on their host wall; width_mm equals |b-a|; room polygons inside the envelope and non-overlapping; anchors on the 5 mm grid, inside the canvas, non-collinear, and each yielding derived_m_per_px == 0.005; raster pixel values restricted to {0,64,128,255}; wall gap actually present in the raster at each opening; source_sha256 in the truth matching the on-disk source; a rebuild reproducing the committed hashes; and fixture uniqueness (which would have caught the 13 duplicates)."
+    },
+    {
+      "file": "tools/make_wp4_corpus.py",
+      "severity": "MINOR",
+      "message": "Sealed, unreachable rooms. Vertical partition doors are always placed at y=1500..2400 while the optional horizontal partition sits at y in {2500,3500,4500}, so every grid cell above the horizontal partition is bounded by full-height doorless partitions. In f05 that leaves three rooms with no opening at all (only a window on W-N). A floor plan whose rooms cannot be reached is a poor R0 recognition target and interacts badly with the empty topology record."
+    },
+    {
+      "file": "tools/make_wp4_corpus.py",
+      "severity": "MINOR",
+      "message": "No validation pass. FX1's `build_fixture` ends with `verify_fixture(out)` and raises on failure; `build_one` performs no verification at all, and `verify_fixture` is unusable here because PAYLOAD_FILENAMES and the manifest name are hardcoded to `fx1-*`. The corpus was therefore written to evidence/ with no self-check beyond `_px`'s 5 mm grid assertion."
+    },
+    {
+      "file": "tools/make_wp0_fx1_fixture.py",
+      "severity": "MINOR",
+      "message": "`_render` is fail-open on opening placement: for segment walls it projects the opening endpoints onto the wall line (`ta`, `tb`) and discards the perpendicular component entirely, and it does not clamp t to [0,1]. An opening that is off its host wall, or longer than the wall, still produces a plausible-looking raster with no error — so defect class (c) cannot be caught by generation, only by a test that does not exist."
+    },
+    {
+      "file": "tools/make_wp4_corpus.py",
+      "severity": "MINOR",
+      "message": "`build_one` calls `out.mkdir(parents=True, exist_ok=True)` (FX1 uses exist_ok=False) while all writes go through `write_json_exclusive`. Re-running into an existing corpus root aborts part-way and leaves a partial fixture directory. Worse, the manifest is built from `{p.name: sha256_file(p) for p in sorted(out.iterdir())}` before the manifest is written, so any pre-existing/stale file in the directory is silently hash-bound into the replay manifest as if it were payload."
+    },
+    {
+      "file": "tools/make_wp0_fx1_fixture.py",
+      "severity": "MINOR",
+      "message": "The `_render` change is not proven hash-neutral for the already-frozen WP0-FX1 fixture committed at evidence/PLAN-002RF/WP0-FX1/fixture/. tests/unit/test_wp0_fx1_fixture.py only builds into tmp_path and compares two fresh builds to each other, and `verify_fixture` only checks on-disk files against their own manifest — neither compares a rebuild against the committed frozen hashes. A renderer edit can silently invalidate the frozen FX1 raster with a green test suite."
+    },
+    {
+      "file": "tools/make_wp4_corpus.py",
+      "severity": "MINOR",
+      "message": "`_rooms_from_rect` silently drops any grid cell smaller than 1000 mm instead of merging it. With the current parameter sets (W in {8000,9000,10000}, x in {3000..7000}, H >= 6000, y <= 4500) the minimum cell is exactly 1000 mm so nothing is dropped today, but any future parameter change would produce truth that omits real floor area with no error."
+    },
+    {
+      "file": "tools/make_wp4_corpus.py",
+      "severity": "INFO",
+      "message": "Clutter is not checked against wall positions: C-2's centre is (W//2, H//2) rounded to 500 mm, which is exactly where a sampled partition can run, and C-1's east edge can land on a partition x. Clutter is drawn before walls so value 0 overwrites value 128, but coincident 128/0 strokes still make the clutter layer partly unrecoverable."
+    },
+    {
+      "file": "tools/make_wp4_corpus.py",
+      "severity": "INFO",
+      "message": "Clutter variation is confined to rect fixtures: `_arc_source` and `_diag_source` pass `clutter=[]` unconditionally, and rect adds clutter only when `i % 3 == 0`. The shipped index shows 6 fixtures with clutter (all rect) and 26 with none, so the arc/diag styles are never exercised against clutter."
+    },
+    {
+      "file": "tools/make_wp4_corpus.py",
+      "severity": "INFO",
+      "message": "PNG byte-reproducibility is environment-bound, not code-bound: `save(..., optimize=False, compress_level=6)` leaves the exact compressed bytes to the linked zlib/Pillow build, and the manifest hashes those bytes. The seeded-PRNG claim covers the geometry only. (The manifest's dependency_policy string already scopes this to the local environment; worth stating explicitly in the corpus index.)"
+    },
+    {
+      "file": "tools/make_wp4_corpus.py",
+      "severity": "INFO",
+      "message": "Dead/misplaced imports: `hashlib` and `ImageDraw` are imported but unused (canonical hashing is delegated to `F1._canonical_hash`), and `import math` sits inside the per-anchor loop in `_anchors`."
+    }
+  ],
+  "verdict": "NEEDS_REWORK",
+  "summary": "The generator produces a corpus that is 13/32 duplicate fixtures, renders every vertical-wall door as a stroke that exactly refills its own opening gap, and ships truth records containing hand-authored values (diag window width_mm, diag room polygons, empty topology) that contradict the source geometry they are supposed to be derived from — none of which the accompanying test can detect."
+}
+```
