@@ -18,15 +18,12 @@ discipline for synthetic plans (truth is a pure function of source geometry).
 """
 from __future__ import annotations
 
-import hashlib
 import json
 import math
 import random
 import sys
 from pathlib import Path
 from typing import Any
-
-from PIL import Image, ImageDraw
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "src"))
@@ -330,7 +327,6 @@ def _anchors(source: dict[str, Any], source_hash: str, raster_hash: str, truth_h
     records = []
     for anchor in source["anchors"]:
         a_px, b_px = F1._px(anchor["a_mm"]), F1._px(anchor["b_mm"])
-        import math
         span_px = math.hypot(b_px[0] - a_px[0], b_px[1] - a_px[1])
         records.append({**anchor, "a_px": a_px, "b_px": b_px, "span_px": span_px,
                         "provenance": f"fxx-source-geometry.json#anchors/{anchor['id']}",
@@ -352,7 +348,7 @@ def _render(source: dict[str, Any]) -> Image.Image:
 
 def build_one(out: Path, i: int) -> dict[str, Any]:
     out = Path(out)
-    out.mkdir(parents=True, exist_ok=True)
+    out.mkdir(parents=True, exist_ok=False)  # fail fast on a rerun into an existing dir
     rng = _rng(i)
     kind = "arc" if i % 4 == 3 else ("diag" if i % 5 == 4 else "rect")
     if kind == "arc":
@@ -400,6 +396,11 @@ def build_one(out: Path, i: int) -> dict[str, Any]:
         "recognition_or_scoring_performed": False,
     }
     write_json_exclusive(out / "fxx-manifest.json", manifest, create_parents=False)
+    # Verification pass: every manifest-bound payload file must hash-match the
+    # on-disk bytes (a partial/stale write must fail the build, not ship silently).
+    for name, digest in files.items():
+        if sha256_file(out / name) != digest:
+            raise ValueError(f"corpus fixture {out.name}: hash mismatch on {name}")
     return {"id": f"f{i:02d}", "kind": kind, "walls": len(source["walls"]),
             "rooms": len(source["rooms"]), "openings": len(source["openings"]),
             "clutter": len(source["clutter"])}

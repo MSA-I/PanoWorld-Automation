@@ -172,8 +172,14 @@ def _render(source: dict[str, Any]) -> Image.Image:
     for opening in source["openings"]:
         if "a_mm" not in opening:
             host = walls_by_id[opening["host_id"]]
-            points = _arc_points(host["center_mm"], host["radius_mm"], opening["start_deg"], opening["end_deg"], 8)
-            draw.line([_float_px(point) for point in points], fill=0, width=2)
+            # Window = two offset glazing lines. For an arc host the analogue is
+            # two CONCENTRIC arcs (inner offset), not a single polyline on the
+            # wall centreline (which would be indistinguishable from the 3px wall).
+            cx, cy = host["center_mm"]
+            r = host["radius_mm"]
+            for dr in (0.0, -8.0):
+                points = _arc_points([cx, cy], r + dr, opening["start_deg"], opening["end_deg"], 8)
+                draw.line([_float_px(point) for point in points], fill=0, width=2)
             continue
         a, b = _px(opening["a_mm"]), _px(opening["b_mm"])
         if opening["type"] == "window":
