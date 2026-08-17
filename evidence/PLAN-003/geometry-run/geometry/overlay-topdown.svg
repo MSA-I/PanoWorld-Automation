@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8.8 6.8">
+<g id="walls">
+<polyline points="0.4,6.4 0.4,0.4" stroke="#14532d" stroke-width="0.1" fill="none"/>
+<polyline points="0.4,6.4 8.4,6.4" stroke="#14532d" stroke-width="0.1" fill="none"/>
+<polyline points="0.4,0.4 8.4,0.4" stroke="#14532d" stroke-width="0.1" fill="none"/>
+<polyline points="5.4,6.4 5.4,0.4" stroke="#14532d" stroke-width="0.1" fill="none"/>
+<polyline points="8.4,6.4 8.4,0.4" stroke="#14532d" stroke-width="0.1" fill="none"/>
+</g>
+<g id="rooms">
+<polygon points="0.4,6.4 5.4,6.4 5.4,0.4 0.4,0.4" fill="none" stroke="#2563eb"/>
+<polygon points="5.4,6.4 8.4,6.4 8.4,0.4 5.4,0.4" fill="none" stroke="#2563eb"/>
+</g>
+<g id="doors">
+<circle cx="2.9" cy="6.4" r="0.088" fill="#b45309" data-center="2.9,6.4"/>
+<circle cx="5.4" cy="3.4" r="0.088" fill="#b45309" data-center="5.4,3.4"/>
+</g>
+<g id="windows">
+<circle cx="2.4" cy="0.4" r="0.088" fill="#0891b2" data-center="2.4,0.4"/>
+<circle cx="8.4" cy="1.9" r="0.088" fill="#0891b2" data-center="8.4,1.9"/>
+</g>
+<g id="ids">
+<text x="0.4" y="3.4" font-size="0.176">gw-152c08054052</text>
+<text x="4.4" y="6.4" font-size="0.176">gw-2a805ed03b74</text>
+<text x="4.4" y="0.4" font-size="0.176">gw-7557396b2986</text>
+<text x="5.4" y="3.4" font-size="0.176">gw-f2d519b0b541</text>
+<text x="8.4" y="3.4" font-size="0.176">gw-c915eb83fb94</text>
+<text x="2.9" y="3.4" font-size="0.176">gr-0647acdd02a3</text>
+<text x="6.9" y="3.4" font-size="0.176">gr-f9c1af865cc3</text>
+<text x="2.4" y="0.4" font-size="0.176">go-5d190800701c</text>
+<text x="2.9" y="6.4" font-size="0.176">go-9d050af60afc</text>
+<text x="5.4" y="3.4" font-size="0.176">go-a034910d5337</text>
+<text x="8.4" y="1.9" font-size="0.176">go-cdf0d0cf2800</text>
+</g>
+</svg>

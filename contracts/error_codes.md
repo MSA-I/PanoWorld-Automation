@@ -84,3 +84,21 @@ Consumers match on codes, never on message text.
 | `REVIEW_CURRENT_HEAD_STALE` | error | A review that is no longer the current head was treated as authoritative. |
 | `SCHEMA_VERSION_UNSUPPORTED_BY_CONSUMER` | error | A document's schema version (or additive field) is not representable by the consumer's older schema. |
 
+## Geometry compiler — append-only `GEOM_*` vocabulary (PLAN-003)
+
+| Code | Severity | Meaning |
+|---|---|---|
+| `GEOM_SOURCE_HASH_MISMATCH` | error | Consumed parse artifact content_hash does not match its canonical hash. |
+| `GEOM_RESOURCE_LIMIT` | error | A configured count/byte/coordinate bound was exceeded, or a field is non-finite/malformed. |
+| `GEOM_EMPTY_GEOMETRY` | error | Parse payload did not contain at least one wall and one room. |
+| `GEOM_DUPLICATE_ENTITY` | error | Derived geometry IDs collided within one run; no silent merge or renumber. |
+| `GEOM_OPEN_POLYGON` | error | A room polygon is not closed. |
+| `GEOM_SELF_INTERSECTING_POLYGON` | error | A room polygon is zero-area or self-crossing. |
+| `GEOM_DEGENERATE_WALL` | error | A wall is shorter than the minimum allowed metric length. |
+| `GEOM_OPENING_UNRESOLVED_WALL` | error | An opening references no wall. |
+| `GEOM_OPENING_AMBIGUOUS_WALL_REF` | error | An opening resolves to more than one wall candidate (fail-closed). |
+| `GEOM_OPENING_OFF_WALL` | error | An opening centre lies outside the allowed offset from its host wall. |
+| `GEOM_OPENING_WIDTH_EXCEEDS_WALL` | error | Opening span does not fit within its host wall. |
+| `GEOM_OPENING_ABOVE_WALL` | error | `sill_m + height_m` exceeds the host wall height. |
+| `GEOM_OPEN_ROOM_BOUNDARY` | warn | A wall endpoint is off every room vertex, or a room edge has no supporting wall (fail-open, reported). |
+

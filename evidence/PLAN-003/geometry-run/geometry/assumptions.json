@@ -1,0 +1,84 @@
+{
+  "schema_id": "assumptions",
+  "schema_version": "1.0.0",
+  "artifact_id": "geo-layer-a-dxf-1:assumptions",
+  "project_id": "layer-a-fixture",
+  "run_id": "geo-layer-a-dxf-1",
+  "created_at": "2026-08-14T10:17:52Z",
+  "producer": {
+    "agent": "plan003-geometry-compiler",
+    "provider": "local",
+    "model": "deterministic-python",
+    "effort": "MAX"
+  },
+  "inputs": [
+    {
+      "artifact_id": "geo-layer-a-dxf-1:scene_geometry",
+      "content_hash": "sha256:d2147f3c8139a006aa413568b924fcdd9ccbf8d048f65b4f7f42035def9b2971"
+    }
+  ],
+  "content_hash": "sha256:1cded9cb18aa2ca35608b9c6382debb3cd14c3bbd58deaa3de699634a7d8d788",
+  "status": "complete",
+  "errors": [],
+  "payload": {
+    "stage": "geometry",
+    "entries": [
+      {
+        "key": "wall.thickness_m",
+        "value": "0.10",
+        "reason": "DR-001 interior wall thickness default",
+        "source": "default",
+        "requires_human_ack": false
+      },
+      {
+        "key": "wall.height_m",
+        "value": "2.60",
+        "reason": "full-height wall default",
+        "source": "default",
+        "requires_human_ack": false
+      },
+      {
+        "key": "default_ceiling_height_m",
+        "value": "2.60",
+        "reason": "bound to wall height default (PLAN-003 review F3)",
+        "source": "default",
+        "requires_human_ack": false
+      },
+      {
+        "key": "door.height_m",
+        "value": "2.10",
+        "reason": "door head height default",
+        "source": "default",
+        "requires_human_ack": false
+      },
+      {
+        "key": "door.sill_m",
+        "value": "0.00",
+        "reason": "door sill at floor level",
+        "source": "default",
+        "requires_human_ack": false
+      },
+      {
+        "key": "door.depth_m",
+        "value": "host_wall_thickness",
+        "reason": "DR-001: door depth equals host wall thickness",
+        "source": "default",
+        "requires_human_ack": false
+      },
+      {
+        "key": "window.height_m",
+        "value": "1.20",
+        "reason": "window head height default",
+        "source": "default",
+        "requires_human_ack": false
+      },
+      {
+        "key": "window.sill_m",
+        "value": "0.90",
+        "reason": "window sill height default",
+        "source": "default",
+        "requires_human_ack": false
+      }
+    ]
+  }
+}
