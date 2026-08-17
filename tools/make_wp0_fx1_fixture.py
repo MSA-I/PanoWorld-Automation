@@ -168,9 +168,11 @@ def _render(source: dict[str, Any]) -> Image.Image:
                 steps = max(2, round((end_deg - start_deg) / 5.625))
                 points = _arc_points(wall["center_mm"], wall["radius_mm"], start_deg, end_deg, steps)
                 draw.line([_float_px(point) for point in points], fill=0, width=3)
+    walls_by_id = {wall["id"]: wall for wall in source["walls"]}
     for opening in source["openings"]:
         if "a_mm" not in opening:
-            points = _arc_points([9000, 3250], 1500, opening["start_deg"], opening["end_deg"], 8)
+            host = walls_by_id[opening["host_id"]]
+            points = _arc_points(host["center_mm"], host["radius_mm"], opening["start_deg"], opening["end_deg"], 8)
             draw.line([_float_px(point) for point in points], fill=0, width=2)
             continue
         a, b = _px(opening["a_mm"]), _px(opening["b_mm"])

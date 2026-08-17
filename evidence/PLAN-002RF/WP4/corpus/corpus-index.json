@@ -1,0 +1,268 @@
+{
+  "document": "wp4-r0-corpus-index",
+  "count": 32,
+  "seed": 20260817,
+  "fixtures": [
+    {
+      "id": "f00",
+      "kind": "rect",
+      "walls": 6,
+      "rooms": 4,
+      "openings": 4,
+      "clutter": 2
+    },
+    {
+      "id": "f01",
+      "kind": "rect",
+      "walls": 7,
+      "rooms": 6,
+      "openings": 5,
+      "clutter": 0
+    },
+    {
+      "id": "f02",
+      "kind": "rect",
+      "walls": 6,
+      "rooms": 4,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f03",
+      "kind": "arc",
+      "walls": 7,
+      "rooms": 2,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f04",
+      "kind": "diag",
+      "walls": 6,
+      "rooms": 3,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f05",
+      "kind": "rect",
+      "walls": 8,
+      "rooms": 8,
+      "openings": 6,
+      "clutter": 0
+    },
+    {
+      "id": "f06",
+      "kind": "rect",
+      "walls": 7,
+      "rooms": 4,
+      "openings": 5,
+      "clutter": 2
+    },
+    {
+      "id": "f07",
+      "kind": "arc",
+      "walls": 7,
+      "rooms": 2,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f08",
+      "kind": "rect",
+      "walls": 7,
+      "rooms": 6,
+      "openings": 5,
+      "clutter": 0
+    },
+    {
+      "id": "f09",
+      "kind": "diag",
+      "walls": 6,
+      "rooms": 3,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f10",
+      "kind": "rect",
+      "walls": 6,
+      "rooms": 3,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f11",
+      "kind": "arc",
+      "walls": 7,
+      "rooms": 2,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f12",
+      "kind": "rect",
+      "walls": 6,
+      "rooms": 4,
+      "openings": 4,
+      "clutter": 2
+    },
+    {
+      "id": "f13",
+      "kind": "rect",
+      "walls": 6,
+      "rooms": 4,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f14",
+      "kind": "diag",
+      "walls": 6,
+      "rooms": 3,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f15",
+      "kind": "arc",
+      "walls": 7,
+      "rooms": 2,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f16",
+      "kind": "rect",
+      "walls": 6,
+      "rooms": 3,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f17",
+      "kind": "rect",
+      "walls": 6,
+      "rooms": 4,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f18",
+      "kind": "rect",
+      "walls": 6,
+      "rooms": 4,
+      "openings": 4,
+      "clutter": 2
+    },
+    {
+      "id": "f19",
+      "kind": "arc",
+      "walls": 7,
+      "rooms": 2,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f20",
+      "kind": "rect",
+      "walls": 6,
+      "rooms": 3,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f21",
+      "kind": "rect",
+      "walls": 7,
+      "rooms": 6,
+      "openings": 5,
+      "clutter": 2
+    },
+    {
+      "id": "f22",
+      "kind": "rect",
+      "walls": 7,
+      "rooms": 6,
+      "openings": 5,
+      "clutter": 0
+    },
+    {
+      "id": "f23",
+      "kind": "arc",
+      "walls": 7,
+      "rooms": 2,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f24",
+      "kind": "diag",
+      "walls": 6,
+      "rooms": 3,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f25",
+      "kind": "rect",
+      "walls": 7,
+      "rooms": 4,
+      "openings": 5,
+      "clutter": 0
+    },
+    {
+      "id": "f26",
+      "kind": "rect",
+      "walls": 6,
+      "rooms": 3,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f27",
+      "kind": "arc",
+      "walls": 7,
+      "rooms": 2,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f28",
+      "kind": "rect",
+      "walls": 7,
+      "rooms": 4,
+      "openings": 5,
+      "clutter": 0
+    },
+    {
+      "id": "f29",
+      "kind": "diag",
+      "walls": 6,
+      "rooms": 3,
+      "openings": 4,
+      "clutter": 0
+    },
+    {
+      "id": "f30",
+      "kind": "rect",
+      "walls": 7,
+      "rooms": 6,
+      "openings": 5,
+      "clutter": 2
+    },
+    {
+      "id": "f31",
+      "kind": "arc",
+      "walls": 7,
+      "rooms": 2,
+      "openings": 4,
+      "clutter": 0
+    }
+  ],
+  "by_kind": {
+    "rect": 19,
+    "arc": 8,
+    "diag": 5
+  }
+}

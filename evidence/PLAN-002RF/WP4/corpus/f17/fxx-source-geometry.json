@@ -1,0 +1,277 @@
+{
+  "document": "fxx-source-geometry",
+  "version": "1.0.0",
+  "origin": "project_owned_deterministic_synthetic",
+  "rights": "project-owned; no third-party bytes or assets",
+  "coordinate_system": {
+    "units": "mm",
+    "origin": "canvas_bottom_left",
+    "y_axis": "up"
+  },
+  "canvas": {
+    "width_px": 2400,
+    "height_px": 2000,
+    "mm_per_px": 5
+  },
+  "walls": [
+    {
+      "id": "W-S",
+      "kind": "segment",
+      "a_mm": [
+        500,
+        500
+      ],
+      "b_mm": [
+        8500,
+        500
+      ]
+    },
+    {
+      "id": "W-E",
+      "kind": "segment",
+      "a_mm": [
+        8500,
+        500
+      ],
+      "b_mm": [
+        8500,
+        7500
+      ]
+    },
+    {
+      "id": "W-N",
+      "kind": "segment",
+      "a_mm": [
+        500,
+        7500
+      ],
+      "b_mm": [
+        8500,
+        7500
+      ]
+    },
+    {
+      "id": "W-W",
+      "kind": "segment",
+      "a_mm": [
+        500,
+        500
+      ],
+      "b_mm": [
+        500,
+        7500
+      ]
+    },
+    {
+      "id": "P-1",
+      "kind": "segment",
+      "a_mm": [
+        7500,
+        500
+      ],
+      "b_mm": [
+        7500,
+        7500
+      ]
+    },
+    {
+      "id": "P-2",
+      "kind": "segment",
+      "a_mm": [
+        500,
+        3000
+      ],
+      "b_mm": [
+        8500,
+        3000
+      ]
+    }
+  ],
+  "openings": [
+    {
+      "id": "O-0",
+      "type": "door",
+      "host_id": "P-1",
+      "a_mm": [
+        7500,
+        2000
+      ],
+      "b_mm": [
+        7500,
+        2900
+      ],
+      "width_mm": 900
+    },
+    {
+      "id": "O-1",
+      "type": "door",
+      "host_id": "P-2",
+      "a_mm": [
+        2000,
+        3000
+      ],
+      "b_mm": [
+        2900,
+        3000
+      ],
+      "width_mm": 900
+    },
+    {
+      "id": "O-2",
+      "type": "window",
+      "host_id": "W-N",
+      "a_mm": [
+        3900,
+        7500
+      ],
+      "b_mm": [
+        5100,
+        7500
+      ],
+      "width_mm": 1200
+    },
+    {
+      "id": "O-3",
+      "type": "door",
+      "host_id": "W-S",
+      "a_mm": [
+        4050,
+        500
+      ],
+      "b_mm": [
+        4950,
+        500
+      ],
+      "width_mm": 900
+    }
+  ],
+  "rooms": [
+    {
+      "id": "R-0",
+      "polygon_mm": [
+        [
+          500,
+          500
+        ],
+        [
+          7500,
+          500
+        ],
+        [
+          7500,
+          3000
+        ],
+        [
+          500,
+          3000
+        ]
+      ]
+    },
+    {
+      "id": "R-1",
+      "polygon_mm": [
+        [
+          500,
+          3000
+        ],
+        [
+          7500,
+          3000
+        ],
+        [
+          7500,
+          7500
+        ],
+        [
+          500,
+          7500
+        ]
+      ]
+    },
+    {
+      "id": "R-2",
+      "polygon_mm": [
+        [
+          7500,
+          500
+        ],
+        [
+          8500,
+          500
+        ],
+        [
+          8500,
+          3000
+        ],
+        [
+          7500,
+          3000
+        ]
+      ]
+    },
+    {
+      "id": "R-3",
+      "polygon_mm": [
+        [
+          7500,
+          3000
+        ],
+        [
+          8500,
+          3000
+        ],
+        [
+          8500,
+          7500
+        ],
+        [
+          7500,
+          7500
+        ]
+      ]
+    }
+  ],
+  "topology": [],
+  "clutter": [],
+  "anchors": [
+    {
+      "id": "A-N",
+      "a_mm": [
+        500,
+        8250
+      ],
+      "b_mm": [
+        5500,
+        8250
+      ],
+      "real_length_m": 5.0,
+      "placement_region": "north_margin"
+    },
+    {
+      "id": "A-E",
+      "a_mm": [
+        9250,
+        500
+      ],
+      "b_mm": [
+        9250,
+        5500
+      ],
+      "real_length_m": 5.0,
+      "placement_region": "east_margin"
+    },
+    {
+      "id": "A-D",
+      "a_mm": [
+        9000,
+        8000
+      ],
+      "b_mm": [
+        9600,
+        8800
+      ],
+      "real_length_m": 1.0,
+      "placement_region": "northeast_margin"
+    }
+  ]
+}
