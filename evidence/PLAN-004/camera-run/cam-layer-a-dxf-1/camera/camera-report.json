@@ -1,0 +1,42 @@
+{
+  "report_version": 1,
+  "cam_run_id": "cam-layer-a-dxf-1",
+  "source_artifact_id": "geo-layer-a-dxf-1:scene_geometry",
+  "outcome": "complete",
+  "cli_exit": 0,
+  "limits": {
+    "CAMERA_HEIGHT_M": 1.35,
+    "CAMERA_HEIGHT_MIN_M": 0.5,
+    "CAMERA_HEIGHT_MAX_M": 3.0,
+    "WALL_CLEARANCE_M": 0.35,
+    "OPENING_CLEARANCE_M": 0.2,
+    "POINT_IN_POLYGON_EPSILON_M": 1e-06,
+    "MAX_PULLBACK_M": 2.0,
+    "DEFAULT_YAW_RAD": 0.0,
+    "RESOLUTION_WIDTH": 2048,
+    "RESOLUTION_HEIGHT": 1024,
+    "MAX_VIEWS_PER_LRM_BATCH": 8,
+    "MAX_ROOMS": 5000,
+    "MAX_OPENINGS": 20000,
+    "MAX_POLYGON_VERTICES": 10000,
+    "MAX_COORDINATE_MAGNITUDE_M": 100000,
+    "MAX_OVERLAY_BYTES": 73400320
+  },
+  "metrics": {
+    "rooms": 2,
+    "viewpoints": 2,
+    "edges": 1,
+    "openings": 4,
+    "openings_doors": 2,
+    "openings_windows": 2
+  },
+  "findings": [
+    {
+      "code": "CAM_MAP_ADJACENCY_UNRESOLVED",
+      "severity": "warn",
+      "tier": 4,
+      "source_ref": "go-9d050af60afc",
+      "message": "door does not resolve to two covered rooms"
+    }
+  ]
+}

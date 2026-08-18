@@ -1,6 +1,6 @@
 # ADR-0008 — Camera-planner CAM_* vocabulary and camera_plan run lifecycle
 
-- Status: PROPOSED (PLAN-004, pending Moshe PLAN approval + G3 Camera Gate + merge)
+- Status: **APPROVED** (Moshe 2026-08-18, with PLAN-004) — pending G3 Camera Gate + merge
 - Date: 2026-08-17
 - Controlling plan: `docs/plans/PLAN-004-camera-planner.md`
 - Scope: Part 1 local only. G7/G8, H200/GPU, cloud, remote and spend remain DEFERRED TO PART 2.

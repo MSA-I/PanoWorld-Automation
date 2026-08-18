@@ -1,0 +1,65 @@
+{
+  "schema_id": "camera_plan",
+  "schema_version": "1.0.0",
+  "artifact_id": "cam-layer-a-dxf-1:camera_plan",
+  "project_id": "layer-a-fixture",
+  "run_id": "cam-layer-a-dxf-1",
+  "created_at": "2026-08-18T17:36:38Z",
+  "producer": {
+    "agent": "plan004-camera-planner",
+    "provider": "local",
+    "model": "deterministic-python",
+    "effort": "MAX"
+  },
+  "inputs": [
+    {
+      "artifact_id": "geo-layer-a-dxf-1:scene_geometry",
+      "content_hash": "sha256:d2147f3c8139a006aa413568b924fcdd9ccbf8d048f65b4f7f42035def9b2971"
+    }
+  ],
+  "content_hash": "sha256:04aeffd24426eddacdfecd3fa4b123d1728f5215fde05f09a41c987ebc204a9d",
+  "status": "complete",
+  "errors": [
+    {
+      "code": "CAM_MAP_ADJACENCY_UNRESOLVED",
+      "message": "door does not resolve to two covered rooms"
+    }
+  ],
+  "payload": {
+    "resolution": {
+      "width": 2048,
+      "height": 1024
+    },
+    "camera_height_m": 1.35,
+    "viewpoints": [
+      {
+        "id": "0000",
+        "position": [
+          2.5,
+          3.0,
+          1.35
+        ],
+        "yaw_deg": 0.0,
+        "room_id": "gr-0647acdd02a3"
+      },
+      {
+        "id": "0001",
+        "position": [
+          6.5,
+          3.0,
+          1.35
+        ],
+        "yaw_deg": 0.0,
+        "room_id": "gr-f9c1af865cc3"
+      }
+    ],
+    "edges": [
+      [
+        "0000",
+        "0001"
+      ]
+    ],
+    "start_viewpoint": "0000",
+    "max_views_per_lrm_batch": 8
+  }
+}

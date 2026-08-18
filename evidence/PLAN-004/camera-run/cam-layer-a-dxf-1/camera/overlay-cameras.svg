@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8.8 6.8">
+<g id="walls">
+<polyline points="0.4,6.4 0.4,0.4" stroke="#14532d" stroke-width="0.1" fill="none"/>
+<polyline points="0.4,6.4 8.4,6.4" stroke="#14532d" stroke-width="0.1" fill="none"/>
+<polyline points="0.4,0.4 8.4,0.4" stroke="#14532d" stroke-width="0.1" fill="none"/>
+<polyline points="5.4,6.4 5.4,0.4" stroke="#14532d" stroke-width="0.1" fill="none"/>
+<polyline points="8.4,6.4 8.4,0.4" stroke="#14532d" stroke-width="0.1" fill="none"/>
+</g>
+<g id="rooms">
+<polygon points="0.4,6.4 5.4,6.4 5.4,0.4 0.4,0.4" fill="none" stroke="#2563eb"/>
+<polygon points="5.4,6.4 8.4,6.4 8.4,0.4 5.4,0.4" fill="none" stroke="#2563eb"/>
+</g>
+<g id="doors">
+<circle cx="2.9" cy="6.4" r="0.088" fill="#b45309"/>
+<circle cx="5.4" cy="3.4" r="0.088" fill="#b45309"/>
+</g>
+<g id="windows">
+<circle cx="2.4" cy="0.4" r="0.088" fill="#0891b2"/>
+<circle cx="8.4" cy="1.9" r="0.088" fill="#0891b2"/>
+</g>
+<g id="cameras">
+<circle cx="2.9" cy="3.4" r="0.106" fill="#dc2626" data-viewpoint="0000" data-room="gr-0647acdd02a3"/>
+<circle cx="6.9" cy="3.4" r="0.106" fill="#dc2626" data-viewpoint="0001" data-room="gr-f9c1af865cc3"/>
+</g>
+<g id="ids">
+<text x="2.9" y="3.4" font-size="0.176" fill="#7f1d1d">0000</text>
+<text x="6.9" y="3.4" font-size="0.176" fill="#7f1d1d">0001</text>
+<text x="2.9" y="3.4" font-size="0.176">gr-0647acdd02a3</text>
+<text x="6.9" y="3.4" font-size="0.176">gr-f9c1af865cc3</text>
+</g>
+</svg>

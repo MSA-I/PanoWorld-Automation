@@ -1,0 +1,193 @@
+{
+  "schema_id": "scene_geometry",
+  "schema_version": "1.0.0",
+  "artifact_id": "geo-layer-a-dxf-1:scene_geometry",
+  "project_id": "layer-a-fixture",
+  "run_id": "geo-layer-a-dxf-1",
+  "created_at": "2026-08-14T10:17:52Z",
+  "producer": {
+    "agent": "plan003-geometry-compiler",
+    "provider": "local",
+    "model": "deterministic-python",
+    "effort": "MAX"
+  },
+  "inputs": [
+    {
+      "artifact_id": "RUN-LAYER-A-DXF-PARSE-A:floorplan_parse",
+      "content_hash": "sha256:afa14c3729957e0bc73bf4a20cd2f64a3c91bc10efd91d6257cd9c578eca0b37"
+    }
+  ],
+  "content_hash": "sha256:d2147f3c8139a006aa413568b924fcdd9ccbf8d048f65b4f7f42035def9b2971",
+  "status": "complete",
+  "errors": [],
+  "payload": {
+    "units": "m",
+    "up_axis": "z",
+    "default_ceiling_height_m": 2.6,
+    "rooms": [
+      {
+        "id": "gr-0647acdd02a3",
+        "polygon": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            5.0,
+            0.0
+          ],
+          [
+            5.0,
+            6.0
+          ],
+          [
+            0.0,
+            6.0
+          ]
+        ],
+        "floor_z": 0.0,
+        "ceiling_z": 2.6
+      },
+      {
+        "id": "gr-f9c1af865cc3",
+        "polygon": [
+          [
+            5.0,
+            0.0
+          ],
+          [
+            8.0,
+            0.0
+          ],
+          [
+            8.0,
+            6.0
+          ],
+          [
+            5.0,
+            6.0
+          ]
+        ],
+        "floor_z": 0.0,
+        "ceiling_z": 2.6
+      }
+    ],
+    "walls": [
+      {
+        "id": "gw-152c08054052",
+        "start": [
+          0.0,
+          0.0
+        ],
+        "end": [
+          0.0,
+          6.0
+        ],
+        "height_m": 2.6,
+        "thickness_m": 0.1
+      },
+      {
+        "id": "gw-2a805ed03b74",
+        "start": [
+          0.0,
+          0.0
+        ],
+        "end": [
+          8.0,
+          0.0
+        ],
+        "height_m": 2.6,
+        "thickness_m": 0.1
+      },
+      {
+        "id": "gw-7557396b2986",
+        "start": [
+          0.0,
+          6.0
+        ],
+        "end": [
+          8.0,
+          6.0
+        ],
+        "height_m": 2.6,
+        "thickness_m": 0.1
+      },
+      {
+        "id": "gw-f2d519b0b541",
+        "start": [
+          5.0,
+          0.0
+        ],
+        "end": [
+          5.0,
+          6.0
+        ],
+        "height_m": 2.6,
+        "thickness_m": 0.1
+      },
+      {
+        "id": "gw-c915eb83fb94",
+        "start": [
+          8.0,
+          0.0
+        ],
+        "end": [
+          8.0,
+          6.0
+        ],
+        "height_m": 2.6,
+        "thickness_m": 0.1
+      }
+    ],
+    "openings": [
+      {
+        "id": "go-5d190800701c",
+        "type": "window",
+        "wall_id": "gw-7557396b2986",
+        "center": [
+          2.0,
+          6.0
+        ],
+        "width_m": 1.2,
+        "height_m": 1.2,
+        "sill_m": 0.9
+      },
+      {
+        "id": "go-9d050af60afc",
+        "type": "door",
+        "wall_id": "gw-2a805ed03b74",
+        "center": [
+          2.5,
+          0.0
+        ],
+        "width_m": 0.9,
+        "height_m": 2.1,
+        "sill_m": 0.0
+      },
+      {
+        "id": "go-a034910d5337",
+        "type": "door",
+        "wall_id": "gw-f2d519b0b541",
+        "center": [
+          5.0,
+          3.0
+        ],
+        "width_m": 0.9,
+        "height_m": 2.1,
+        "sill_m": 0.0
+      },
+      {
+        "id": "go-cdf0d0cf2800",
+        "type": "window",
+        "wall_id": "gw-c915eb83fb94",
+        "center": [
+          8.0,
+          4.5
+        ],
+        "width_m": 1.2,
+        "height_m": 1.2,
+        "sill_m": 0.9
+      }
+    ]
+  }
+}

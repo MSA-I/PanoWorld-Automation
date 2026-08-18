@@ -1,7 +1,7 @@
 # PLAN-004 — Camera Planner
 
 - Plan ID: `PLAN-004-camera-planner`
-- Status: **`APPROVED-PENDING-MOSHE`** — drafted by the orchestrator under Full Part-1 delegated authority; independent read-only-first review returned APPROVE (findings below); **Moshe's PLAN approval is still required before any camera implementation**, per the task body and the PLAN-003 precedent (a PLAN is not auto-authorized).
+- Status: **`APPROVED`** — drafted by the orchestrator under Full Part-1 delegated authority; independent read-only-first review returned APPROVE; **Moshe approved PLAN-004 + ADR-0008 on 2026-08-18** (kanban comment). G3 Camera Gate still required before merge.
 - Kanban: `t_9734e83f` (`P1-04 camera planning and extrinsics`, board `panoworld-dev`)
 - Policy: `MODEL-ROUTING-v3-OPENROUTER-DEEPSEEK` (per docs/06, 08, 09, 10). The card body's "Opus leads / Codex implements / GPT reviews" language is **stale** (see §17).
 - Consumes: `scene_geometry` 1.0.0 (PLAN-003 output, frozen) + `HANDOFF-PLAN-003-to-PLAN-004-001`.

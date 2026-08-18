@@ -1,0 +1,75 @@
+{
+  "schema_id": "assumptions",
+  "schema_version": "1.0.0",
+  "artifact_id": "cam-layer-a-dxf-1:assumptions",
+  "project_id": "layer-a-fixture",
+  "run_id": "cam-layer-a-dxf-1",
+  "created_at": "2026-08-18T17:36:38Z",
+  "producer": {
+    "agent": "plan004-camera-planner",
+    "provider": "local",
+    "model": "deterministic-python",
+    "effort": "MAX"
+  },
+  "inputs": [
+    {
+      "artifact_id": "cam-layer-a-dxf-1:camera_plan",
+      "content_hash": "sha256:04aeffd24426eddacdfecd3fa4b123d1728f5215fde05f09a41c987ebc204a9d"
+    }
+  ],
+  "content_hash": "sha256:54d0f707e2dec4c31e8200d3c1f8b31d72673cd373efa691b7353b5609834ba8",
+  "status": "complete",
+  "errors": [
+    {
+      "code": "CAM_MAP_ADJACENCY_UNRESOLVED",
+      "message": "door does not resolve to two covered rooms"
+    }
+  ],
+  "payload": {
+    "stage": "camera",
+    "entries": [
+      {
+        "key": "camera.height_m",
+        "value": "1.35",
+        "reason": "camera height default (matches camera_plan schema default and golden fixture)",
+        "source": "default",
+        "requires_human_ack": false
+      },
+      {
+        "key": "camera.wall_clearance_m",
+        "value": "0.35",
+        "reason": "wall clearance default (lens out of wall body + usable frustum depth)",
+        "source": "default",
+        "requires_human_ack": false
+      },
+      {
+        "key": "camera.opening_clearance_m",
+        "value": "0.20",
+        "reason": "opening clearance default (viewpoints never block or sit inside an opening)",
+        "source": "default",
+        "requires_human_ack": false
+      },
+      {
+        "key": "camera.yaw_rad",
+        "value": "0.0",
+        "reason": "default yaw 0 (no per-room override in Part 1)",
+        "source": "default",
+        "requires_human_ack": false
+      },
+      {
+        "key": "camera.resolution",
+        "value": "2048x1024",
+        "reason": "default render resolution (width == 2 * height)",
+        "source": "default",
+        "requires_human_ack": false
+      },
+      {
+        "key": "camera.max_views_per_lrm_batch",
+        "value": "8",
+        "reason": "mirrors verified PanoWorld viewpoint_max_view default 8",
+        "source": "default",
+        "requires_human_ack": false
+      }
+    ]
+  }
+}
