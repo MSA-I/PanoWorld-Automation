@@ -925,8 +925,9 @@ def _derive_rooms(walls: list[dict], mm_per_px: float | None) -> list[dict]:
 
     # 1b. Split edges at T-junctions (a wall endpoint meeting another wall's
     # interior) so the planar graph is closed; endpoint-to-endpoint joins are
-    # left to the snapping step below.
-    TOL = 6.0
+    # left to the snapping step below. TOL also snaps the diagonal's RANSAC-fit
+    # endpoints onto their host walls (~7 px fit error, above the old 6 px).
+    TOL = 10.0
     split_points: dict[int, list[tuple[float, float]]] = defaultdict(list)
     for i, (p, q) in enumerate(edges):
         qp = (q[0] - p[0], q[1] - p[1])

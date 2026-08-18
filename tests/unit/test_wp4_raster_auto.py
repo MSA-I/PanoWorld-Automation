@@ -408,3 +408,10 @@ def test_diagonal_first_detection_recovers_fx1_diagonal():
     # FX1 diagonal truth: W-DIAG 2400x1800 mm -> 480x360 px -> length 600 px at 143.13 deg.
     assert abs(length - 600.0) < 25.0
     assert abs(theta - 143.13) < 3.0
+
+
+def test_derive_rooms_recovers_three_fx1_rooms():
+    # The wall graph (9 walls: 8 segments + 1 arc-chord) closes into three bounded
+    # faces: R-HALL (west, with the diagonal), R-NE and R-SE (the rectangles).
+    payload = extract_raster_auto(_FX1_PNG, derive_scale=True)
+    assert len(payload["rooms"]) == 3, f"expected 3 rooms, got {len(payload['rooms'])}"
