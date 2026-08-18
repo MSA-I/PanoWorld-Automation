@@ -49,6 +49,14 @@ Status: the raster_auto engine recovers **72 walls** on the FX1 fixture instead 
    recognised opening motif (door leaf / window glazing / passage jamb ticks),
    not unconditionally up to `WALL_OPENING_GAP_PX`.
 
+   **Resolved (2026-08-18):** the merge-across-the-arc failure is fixed by the
+   arc-first change (the arc is removed from the mask before Hough, so its
+   600px chord gap never reaches the merge) plus lowering `WALL_OPENING_GAP_PX`
+   to 350px (below the min arc chord 400px, above the max opening 300px). The
+   full "motif check" (which would need passage jamb ticks, presently rendered
+   as a bare gap) is deferred as a future refinement for the 3.0m-passage ==
+   3.0m-arc-gap case, absent from the current corpus.
+
 ## Constraints
 
 Deterministic; no OCR; no new deps beyond scipy; constants derived from stroke
