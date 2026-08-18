@@ -249,10 +249,11 @@ def hough_physical_lines(mask: np.ndarray, theta_step_deg: float = HOUGH_THETA_S
     # A WALL_STROKE_PX-wide stroke over a wall of length L subtends
     # atan(WALL_STROKE_PX / L) radians of angular spread, so a 3 px stroke
     # spreads its votes across adjacent theta bins. Merge peaks within that
-    # spread plus one theta bin. 8 deg robustly covers the stroke spread for
-    # walls >= ~21 px; clean-plan orientations are >= 30 deg apart, so distinct
-    # walls never merge. (Geometry-derived constant, not a per-plan tune.)
-    theta_tol = 8.0 + theta_step_deg
+    # spread plus one theta bin. 15 deg covers the stroke spread AND the T-junction
+    # erosion artifact (a partition meeting a perimeter wall leaves a ~10 deg
+    # near-axis echo); with arc/diagonal-first detection the Hough only sees
+    # axis-aligned walls (>= 90 deg apart), so distinct walls never merge.
+    theta_tol = 15.0 + theta_step_deg
     # A wall at perpendicular distance D from the origin shifts its rho by
     # ~D*sin(dtheta) when the line tilts by dtheta; the angular spread therefore
     # leaks a peak into an adjacent theta bin at a SHIFTED rho. Bound D by the

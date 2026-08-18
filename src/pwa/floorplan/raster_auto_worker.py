@@ -338,7 +338,7 @@ def _detect_arc_from_structural(structural: np.ndarray) -> dict | None:
         return None
     rng = np.random.RandomState(20260817)  # fixed seed -> deterministic
     best = None  # (inlier_count, cx, cy, r, inlier_bool)
-    for _ in range(5000):
+    for _ in range(20000):
         idx = rng.choice(n, 3, replace=False)
         s = pts[idx]
         spread = min(
