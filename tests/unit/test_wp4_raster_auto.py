@@ -379,3 +379,16 @@ def test_extract_raster_auto_rejects_oversized_pixels(tmp_path):
     # header-only size guard: an absurdly large declared size is refused before load
     assert G.within_pixel_budget(MAX_SOURCE_PIXELS + 1) is False
     assert G.within_pixel_budget(100) is True
+
+
+def test_arc_first_detection_recovers_fx1_apse():
+    # Arc-first: the apse arc must be recovered as a circular_arc from the
+    # STRUCTURAL mask (pre-erosion), not chord-fragmented into segment walls.
+    payload = extract_raster_auto(_FX1_PNG, derive_scale=True)
+    arcs = [w for w in payload["walls"] if w["kind"] == "circular_arc"]
+    assert len(arcs) == 1, f"expected 1 apse arc, got {len(arcs)}"
+    a = arcs[0]["arc_px"]
+    # FX1 apse truth: centre (1800, 1350), radius 300 (1 px = 5 mm).
+    assert abs(a["radius_px"] - 300.0) < 10.0
+    assert abs(a["center"][0] - 1800.0) < 10.0
+    assert abs(a["center"][1] - 1350.0) < 10.0

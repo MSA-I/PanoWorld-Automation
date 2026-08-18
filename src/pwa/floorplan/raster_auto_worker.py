@@ -175,9 +175,16 @@ def extract_raster_auto(path: object, *, derive_scale: bool) -> dict:
     # --- wall recovery (pixel space) ----------------------------------------
     walls, rooms, openings = [], [], []
 
-    wall_ink = G.wall_centerlines(ink)   # 1 px wall skeleton, opening motifs removed
-    segment_walls = _recover_segment_walls(wall_ink, thickness_ink=ink)
-    arc_walls = _recover_arc_walls(wall_ink, segment_walls)
+    # Arc-first: detect the circular arc from the STRUCTURAL mask (pre-erosion,
+    # where it is still a clean 3px ring), remove it, then erode + recover the
+    # straight walls so Hough does not chord-fragment the curved wall.
+    arc = _detect_arc_from_structural(ink)
+    ink_segments = ink
+    if arc is not None:
+        ink_segments = ink & (1 - _paint_arc_ring(ink.shape, arc["center_px"], arc["radius_px"]))
+    wall_ink = G.wall_centerlines(ink_segments)   # 1 px wall skeleton, opening motifs removed
+    segment_walls = _recover_segment_walls(wall_ink, thickness_ink=ink_segments)
+    arc_walls = _arc_wall_from_detection(arc, len(segment_walls)) if arc is not None else []
     walls = segment_walls + arc_walls
 
     # --- opening recovery (motif-based, on gaps in the recovered walls) -----
@@ -306,68 +313,116 @@ def _recover_segment_walls(ink: np.ndarray, thickness_ink: np.ndarray | None = N
     return walls
 
 
-def _recover_arc_walls(ink: np.ndarray, segment_walls: list[dict]) -> list[dict]:
-    """Recover a bounded circular-arc wall from unconsumed arc-shaped ink.
+def _detect_arc_from_structural(structural: np.ndarray) -> dict | None:
+    """Detect the circular-arc wall from the STRUCTURAL mask (pre-erosion).
 
-    Deterministic: connected-component analysis isolates ink not attributed to
-    any straight wall; the largest remaining curved component is fit with the
-    Kasa algebraic circle and accepted only if the RMS residual is within the
-    frozen arc bound (U-3 draft). Returns a list with at most one accepted arc.
+    The 3x3 ``wall_centerlines`` erosion fragments the chord-polyline arc into
+    dozens of tiny components, so the arc is detected here where it is still a
+    clean 3px ring, then removed before erosion. Deterministic RANSAC circle fit
+    (fixed seed) + radius, sweep and contiguity guards. Returns
+    ``{center_px, radius_px, start_deg, end_deg, rms_residual_px}`` or None.
     """
     import numpy as np
 
-    h, w = ink.shape
-    # Remove straight-wall ink (within stroke tolerance of a recovered centreline).
-    consumed = _paint_segment_coverage(ink.shape, segment_walls)
-    residue = ink & (1 - consumed)
-    ys, xs = np.nonzero(residue)
-    if xs.size < 50:
-        return []
-    component_mask = residue
-    labels, n = G.connected_components(component_mask)
-    # Largest component (the apse arc) is fit; ignore tiny fragments.
-    best_pts = None
-    best_size = 0
-    for cid in range(1, n + 1):
-        pts = np.argwhere(labels == cid)  # (y, x)
-        if pts.shape[0] > best_size:
-            best_size = pts.shape[0]
-            best_pts = pts
-    if best_pts is None or best_size < 50:
-        return []
-    pts_xy = best_pts[:, ::-1].astype(np.float64)   # (x, y)
-    circle = G.fit_circle(pts_xy)
-    residual = G.circle_fit_residual(pts_xy, circle)
-    if residual > G.ARC_RMS_RESIDUAL_MAX_PX:
-        return []
-    cx, cy, r = circle
-    # Only a bounded, non-degenerate arc qualifies (radius sanity bound).
-    if r < 10.0 or r > max(w, h):
-        return []
-    # Derive the angular extent and endpoints from the residues' angular span.
-    angles = np.arctan2((pts_xy[:, 1] - cy), (pts_xy[:, 0] - cx))
-    start_deg = float(np.degrees(angles.min()))
-    end_deg = float(np.degrees(angles.max()))
-    sweep_span = (end_deg - start_deg) % 360.0
-    if sweep_span < 10.0:
-        return []
-    # In image space y is down; convert sweep to ccw about a y-up model later.
-    arc_wall = {
-        "index": len(segment_walls),
+    ys, xs = np.nonzero(structural)
+    pts = np.column_stack([xs, ys]).astype(np.float64)
+    n = pts.shape[0]
+    if n < 200:
+        return None
+    rng = np.random.RandomState(20260817)  # fixed seed -> deterministic
+    best = None  # (inlier_count, cx, cy, r, inlier_bool)
+    for _ in range(5000):
+        idx = rng.choice(n, 3, replace=False)
+        s = pts[idx]
+        spread = min(
+            math.hypot(s[1, 0] - s[0, 0], s[1, 1] - s[0, 1]),
+            math.hypot(s[2, 0] - s[0, 0], s[2, 1] - s[0, 1]),
+            math.hypot(s[2, 0] - s[1, 0], s[2, 1] - s[1, 1]),
+        )
+        if spread < 60.0:
+            continue
+        try:
+            cx, cy, r = G.fit_circle(s)
+        except (ValueError, np.linalg.LinAlgError):
+            continue
+        if not (np.isfinite(cx) and np.isfinite(cy) and np.isfinite(r)):
+            continue
+        if not (150.0 <= r <= 450.0):
+            continue
+        dists = np.hypot(pts[:, 0] - cx, pts[:, 1] - cy)
+        inl = np.abs(dists - r) <= 3.0  # structural arc is a 3px stroke
+        cnt = int(inl.sum())
+        if cnt >= 300 and (best is None or cnt > best[0]):
+            best = (cnt, cx, cy, r, inl)
+    if best is None:
+        return None
+    _, _, _, _, inl = best
+    inl_pts = pts[inl]
+    refined = G.fit_circle(inl_pts)
+    residual = G.circle_fit_residual(inl_pts, refined)
+    if residual > 2.0:  # 3px stroke ring -> RMS ~1px; 2px is the structural bound
+        return None
+    rcx, rcy, rr = refined
+    angles = np.degrees(np.arctan2(inl_pts[:, 1] - rcy, inl_pts[:, 0] - rcx))
+    angles = np.sort(angles)
+    gaps = np.diff(angles)
+    gaps = np.append(gaps, angles[0] + 360.0 - angles[-1])
+    sweep = 360.0 - float(gaps.max())
+    if sweep < 45.0 or sweep >= 355.0:
+        return None
+    # Contiguity guard: a real arc is one connected ring (the largest connected
+    # component of the inlier mask dominates); a spurious fit scatters points.
+    mask = np.zeros(structural.shape, dtype=np.uint8)
+    mask[ys[inl], xs[inl]] = 1
+    labels, ncomp = G.connected_components(mask)
+    if ncomp == 0:
+        return None
+    largest = max(int((labels == c).sum()) for c in range(1, ncomp + 1))
+    if largest < 0.6 * int(inl.sum()):
+        return None
+    gap_i = int(np.argmax(gaps))
+    start_deg = float(angles[(gap_i + 1) % len(angles)])
+    end_deg = float(angles[gap_i])
+    return {
+        "center_px": [float(rcx), float(rcy)],
+        "radius_px": float(rr),
+        "start_deg": start_deg,
+        "end_deg": end_deg,
+        "rms_residual_px": float(residual),
+    }
+
+
+def _paint_arc_ring(shape: tuple[int, int], center_px: list[float], radius_px: float, width_px: int = 4) -> np.ndarray:
+    """Boolean mask of the arc's ring (radius +/- width_px) to remove it."""
+    import numpy as np
+
+    h, w = shape
+    yy, xx = np.mgrid[0:h, 0:w]
+    d = np.hypot(xx - center_px[0], yy - center_px[1])
+    return (np.abs(d - radius_px) <= width_px).astype(np.uint8)
+
+
+def _arc_wall_from_detection(arc: dict, index: int) -> list[dict]:
+    """Convert a detected arc into the emitted circular-arc wall dict."""
+    cx, cy = arc["center_px"]
+    r = arc["radius_px"]
+    start_deg = arc["start_deg"]
+    end_deg = arc["end_deg"]
+    return [{
+        "index": index,
         "source_ref": "raster:arc#0",
         "kind": "circular_arc",
-        "start_px": [float(cx + r * math.cos(math.radians(start_deg))), float(cy + r * math.sin(math.radians(start_deg)))],
-        "end_px": [float(cx + r * math.cos(math.radians(end_deg))), float(cy + r * math.sin(math.radians(end_deg)))],
+        "start_px": [cx + r * math.cos(math.radians(start_deg)), cy + r * math.sin(math.radians(start_deg))],
+        "end_px": [cx + r * math.cos(math.radians(end_deg)), cy + r * math.sin(math.radians(end_deg))],
         "thickness_px": 3.0,
         "arc_px": {
-            "center": [float(cx), float(cy)],
-            "radius_px": float(r),
+            "center": [cx, cy],
+            "radius_px": r,
             "start_deg": start_deg,
             "end_deg": end_deg,
-            "rms_residual_px": residual,
+            "rms_residual_px": arc["rms_residual_px"],
         },
-    }
-    return [arc_wall]
+    }]
 
 
 def _paint_segment_coverage(shape: tuple[int, int], segment_walls: list[dict], width: int = 8) -> np.ndarray:
