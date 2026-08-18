@@ -175,17 +175,24 @@ def extract_raster_auto(path: object, *, derive_scale: bool) -> dict:
     # --- wall recovery (pixel space) ----------------------------------------
     walls, rooms, openings = [], [], []
 
-    # Arc-first: detect the circular arc from the STRUCTURAL mask (pre-erosion,
-    # where it is still a clean 3px ring), remove it, then erode + recover the
-    # straight walls so Hough does not chord-fragment the curved wall.
+    # Arc-first + diagonal-first: detect the circular arc AND the 3-4-5 diagonal
+    # from the STRUCTURAL mask (pre-erosion, where they are clean strokes), remove
+    # them, then erode + recover the remaining axis-aligned walls so Hough does
+    # not chord/staircase-fragment the curved and diagonal walls.
     arc = _detect_arc_from_structural(ink)
     ink_segments = ink
     if arc is not None:
-        ink_segments = ink & (1 - _paint_arc_ring(ink.shape, arc["center_px"], arc["radius_px"]))
+        ink_segments = ink_segments & (1 - _paint_arc_ring(ink.shape, arc["center_px"], arc["radius_px"]))
+    # Diagonal detection runs AFTER arc removal so the arc's chord/tangent pixels
+    # cannot be mistaken for a non-axis straight wall.
+    diag = _detect_diagonal_from_structural(ink_segments)
+    if diag is not None:
+        ink_segments = ink_segments & (1 - _paint_line_band(ink.shape, diag["theta_deg"], diag["rho"]))
     wall_ink = G.wall_centerlines(ink_segments)   # 1 px wall skeleton, opening motifs removed
     segment_walls = _recover_segment_walls(wall_ink, thickness_ink=ink_segments)
     arc_walls = _arc_wall_from_detection(arc, len(segment_walls)) if arc is not None else []
-    walls = segment_walls + arc_walls
+    diag_walls = _diagonal_wall_from_detection(diag, len(segment_walls) + len(arc_walls)) if diag is not None else []
+    walls = segment_walls + arc_walls + diag_walls
 
     # --- opening recovery (motif-based, on gaps in the recovered walls) -----
     openings = _recover_openings(ink, walls)
@@ -422,6 +429,93 @@ def _arc_wall_from_detection(arc: dict, index: int) -> list[dict]:
             "end_deg": end_deg,
             "rms_residual_px": arc["rms_residual_px"],
         },
+    }]
+
+
+def _line_from_points(p0: np.ndarray, p1: np.ndarray) -> tuple[float, float] | None:
+    """Return (theta_deg, rho) of the line through two points (Hough convention)."""
+    dx = p1[0] - p0[0]
+    dy = p1[1] - p0[1]
+    length = math.hypot(dx, dy)
+    if length < 1.0:
+        return None
+    nx, ny = -dy / length, dx / length  # normal = direction rotated +90deg
+    theta = math.degrees(math.atan2(ny, nx)) % 180.0
+    rho = p0[0] * math.cos(math.radians(theta)) + p0[1] * math.sin(math.radians(theta))
+    return theta, rho
+
+
+def _detect_diagonal_from_structural(structural: np.ndarray) -> dict | None:
+    """Detect a NON-axis straight wall (the 3-4-5 diagonal) from the STRUCTURAL mask.
+
+    Hough chord-fragments a 3-4-5 diagonal because its rasterization is a
+    staircase whose axis-aligned steps vote as near-axis lines. Here the diagonal
+    is fit directly (deterministic RANSAC 2-point line fit, fixed seed), rejecting
+    axis-aligned fits, then removed before erosion. Returns
+    ``{theta_deg, rho, start_px, end_px}`` or None.
+    """
+    import numpy as np
+
+    ys, xs = np.nonzero(structural)
+    pts = np.column_stack([xs, ys]).astype(np.float64)
+    n = pts.shape[0]
+    if n < 200:
+        return None
+    rng = np.random.RandomState(20260818)  # fixed seed -> deterministic
+    best = None  # (inlier_count, theta, rho, inlier_bool)
+    for _ in range(5000):
+        i0, i1 = rng.choice(n, 2, replace=False)
+        p0, p1 = pts[i0], pts[i1]
+        if math.hypot(p1[0] - p0[0], p1[1] - p0[1]) < 60.0:
+            continue
+        line = _line_from_points(p0, p1)
+        if line is None:
+            continue
+        theta, rho = line
+        # Reject axis-aligned fits: the diagonal is the only non-axis wall in the
+        # clean envelope. |sin(2*dir)| ~ 0 for 0/90/180deg, ~1 for 45deg.
+        dir_deg = (theta + 90.0) % 180.0
+        if abs(math.sin(math.radians(2.0 * dir_deg))) < 0.5:
+            continue
+        dist = np.abs(pts[:, 0] * math.cos(math.radians(theta)) + pts[:, 1] * math.sin(math.radians(theta)) - rho)
+        inl = dist <= 3.0  # structural stroke is 3px
+        cnt = int(inl.sum())
+        if cnt >= 300 and (best is None or cnt > best[0]):
+            best = (cnt, theta, rho, inl)
+    if best is None:
+        return None
+    _, theta, rho, inl = best
+    inl_pts = pts[inl]
+    # Endpoints from the inliers' projection onto the line direction.
+    ux = math.cos(math.radians(theta + 90.0))
+    uy = math.sin(math.radians(theta + 90.0))
+    t = inl_pts[:, 0] * ux + inl_pts[:, 1] * uy
+    t0, t1 = float(t.min()), float(t.max())
+    start_px = [t0 * ux + rho * math.cos(math.radians(theta)), t0 * uy + rho * math.sin(math.radians(theta))]
+    end_px = [t1 * ux + rho * math.cos(math.radians(theta)), t1 * uy + rho * math.sin(math.radians(theta))]
+    return {"theta_deg": theta, "rho": rho, "start_px": start_px, "end_px": end_px}
+
+
+def _paint_line_band(shape: tuple[int, int], theta_deg: float, rho: float, width_px: int = 4) -> np.ndarray:
+    """Boolean mask of a band (width) around a (theta, rho) line."""
+    import numpy as np
+
+    h, w = shape
+    yy, xx = np.mgrid[0:h, 0:w]
+    dist = xx * math.cos(math.radians(theta_deg)) + yy * math.sin(math.radians(theta_deg)) - rho
+    return (np.abs(dist) <= width_px).astype(np.uint8)
+
+
+def _diagonal_wall_from_detection(diag: dict, index: int) -> list[dict]:
+    """Convert a detected diagonal into the segment wall dict shape."""
+    return [{
+        "index": index,
+        "source_ref": "raster:diagonal#0",
+        "kind": "segment",
+        "start_px": diag["start_px"],
+        "end_px": diag["end_px"],
+        "thickness_px": 3.0,
+        "orientation_deg": diag["theta_deg"] + 90.0,
     }]
 
 

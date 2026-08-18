@@ -392,3 +392,18 @@ def test_arc_first_detection_recovers_fx1_apse():
     assert abs(a["radius_px"] - 300.0) < 10.0
     assert abs(a["center"][0] - 1800.0) < 10.0
     assert abs(a["center"][1] - 1350.0) < 10.0
+
+
+def test_diagonal_first_detection_recovers_fx1_diagonal():
+    # Diagonal-first: the 3-4-5 diagonal must be recovered as ONE segment (from
+    # the STRUCTURAL mask, pre-erosion), not staircase-fragmented into near-axis
+    # spurious walls by Hough.
+    payload = extract_raster_auto(_FX1_PNG, derive_scale=True)
+    diags = [w for w in payload["walls"] if w.get("source_ref", "").startswith("raster:diagonal")]
+    assert len(diags) == 1, f"expected 1 diagonal, got {len(diags)}"
+    a, b = diags[0]["start_px"], diags[0]["end_px"]
+    length = math.hypot(b[0] - a[0], b[1] - a[1])
+    theta = math.degrees(math.atan2(b[1] - a[1], b[0] - a[0])) % 180.0
+    # FX1 diagonal truth: W-DIAG 2400x1800 mm -> 480x360 px -> length 600 px at 143.13 deg.
+    assert abs(length - 600.0) < 25.0
+    assert abs(theta - 143.13) < 3.0
