@@ -725,12 +725,15 @@ def _glazing_runs(ink, x0, y0, ux, uy, N, h, w) -> list[tuple[int, int]]:
 
 
 def _glazing_at(ink, xi, yi, h, w) -> bool:
-    """True if there is ink at a ~4 px diagonal offset (the glazing's 2nd line)."""
-    for ox, oy in ((4, 4), (-4, -4), (4, -4), (-4, 4)):
-        px, py = xi + ox, yi + oy
-        if 0 <= px < w and 0 <= py < h and ink[py, px]:
-            return True
-    return False
+    """True if there is ink at the glazing's fixed (+4,+4) render offset.
+
+    The window's second glazing line is authored at exactly (x+4, y+4); scanning
+    the other diagonal offsets also catches the diagonal-staircase wall's own
+    steps (which span ~all offsets), over-detecting the window across the whole
+    wall. The single fixed offset is provable and staircase-robust.
+    """
+    px, py = xi + 4, yi + 4
+    return 0 <= px < w and 0 <= py < h and ink[py, px]
 
 
 def _empty_runs(occupied: np.ndarray, floor: float, ceil: float) -> list[tuple[int, int]]:
