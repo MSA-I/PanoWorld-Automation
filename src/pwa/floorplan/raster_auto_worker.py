@@ -611,7 +611,13 @@ def _recover_openings(ink: np.ndarray, walls: list[dict]) -> list[dict]:
 
 
 def _segments_openings(ink: np.ndarray, wall: dict) -> list[dict]:
-    """Detect openings (gaps + motif) along a straight wall centreline."""
+    """Detect openings (gaps + motif) along a straight wall centreline.
+
+    A door is a gap whose JAMB carries a perpendicular leaf stroke (the leaf is
+    authored at the opening's start jamb, not the gap centre); a window has no
+    gap but carries a parallel glazing stroke offset ~4 px off the centreline; a
+    passage is a bare empty gap. Deterministic; type comes from the motif.
+    """
     import numpy as np
 
     a = wall["start_px"]
@@ -625,10 +631,10 @@ def _segments_openings(ink: np.ndarray, wall: dict) -> list[dict]:
     nx, ny = -uy, ux
     h, w = ink.shape
 
-    # Sample the centreline band; a gap is a horizontal run of empty pixels
-    # larger than the stroke width but smaller than the max opening span.
     openings: list[dict] = []
     N = int(length)
+
+    # 1. Gaps (doors + passages): empty runs along the centreline.
     t = np.arange(0, N, 1.0)
     cx = x0 + ux * t
     cy = y0 + uy * t
@@ -638,27 +644,88 @@ def _segments_openings(ink: np.ndarray, wall: dict) -> list[dict]:
         yi = int(round(cy[i]))
         if 0 <= xi < w and 0 <= yi < h:
             empty[i] = ink[yi, xi] == 0
-    # wall = ink present (not empty): empty -> gap
-    # Invert: occupied = not empty
-    occupied = ~empty
-    # Find gaps (runs of empty) with length in the admissible opening band.
-    gap_floor = 1.5 * G.WALL_STROKE_PX          # must exceed a wall's own thickness
+        else:
+            empty[i] = True
+    gap_floor = 1.5 * G.WALL_STROKE_PX
     gap_ceil = G.WALL_OPENING_GAP_PX
-    gaps = _empty_runs(~empty, gap_floor, gap_ceil)
-    for (gi0, gi1) in gaps:
-        t_center = (gi0 + gi1) / 2.0
-        cen_x = x0 + ux * t_center
-        cen_y = y0 + uy * t_center
-        span_px = gi1 - gi0
-        motif = _classify_gap_motif(ink, cen_x, cen_y, nx, ny, ux, uy)
+    for (gi0, gi1) in _empty_runs(~empty, gap_floor, gap_ceil):
+        # Classify: leaf at a jamb -> door, else passage.
+        motif = "passage"
+        for jamb_i in (gi0, gi1):
+            jx = x0 + ux * jamb_i
+            jy = y0 + uy * jamb_i
+            if _leaf_present(ink, jx, jy, nx, ny):
+                motif = "door"
+                break
+        tc = (gi0 + gi1) / 2.0
         openings.append({
             "source_ref": wall["source_ref"] + f":opening#{len(openings)}",
             "kind": motif,
-            "center_px": [float(cen_x), float(cen_y)],
-            "width_px": float(span_px),
+            "center_px": [float(x0 + ux * tc), float(y0 + uy * tc)],
+            "width_px": float(gi1 - gi0),
+            "wall_id": wall["index"],
+        })
+
+    # 2. Windows (glazing): no gap, but a parallel stroke offset off-centreline.
+    #    Emitted only for centreline positions with the offset stroke, grouped.
+    win_runs = _glazing_runs(ink, x0, y0, ux, uy, N, h, w)
+    for (wi0, wi1) in win_runs:
+        tc = (wi0 + wi1) / 2.0
+        openings.append({
+            "source_ref": wall["source_ref"] + f":opening#{len(openings)}",
+            "kind": "window",
+            "center_px": [float(x0 + ux * tc), float(y0 + uy * tc)],
+            "width_px": float(wi1 - wi0),
             "wall_id": wall["index"],
         })
     return openings
+
+
+def _leaf_present(ink: np.ndarray, cx: float, cy: float, nx: float, ny: float) -> bool:
+    """True if a perpendicular leaf stroke (>= 100 px) starts near (cx, cy)."""
+    h, w = ink.shape
+    for direction in (1.0, -1.0):
+        run = 0
+        for k in range(1, 190):  # leaf is 180 px long
+            px = int(round(cx + nx * direction * k))
+            py = int(round(cy + ny * direction * k))
+            if 0 <= px < w and 0 <= py < h and ink[py, px]:
+                run += 1
+            else:
+                break
+        if run >= 100:
+            return True
+    return False
+
+
+def _glazing_runs(ink, x0, y0, ux, uy, N, h, w) -> list[tuple[int, int]]:
+    """Return [(i0, i1), ...] centreline index runs where the glazing offset stroke
+    (the second parallel line at a ~4 px diagonal offset) is present."""
+    runs = []
+    i = 0
+    while i < N:
+        xi = int(round(x0 + ux * i))
+        yi = int(round(y0 + uy * i))
+        hit = _glazing_at(ink, xi, yi, h, w)
+        if hit:
+            j = i
+            while j < N and _glazing_at(ink, int(round(x0 + ux * j)), int(round(y0 + uy * j)), h, w):
+                j += 1
+            if j - i >= 10:  # a window spans >= ~50 mm
+                runs.append((i, j))
+            i = j
+        else:
+            i += 1
+    return runs
+
+
+def _glazing_at(ink, xi, yi, h, w) -> bool:
+    """True if there is ink at a ~4 px diagonal offset (the glazing's 2nd line)."""
+    for ox, oy in ((4, 4), (-4, -4), (4, -4), (-4, 4)):
+        px, py = xi + ox, yi + oy
+        if 0 <= px < w and 0 <= py < h and ink[py, px]:
+            return True
+    return False
 
 
 def _empty_runs(occupied: np.ndarray, floor: float, ceil: float) -> list[tuple[int, int]]:
@@ -680,75 +747,50 @@ def _empty_runs(occupied: np.ndarray, floor: float, ceil: float) -> list[tuple[i
     return runs
 
 
-def _classify_gap_motif(ink, cen_x, cen_y, nx, ny, ux, uy) -> str:
-    """Classify an opening gap by its interior motif (WP0 §4.1).
-
-    Searches a patch centred on the gap: a door leaf is a stroke perpendicular
-    to the host (along the normal, from one jamb into the interior); window
-    glazing is a stroke parallel to the host offset to one side; a passage has
-    no interior stroke. Returns 'door' / 'window' / 'passage' deterministically.
-    """
-    import numpy as np
-
-    h, w = ink.shape
-    # Interior side: scan a patch to either side of the host and look for a
-    # stroke. For FX1, the leaf/glazing is drawn within ~40 mm (8 px) of the
-    # host and spans the gap.
-    patch = 12
-    x0i = int(round(cen_x - patch))
-    x1i = int(round(cen_x + patch))
-    y0i = int(round(cen_y - patch))
-    y1i = int(round(cen_y + patch))
-    if x0i < 0 or y0i < 0 or x1i >= w or y1i >= h:
-        # patch clipped; still classify from what is visible
-        pass
-    # Perpendicular stroke (leaf) = ink at a normal offset spanning the gap.
-    perp = 0
-    for off in range(3, patch):
-        px = int(round(cen_x + nx * off))
-        py = int(round(cen_y + ny * off))
-        if 0 <= px < w and 0 <= py < h and ink[py, px]:
-            perp = off
-            break
-    # Parallel stroke (glazing) = ink offset along the normal but fainter/offset
-    # geometry; the leaf is a long perpendicular line, glazing is a parallel
-    # line slightly offset. Both are 'ink at a normal offset'; disambiguate by
-    # whether the offset stroke runs PARALLEL or PERPENDICULAR to the host.
-    if perp == 0:
-        return "passage"
-    # Check orientation of the offset stroke: sample a vertical/horizontal slice.
-    # A leaf (door) is perpendicular => its tangent aligns with the host normal.
-    # Glazing (window) is parallel => its tangent aligns with the host direction.
-    # We classify by which direction the offset ink extends over a longer run.
-    perp_run = _offset_stroke_length(ink, cen_x, cen_y, nx, ny, patch)
-    par_run = _offset_stroke_length(ink, cen_x, cen_y, ux, uy, patch)
-    if perp_run > par_run:
-        return "door"
-    return "window"
-
-
-def _offset_stroke_length(ink, cx, cy, dx, dy, patch) -> int:
-    """Run length of ink starting near (cx,cy) along direction (dx,dy)."""
-    h, w = ink.shape
-    run = 0
-    for off in range(1, patch):
-        px = int(round(cx + dx * off))
-        py = int(round(cy + dy * off))
-        if 0 <= px < w and 0 <= py < h and ink[py, px]:
-            run += 1
-        else:
-            break
-    return run
-
-
 def _arc_wall_opening(ink: np.ndarray, wall: dict) -> dict | None:
-    """Detect an arc-hosted window (two concentric glazing arcs) — if present."""
-    # The FX1 arc window (O-W2) is drawn as part of the arc with no distinct
-    # motif in the rendered fixture; a radial scan for a second concentric arc
-    # (glazing) would detect it. For the bounded supported envelope we return
-    # None unless a distinct motif is provable, so an ambiguous arc opening is
-    # never fabricated.
-    return None
+    """Detect an arc-hosted window (two concentric glazing arcs) — if present.
+
+    The arc window is authored as TWO concentric arcs at radius r and r-8 (the
+    glazing), spanning a sub-range of the host arc. Scan the host arc's angular
+    span for the inner glazing arc; the contiguous hit run is the window. Returns
+    None when no distinct inner arc is provable (never fabricate an arc opening).
+    """
+    arc = wall.get("arc_px")
+    if not arc:
+        return None
+    cx, cy = arc["center"]
+    r = arc["radius_px"]
+    start = arc["start_deg"]
+    end = arc["end_deg"]
+    sweep = (end - start) % 360.0
+    if sweep < 10.0:
+        return None
+    h, w = ink.shape
+    N = max(int(sweep), 2)
+    hits: list[int] = []
+    for i in range(N + 1):
+        ang = math.radians(start + sweep * i / N)
+        # inner glazing arc at radius r-8 (the second concentric stroke)
+        px = int(round(cx + (r - 8.0) * math.cos(ang)))
+        py = int(round(cy + (r - 8.0) * math.sin(ang)))
+        if 0 <= px < w and 0 <= py < h and ink[py, px]:
+            hits.append(i)
+    if len(hits) < 5:
+        return None
+    i0, i1 = min(hits), max(hits)
+    # A glazing arc spanning essentially the whole host arc is not a window.
+    if (i1 - i0) >= N - 2:
+        return None
+    ang_c = math.radians(start + sweep * (i0 + i1) / 2.0 / N)
+    span_deg = sweep * (i1 - i0) / N
+    return {
+        "source_ref": wall["source_ref"] + ":opening#0",
+        "kind": "window",
+        "center_px": [cx + r * math.cos(ang_c), cy + r * math.sin(ang_c)],
+        "width_px": r * math.radians(span_deg),
+        "wall_id": wall["index"],
+        "arc_span_deg": [start + sweep * i0 / N, start + sweep * i1 / N],
+    }
 
 
 def _collinear_overlap_duplicate_count(walls: list[dict]) -> int:
