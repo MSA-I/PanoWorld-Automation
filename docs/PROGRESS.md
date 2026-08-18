@@ -1,5 +1,33 @@
 # PROGRESS — PanoWorld Automation
 
+## TOOLING RESEARCH VERIFICATION — DOCS-ONLY — 2026-08-18
+
+בהנחיית משה אומת מסמך מחקר חיצוני על הארכיטקטורה מול המקור (GitHub API + README + Zenodo), והמסמכים עודכנו בהתאם (ללא שינוי קוד/merge/push):
+
+### אימות מול המקור
+- **openPlan3D** = עורך 2D/3D ידני (SvelteKit + Three.js), לא מודל זיהוי מתמונה — תוקן.
+- **lab-camera-optimizer** = אופטימיזציית מצלמות ל-motion capture (ביומכניקה), לא לפנורמות — תוקן.
+- **IQA-PyTorch** = PolyForm Noncommercial 1.0.0 (המחקר צדק).
+- **CubiCasa5K dataset** = CC BY-NC-SA 4.0 (Zenodo).
+- **MinIO** = AGPL-3.0 + הועבר לארכיון (אפריל 2026).
+- **Raster2Seq** (MIT, 40★), **Building Tools** (MIT, 1502★), **SkyPilot** (Apache-2.0, 10502★), **equilib / nvTorchCam / TorchMetrics** (Apache-2.0) — נרשמו כמועמדים.
+
+### עדכוני מסמכים
+- `ARCHITECTURE.md`: C3 → Raster2Seq (CubiCasa נדחה); C8 → מוחלף ב-PanoWorld 2D Generator הרשמי (דרך C9); C10 → SkyPilot + cost/TTL reaper.
+- `05-מקורות-וקישורים.md`: מועמדים חדשים + אזהרות רישוי + תיקוני תיאורים.
+
+## TOOLING RESEARCH — DOCS-ONLY — 2026-08-18
+
+בהנחיית משה בוצעה סריקת כלים רחבה (GitHub/HuggingFace/arxiv APIs) על שלבי הפייפלין 0–12, כדי לאתר מה ניתן לשכפל או לאמץ מול בנייה עצמית. כל ממצא אומת מול המקור (stars, commit אחרון, רישיון) — לא לפי סיכומים שיווקיים.
+
+### החלטות שנרשמו
+- **ezdxf — מאומץ.** תלות נעולה קיימת (`ezdxf>=1.4`, בפועל 1.4.4) ב־`pyproject.toml`; `uv sync` יציב (23 packages, ללא שינוי נעילה). round-trip חי אומת (יצירה + קריאה של DXF `LWPOLYLINE`). קורא/כותב DXF מובנה; ל־DWG נדרש ODA File Converter חיצוני. תפקידו בשלב intake של מקורות CAD וקטוריים.
+- **FloorplanToBlender3d — רפרנס בלבד, לא העתקה.** GPL-3.0; הזיהוי הוא OpenCV היוריסטי (threshold/morphology/watershed, לא ML); סקריפט ה-Blender נבדק על 2.93 בעוד שאצלנו מותקן 5.1. משמש נקודת מוצא לזיהוי קירות/פתחים ולבניית ה-mesh — אינו drop-in.
+- **CubiCasa — נדחה.** הקוד הפתוח (CubiCasa5k) הוא stack משנת 2019 (Python 3.6 / PyTorch 1.0 / CUDA 9) ומשקולותיו בקישור Google Drive; המוצר המסחרי הוא SDK סלולרי (CubiCapture, Android/iOS) ולא API של תמונה→floorplan (`api.cubi.casa` = 404).
+
+### הערה
+- עדכון מסמכים בלבד — אין שינוי קוד, merge או push. יעד PanoWorld אומת פעיל (commit 2026-08-04, Apache-2.0) וקלט ה-2D Generator שלו הוא `geometric_proxy` + `style_reference` + `visual_memory` — תואם לשלבים 3–5 בתכנון.
+
 ## WP0 — INTEGRATED TO MAIN; WP1 ON SUPERVISION HOLD — 2026-08-13
 
 - WP0-FX1 נסגר ב־`6c8c378`: fixture סינתטי וזכויות־נקי, truth עצמאי, שלושה scale anchors, replay ‏5/5, ‏7 targeted ו־376 full-suite tests; review עצמאי החזיר APPROVE ללא findings.

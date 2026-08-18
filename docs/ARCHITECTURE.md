@@ -32,14 +32,14 @@
 |---|---|---|---|
 | C1 | Orchestrator | ‏state machine, הקצאת עבודה, merges, human gates | **[מאושר]** קונספטואלית; מנוע ה-workflow עצמו **[Candidate]** (D-002) |
 | C2 | Intake service | ‏originals, hashes, metadata, input QA | **[מאושר]** |
-| C3 | Floorplan parser | ‏raster/vector → ‏`floorplan_parse.json` | **[מאושר]** קונספטואלית; בחירת CubiCasa/baseline **[Candidate]** |
+| C3 | Floorplan parser | ‏raster/vector → ‏`floorplan_parse.json` | **[מאושר]** קונספטואלית; בחירת Raster2Seq **[Candidate, נדרש spike]** |
 | C4 | Geometry compiler | ‏parse → ‏white model ‏(Blender headless) | **[מאושר]** |
 | C5 | Camera planner | ‏viewpoints, extrinsics, גרף קשרים | **[מאושר]** |
 | C6 | Render adapter | ‏BlenderProc → ‏place_image/depth/scale/extrinsics | **[מאושר]** קונספטואלית; אימות equirectangular **[Candidate]** (spike) |
 | C7 | Style analyzer | ‏style reference → ‏`style_spec.json` | **[מאושר]** |
-| C8 | Source panorama generator | פנורמת התחלה מעוצבת | **[מאושר]** קונספטואלית; ‏provider ‏(API/מודל ענן) **[Candidate]** |
+| C8 | Source panorama generator | פנורמת התחלה מעוצבת | **[מאושר]** קונספטואלית; מוחלף ב-PanoWorld 2D Generator הרשמי (דרך C9) — אין צורך במחולל התחלה נפרד [עדכון 2026-08-18] |
 | C9 | PanoWorld packager + validator | בניית package + אימות מלא מולו | **[מאושר]** — נבנה ראשון (PLAN-000) |
-| C10 | H200 runner | ‏lifecycle של שרת, upload/run/download/terminate | **[מאושר]** קונספטואלית; ספק ענן **[Candidate]** |
+| C10 | H200 runner | ‏lifecycle של שרת, upload/run/download/terminate | **[מאושר]** קונספטואלית; SkyPilot **[Candidate]** + cost/TTL reaper עצמאי |
 | C11 | QA engine | ‏geometry/style/consistency checks | **[מאושר]** |
 | C12 | Dashboard | פיקוח, approvals, evidence | **[מאושר]** קונספטואלית; ‏stack **[Candidate]** |
 | C13 | State/artifact store | ‏PROJECT-STATE, runs, evidence | ‏layout **[מאושר]** (מסמך 04); ‏DB/queue **[Candidate]** (D-003) |
