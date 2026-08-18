@@ -337,9 +337,13 @@ def _detect_arc_from_structural(structural: np.ndarray) -> dict | None:
     if n < 200:
         return None
     rng = np.random.RandomState(20260817)  # fixed seed -> deterministic
-    best = None  # (inlier_count, cx, cy, r, inlier_bool)
+    best = None  # (inlier_count, cx, cy, r)
+    # Subsample the point cloud for the per-iteration inlier count (the full
+    # count is only done once on the winning candidate), keeping the RANSAC
+    # cheap while preserving the deterministic winner.
+    pts_sub = pts[::4]
     for _ in range(20000):
-        idx = rng.choice(n, 3, replace=False)
+        idx = rng.randint(0, n, 3)  # O(3), duplicates rejected by the spread check
         s = pts[idx]
         spread = min(
             math.hypot(s[1, 0] - s[0, 0], s[1, 1] - s[0, 1]),
@@ -356,14 +360,15 @@ def _detect_arc_from_structural(structural: np.ndarray) -> dict | None:
             continue
         if not (150.0 <= r <= 450.0):
             continue
-        dists = np.hypot(pts[:, 0] - cx, pts[:, 1] - cy)
-        inl = np.abs(dists - r) <= 3.0  # structural arc is a 3px stroke
-        cnt = int(inl.sum())
-        if cnt >= 300 and (best is None or cnt > best[0]):
-            best = (cnt, cx, cy, r, inl)
+        dists = np.hypot(pts_sub[:, 0] - cx, pts_sub[:, 1] - cy)
+        cnt = int((np.abs(dists - r) <= 3.0).sum())  # structural arc is a 3px stroke
+        if cnt >= 75 and (best is None or cnt > best[0]):  # 300 / 4 (subsample)
+            best = (cnt, cx, cy, r)
     if best is None:
         return None
-    _, _, _, _, inl = best
+    _, cx, cy, r = best
+    dists = np.hypot(pts[:, 0] - cx, pts[:, 1] - cy)
+    inl = np.abs(dists - r) <= 3.0
     inl_pts = pts[inl]
     refined = G.fit_circle(inl_pts)
     residual = G.circle_fit_residual(inl_pts, refined)
@@ -464,7 +469,7 @@ def _detect_diagonal_from_structural(structural: np.ndarray) -> dict | None:
     rng = np.random.RandomState(20260818)  # fixed seed -> deterministic
     best = None  # (inlier_count, theta, rho, inlier_bool)
     for _ in range(5000):
-        i0, i1 = rng.choice(n, 2, replace=False)
+        i0, i1 = rng.randint(0, n, 2)  # O(2), duplicates rejected by the spread check
         p0, p1 = pts[i0], pts[i1]
         if math.hypot(p1[0] - p0[0], p1[1] - p0[1]) < 60.0:
             continue

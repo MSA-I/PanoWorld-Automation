@@ -146,70 +146,16 @@ def wall_centerlines(mask: np.ndarray) -> np.ndarray:
 
 
 def connected_components(mask: np.ndarray) -> tuple[np.ndarray, int]:
-    """8-connected two-pass union-find labelling, deterministic.
+    """8-connected component labelling, deterministic (scipy.ndimage.label).
 
     Returns ``(labels, count)`` where ``labels`` is int32 with 0 = background
     and 1..count = component ids, assigned in scan order.
     """
-    mask = np.asarray(mask, dtype=bool)
-    h, w = mask.shape
-    labels = np.zeros((h, w), dtype=np.int32)
-    parent = [0]
+    from scipy import ndimage
 
-    def find(x: int) -> int:
-        root = x
-        while parent[root] != root:
-            root = parent[root]
-        while parent[x] != root:
-            nxt = parent[x]
-            parent[x] = root
-            x = nxt
-        return root
-
-    current = 0
-    for y in range(h):
-        row = mask[y]
-        for x in range(w):
-            if not row[x]:
-                continue
-            neighbors = []
-            if x > 0 and labels[y, x - 1]:
-                neighbors.append(int(labels[y, x - 1]))
-            if y > 0:
-                if labels[y - 1, x]:
-                    neighbors.append(int(labels[y - 1, x]))
-                if x > 0 and labels[y - 1, x - 1]:
-                    neighbors.append(int(labels[y - 1, x - 1]))
-                if x + 1 < w and labels[y - 1, x + 1]:
-                    neighbors.append(int(labels[y - 1, x + 1]))
-            if not neighbors:
-                current += 1
-                parent.append(current)
-                labels[y, x] = current
-            else:
-                root = min(find(n) for n in neighbors)
-                labels[y, x] = root
-                for n in neighbors:
-                    rn = find(n)
-                    if rn != root:
-                        parent[rn] = root
-    for y in range(h):
-        for x in range(w):
-            if labels[y, x]:
-                labels[y, x] = find(int(labels[y, x]))
-    remap: dict[int, int] = {}
-    out = np.zeros((h, w), dtype=np.int32)
-    k = 0
-    for y in range(h):
-        for x in range(w):
-            v = int(labels[y, x])
-            if v == 0:
-                continue
-            if v not in remap:
-                k += 1
-                remap[v] = k
-            out[y, x] = remap[v]
-    return out, k
+    structure = np.ones((3, 3), dtype=np.uint8)  # 8-connectivity
+    labels, count = ndimage.label(np.asarray(mask, dtype=bool), structure=structure)
+    return labels.astype(np.int32), int(count)
 
 
 def hough_physical_lines(mask: np.ndarray, theta_step_deg: float = HOUGH_THETA_STEP_DEG, min_votes: int = 30,
@@ -343,7 +289,10 @@ def fit_circle(points: np.ndarray) -> tuple[float, float, float]:
     y = pts[:, 1]
     A = np.column_stack([x, y, np.ones_like(x)])
     b = -(x * x + y * y)
-    sol, *_ = np.linalg.lstsq(A, b, rcond=None)
+    # Normal equations + a dense 3x3 solve (faster than lstsq/SVD, still
+    # deterministic; the Kasa system is always full-rank for non-collinear points).
+    at = A.T
+    sol = np.linalg.solve(at @ A, at @ b)
     D, E, F = sol
     cx = -D / 2.0
     cy = -E / 2.0
