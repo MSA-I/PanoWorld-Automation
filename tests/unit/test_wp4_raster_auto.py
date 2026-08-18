@@ -247,12 +247,13 @@ def test_extract_raster_auto_recovers_wall_count_with_anchors():
 
 def test_extract_raster_auto_is_fail_closed_not_hallucinating():
     # The raw worker must not silently emit a large number of over-segmented
-    # walls. On the single supported fixture the extraction either converges to
-    # the 9-wall clean plan or stops with a bounded refusal; a wall set that
-    # diverges from the clean plan is a fail-closed refusal, not product output.
+    # walls. It now CONVERGES to the 9-wall clean plan (8 segments + 1 arc) on
+    # the FX1 envelope; a wall set diverging from that is over-segmentation and
+    # must be refused (fail-closed), never emitted as product output.
     payload = extract_raster_auto(_FX1_PNG, derive_scale=True)
     if payload["walls"]:
-        assert any(err["code"] == "RASTER_OVERSEGMENTED" for err in payload["errors"])
+        assert len(payload["walls"]) == 9
+        assert not any(err["code"] == "RASTER_OVERSEGMENTED" for err in payload["errors"])
     else:
         assert payload["errors"] != []
 

@@ -45,11 +45,14 @@ DARK_INK_BELOW = 128
 WALL_STROKE_PX = 3
 OPENING_STROKE_PX = 2
 # Maximum admissible gap along a wall centreline that is still the SAME wall
-# (i.e. an opening gap, not the end of the wall). Bounded by the frozen passage
-# span (PASSAGE_SPAN_MAX_M = 3.0 m) plus a small junction tolerance. This is the
-# U-4 (clustering/gap/merge) pending default: any broader style may need a
-# different bound and is refused rather than silently merged.
-WALL_OPENING_GAP_PX = 620.0       # 3.0 m passage / 5 mm-per-px + margin
+# (i.e. an opening gap, not the end of the wall). With arc-first/diagonal-first
+# detection the merge must NOT cross a detected arc's chord (2*radius; the corpus
+# arcs span radius 200-300 px -> chord 400-600 px), while the largest opening in
+# the corpus envelope is a passage of 1.5 m = 300 px. The bound is therefore the
+# open interval (300, 400) px; 350 px is its midpoint. (A 3.0 m passage == a
+# 3.0 m arc gap and cannot be told apart by gap length alone — that requires the
+# U-4 "merge only across a recognised opening motif" check, still pending.)
+WALL_OPENING_GAP_PX = 350.0       # between max opening (300 px) and min arc chord (400 px)
 # Minimum wall length (px) that is still a recognisable wall (rejects stray
 # fragments below the frozen DEGENERATE_WALL_M = 0.05 m -> 10 px).
 MIN_WALL_LENGTH_PX = 10.0
@@ -250,6 +253,13 @@ def hough_physical_lines(mask: np.ndarray, theta_step_deg: float = HOUGH_THETA_S
     # walls >= ~21 px; clean-plan orientations are >= 30 deg apart, so distinct
     # walls never merge. (Geometry-derived constant, not a per-plan tune.)
     theta_tol = 8.0 + theta_step_deg
+    # A wall at perpendicular distance D from the origin shifts its rho by
+    # ~D*sin(dtheta) when the line tilts by dtheta; the angular spread therefore
+    # leaks a peak into an adjacent theta bin at a SHIFTED rho. Bound D by the
+    # canvas diagonal so near-axis echoes (e.g. theta 0.5 deg -> rho +9 px for a
+    # 1000 px wall) merge into their true peak instead of being emitted as
+    # duplicate walls. (Geometry-derived; distinct walls >= ~200 px apart never
+    # merge because their dtheta ~ 0 keeps the effective rho tolerance small.)
     lines: list[dict] = []
     for votes, ti, ri in cells:
         th = float(thetas[ti])
@@ -267,7 +277,9 @@ def hough_physical_lines(mask: np.ndarray, theta_step_deg: float = HOUGH_THETA_S
                 # distance test, else a vertical wall is emitted twice (theta~0
                 # and theta~180) — a direct over-segmentation contributor.
                 rho_cmp = -line["rho"] if wrapped else line["rho"]
-                if abs(rho - rho_cmp) <= rho_tol:
+                # Scale the effective rho tolerance with the actual angular gap.
+                rho_tol_pair = rho_tol + math.hypot(mask.shape[1], mask.shape[0]) * math.sin(math.radians(dtheta))
+                if abs(rho - rho_cmp) <= rho_tol_pair:
                     # Keep the highest-vote representative; do not add duplicates.
                     merged = True
                     break
