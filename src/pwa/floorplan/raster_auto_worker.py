@@ -895,19 +895,157 @@ def _paint_disc(coverage, c, radius: int) -> None:
 
 
 def _derive_rooms(walls: list[dict], mm_per_px: float | None) -> list[dict]:
-    """Derive room faces from the recovered wall centrelines (diagnostic).
+    """Derive room faces from the recovered wall centrelines (planar half-edge walk).
 
-    Face derivation from a bounded set of closed centreline loops is performed
-    only when scale is resolved. For the FX1 supported envelope the outer loop
-    plus partitions yield the intended face graph; this is diagnostic output and
-    never fabricates a face when the loop graph is ambiguous (fail-closed).
+    Snap wall endpoints to junctions (within a stroke tolerance), build a planar
+    half-edge graph (the arc is approximated by its chord), and walk faces. The
+    outer boundary face is dropped by its (large, clockwise) signed area; the
+    remaining bounded faces are the rooms. Deterministic; returns [] when scale
+    is unresolved or the graph has no bounded face (fail-closed).
     """
     if mm_per_px is None:
         return []
-    # Room derivation requires at least a closed outer loop. We build faces from
-    # the straight-wall endpoints after mm conversion, which happens in
-    # _finalize_units; here we return [] and let _finalize_units populate mm.
-    return []
+    import numpy as np
+    from collections import defaultdict
+
+    # 1. Collect edges (segments + arc chords).
+    edges: list[tuple[tuple[float, float], tuple[float, float]]] = []
+    for w in walls:
+        sp, ep = w.get("start_px"), w.get("end_px")
+        if sp is None or ep is None:
+            continue
+        edges.append(((float(sp[0]), float(sp[1])), (float(ep[0]), float(ep[1]))))
+    if len(edges) < 3:
+        return []
+
+    # 1b. Split edges at T-junctions (a wall endpoint meeting another wall's
+    # interior) so the planar graph is closed; endpoint-to-endpoint joins are
+    # left to the snapping step below.
+    TOL = 6.0
+    split_points: dict[int, list[tuple[float, float]]] = defaultdict(list)
+    for i, (p, q) in enumerate(edges):
+        qp = (q[0] - p[0], q[1] - p[1])
+        L2 = qp[0] * qp[0] + qp[1] * qp[1]
+        if L2 < 1e-9:
+            continue
+        for j, (r, s) in enumerate(edges):
+            if i == j:
+                continue
+            for pt in (r, s):
+                t = ((pt[0] - p[0]) * qp[0] + (pt[1] - p[1]) * qp[1]) / L2
+                if t < 0.03 or t > 0.97:
+                    continue  # near an endpoint; snapping handles it
+                proj = (p[0] + t * qp[0], p[1] + t * qp[1])
+                if math.hypot(pt[0] - proj[0], pt[1] - proj[1]) < TOL:
+                    split_points[i].append(proj)
+    if split_points:
+        split_edges = []
+        for i, (p, q) in enumerate(edges):
+            pts = [p] + sorted(
+                split_points[i],
+                key=lambda z: (z[0] - p[0]) * (q[0] - p[0]) + (z[1] - p[1]) * (q[1] - p[1]),
+            ) + [q]
+            for a, b in zip(pts, pts[1:]):
+                if a != b:
+                    split_edges.append((a, b))
+        edges = split_edges
+
+    # 2. Snap endpoints to junctions (union-find clustering within TOL).
+    pts_arr = np.array([p for e in edges for p in e], dtype=np.float64)
+    n = len(pts_arr)
+    parent = list(range(n))
+
+    def find(i: int) -> int:
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+
+    def union(i: int, j: int) -> None:
+        ri, rj = find(i), find(j)
+        if ri != rj:
+            parent[rj] = ri
+
+    for i in range(n):
+        for j in range(i + 1, n):
+            if math.hypot(pts_arr[i, 0] - pts_arr[j, 0], pts_arr[i, 1] - pts_arr[j, 1]) < TOL:
+                union(i, j)
+    clusters: dict[int, list[int]] = defaultdict(list)
+    for i in range(n):
+        clusters[find(i)].append(i)
+    centroid: dict[int, tuple[float, float]] = {}
+    for rep, idxs in clusters.items():
+        centroid[rep] = (float(pts_arr[idxs, 0].mean()), float(pts_arr[idxs, 1].mean()))
+
+    snapped: list[tuple[tuple[float, float], tuple[float, float]]] = []
+    for k, e in enumerate(edges):
+        p = centroid[find(2 * k)]
+        q = centroid[find(2 * k + 1)]
+        if p != q:
+            snapped.append((p, q))
+    if len(snapped) < 3:
+        return []
+
+    # 3. Half-edge adjacency: junction -> sorted (angle, to) outgoing edges.
+    out: dict[tuple[float, float], list[tuple[float, tuple[float, float]]]] = defaultdict(list)
+    for (p, q) in snapped:
+        out[p].append((math.atan2(q[1] - p[1], q[0] - p[0]), q))
+        out[q].append((math.atan2(p[1] - q[1], p[0] - q[0]), p))
+    for j in out:
+        out[j].sort(key=lambda x: x[0])
+
+    # 4. Walk faces via the half-edge "next" rule (next CCW of the reverse edge).
+    used: set[tuple[tuple[float, float], tuple[float, float]]] = set()
+    faces: list[list[tuple[float, float]]] = []
+    for u, nbrs in out.items():
+        for (_, v) in nbrs:
+            if (u, v) in used:
+                continue
+            face = [u, v]
+            used.add((u, v))
+            cur = (u, v)
+            while True:
+                cu, cv = cur
+                rev_ang = math.atan2(cu[1] - cv[1], cu[0] - cv[0])
+                # next edge: smallest CLOCKWISE angle from the reverse edge (the
+                # face is traced on the left); skip the reverse half-edge itself
+                cand = out[cv]
+                best = None
+                for (ang, to) in cand:
+                    diff = (rev_ang - ang) % (2.0 * math.pi)
+                    if diff < 1e-6:
+                        diff = 2.0 * math.pi  # the reverse half-edge, never take it
+                    if best is None or diff < best[0]:
+                        best = (diff, to)
+                nxt = best[1]
+                nhe = (cv, nxt)
+                if nhe in used or nxt == face[0]:
+                    if nxt == face[0]:
+                        faces.append(face)
+                    break
+                used.add(nhe)
+                face.append(nxt)
+                cur = (cv, nxt)
+
+    # 5. Keep bounded faces (positive shoelace area in y-down image space).
+    rooms: list[dict] = []
+    for face in faces:
+        if len(face) < 3:
+            continue
+        area = 0.0
+        for i in range(len(face)):
+            x1, y1 = face[i]
+            x2, y2 = face[(i + 1) % len(face)]
+            area += x1 * y2 - x2 * y1
+        area *= 0.5
+        if area < 60.0:  # drop the outer face (negative) and tiny slivers
+            continue
+        rooms.append({
+            "id": f"R-{len(rooms)}",
+            "area_px": float(area),
+            "points": [[float(x), float(y)] for x, y in face],
+        })
+    return rooms
 
 
 def _finalize_units(walls: list[dict], rooms: list[dict], openings: list[dict], mm_per_px: float | None, height_px: int) -> None:
