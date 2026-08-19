@@ -1,0 +1,48 @@
+{
+  "report_version": 1,
+  "metrics": {
+    "rooms": 2,
+    "viewpoints": 2,
+    "edges": 1,
+    "uncovered_rooms": 0
+  },
+  "per_room": [
+    {
+      "room_id": "gr-0647acdd02a3",
+      "viewpoints": [
+        "0000"
+      ],
+      "covered": true
+    },
+    {
+      "room_id": "gr-f9c1af865cc3",
+      "viewpoints": [
+        "0001"
+      ],
+      "covered": true
+    }
+  ],
+  "edges": [
+    [
+      "0000",
+      "0001"
+    ]
+  ],
+  "start_viewpoint": "0000",
+  "checks": {
+    "every_room_covered": true,
+    "no_collision_errors": true,
+    "extrinsics_valid": true,
+    "no_uncovered_rooms": true,
+    "no_duplicate_entities": true
+  },
+  "findings": [
+    {
+      "code": "CAM_MAP_ADJACENCY_UNRESOLVED",
+      "severity": "warn",
+      "tier": 4,
+      "source_ref": "go-9d050af60afc",
+      "message": "door does not resolve to two covered rooms"
+    }
+  ]
+}

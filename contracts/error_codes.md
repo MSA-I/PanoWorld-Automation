@@ -102,3 +102,24 @@ Consumers match on codes, never on message text.
 | `GEOM_OPENING_ABOVE_WALL` | error | `sill_m + height_m` exceeds the host wall height. |
 | `GEOM_OPEN_ROOM_BOUNDARY` | warn | A wall endpoint is off every room vertex, or a room edge has no supporting wall (fail-open, reported). |
 
+## Camera planner — append-only `CAM_*` vocabulary (PLAN-004 / ADR-0008)
+
+These codes are append-only and carry explicit severity and tier. `PARSE_*` and `GEOM_*`
+are untouched; `CAM_*` is purely additive and consumes `camera_plan` 1.0.0 as-is. A code
+may be added but never removed or re-ranked; changing a meaning or severity requires an ADR.
+Consumers match on codes, never on message text.
+
+| Code | Severity | Tier | Meaning |
+|---|---|---|---|
+| `CAM_SOURCE_HASH_MISMATCH` | error | 0 | Consumed geometry artifact `content_hash` does not match its canonical hash. |
+| `CAM_RESOURCE_LIMIT` | error | 0 | A configured count/byte/coordinate bound was exceeded, or a field was non-finite/malformed. |
+| `CAM_EMPTY_GEOMETRY` | error | 2 | Geometry payload lacks at least one room (and, for coverage scoring, at least one usable room polygon). |
+| `CAM_DUPLICATE_ENTITY` | error | 2 | Viewpoint IDs or positions collided within one run (fail-closed, no silent merge/renumber). |
+| `CAM_UNCOVERED_ROOM` | error | 3 | A target room has zero valid viewpoint placements after free-space resolution (fail-closed; the room is not silently skipped). |
+| `CAM_VIEWPOINT_OUTSIDE_ROOM` | error | 3 | A viewpoint lies outside or on the boundary of its room polygon. |
+| `CAM_VIEWPOINT_COLLIDES_WALL` | error | 3 | A viewpoint is closer than the wall clearance (`thickness_m/2 + 0.35 m`) to a wall centreline. |
+| `CAM_VIEWPOINT_COLLIDES_OPENING` | error | 3 | A viewpoint is closer than `0.20 m` to a door/window opening centre. |
+| `CAM_EXTRINSICS_INVALID` | error | 3 | A produced 4×4 fails `check_extrinsics_matrix` (not orthonormal, not right-handed, wrong last row, or non-Z-up convention). |
+| `CAM_CAMERA_HEIGHT_OUT_OF_RANGE` | error | 3 | Camera height is non-finite or outside `[0.5, 3.0]` m. |
+| `CAM_MAP_ADJACENCY_UNRESOLVED` | warn | 4 | A door opening does not resolve to two distinct covered rooms, so no adjacency edge is emitted (fail-open, reported). |
+
