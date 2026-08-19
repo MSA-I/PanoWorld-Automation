@@ -212,11 +212,11 @@ def extract_raster_auto(path: object, *, derive_scale: bool) -> dict:
     if not G.unexplained_ink_within_band(_unused, ink_count):
         errors.append(_finding("RASTER_UNEXPLAINED_INK", "unexplained ink exceeds band", source_ref=str(path.name)))
 
+    # --- topology / face derivation (pixel space) --------------------------
+    rooms = _derive_rooms(walls, mm_per_px)
+
     # --- scale conversion to mm (FX1 truth space) --------------------------
     _finalize_units(walls, rooms, openings, mm_per_px, h)
-
-    # --- topology / face derivation (diagnostic) ---------------------------
-    rooms = _derive_rooms(walls, mm_per_px)
 
     frame = {
         "kind": "raster_auto",
@@ -238,25 +238,27 @@ def extract_raster_auto(path: object, *, derive_scale: bool) -> dict:
 
 
 def _load_authoritative_anchors(path: Path) -> list[dict]:
-    """Read authoritative scale anchors for ``path`` from the frozen per-plan manifest.
+    """Read authoritative scale anchors for ``path`` from the per-plan manifest.
 
-    Returns a list of ``{span_px, real_length_m}`` records. The manifest binds
-    each anchor's real length to its expected pixel span and is hash-bound to
-    the raster. A raster whose SHA-256 does not match the manifest's
-    ``raster_sha256`` yields no anchors (fail-closed: scale never resolves for
-    an unbound raster), and any other raster has no manifest -> no anchors.
+    The manifest is the SIBLING of the raster with the same stem and the
+    ``-scale-anchors.json`` suffix (``fx1-scale-anchors.json`` for the FX1
+    fixture, ``fxx-scale-anchors.json`` for a corpus fixture). This is the
+    no-OCR envelope (C-1/W-05): scale is read from the hash-bound manifest, never
+    from digits in the image. Returns a list of ``{span_px, real_length_m}``
+    records. The manifest binds each anchor's real length to its expected pixel
+    span and is hash-bound to the raster. A raster whose SHA-256 does not match
+    the manifest's ``raster_sha256`` yields no anchors (fail-closed: scale never
+    resolves for an unbound raster), and any other raster has no manifest -> no
+    anchors.
     """
     import hashlib
     import json
 
-    FX1_ANCHORS = (
-        Path(__file__).resolve().parents[3]
-        / "evidence" / "PLAN-002RF" / "WP0-FX1" / "fixture" / "fx1-scale-anchors.json"
-    )
-    if not FX1_ANCHORS.is_file():
+    manifest_path = path.with_name(path.stem + "-scale-anchors.json")
+    if not manifest_path.is_file():
         return []
     try:
-        doc = json.loads(FX1_ANCHORS.read_text(encoding="utf-8"))
+        doc = json.loads(manifest_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return []
     try:
@@ -859,17 +861,61 @@ def _estimate_unexplained_ink(ink: np.ndarray, walls: list[dict], openings: list
     h, w = ink.shape
     coverage = np.zeros((h, w), dtype=np.uint8)
     for wall in walls:
+        if wall.get("kind") == "circular_arc" and wall.get("arc_px"):
+            # A circular_arc wall is a curved ring, not a chord: paint the full
+            # ring band (wall stroke) so the apse is attributed, not left as
+            # unexplained ink (which would falsely fail-closed every arc plan).
+            arc = wall["arc_px"]
+            _paint_arc_band(coverage, arc["center"], arc["radius_px"],
+                            arc["start_deg"], arc["end_deg"], radius=4)
+            continue
         a = wall.get("start_px")
         b = wall.get("end_px")
         if a is None or b is None:
             continue
         _paint(coverage, a, b, radius=4)
     for opening in openings:
+        # An arc-hosted window also carries an inner concentric glazing arc at
+        # radius-8 across its angular span; attribute that ink too.
+        span = opening.get("arc_span_deg")
+        if span is not None and opening.get("kind") == "window":
+            wl = next((x for x in walls if x.get("index") == opening.get("wall_id")), None)
+            if wl and wl.get("arc_px"):
+                arc = wl["arc_px"]
+                _paint_arc_band(coverage, arc["center"], arc["radius_px"] - 8.0,
+                                span[0], span[1], radius=4)
+            continue
         c = opening.get("center_px")
         if c is None:
             continue
         _paint_disc(coverage, c, radius=12)
     return int((ink & (1 - coverage)).sum())
+
+
+def _paint_arc_band(coverage, center, radius_px, start_deg, end_deg, radius: int) -> None:
+    """Paint an annular band of the arc ring (radius +/- ``radius``) over an angular span."""
+    import numpy as np
+
+    h, w = coverage.shape
+    cx, cy = center[0], center[1]
+    sweep = (end_deg - start_deg) % 360.0
+    if sweep < 1.0:
+        sweep = 360.0
+    # Sample densely enough to paint every pixel of the curved stroke: one
+    # angular step per ~1 px of arc length (a stroke is 1 px thick along the
+    # arc), otherwise adjacent radial columns leave gaps and the ring reads as
+    # unexplained ink even though it IS attributed to the recovered arc wall.
+    arc_len_px = abs(radius_px) * math.radians(sweep)
+    steps = max(int(arc_len_px), 16)
+    for i in range(steps + 1):
+        ang = math.radians(start_deg + sweep * i / steps)
+        ca, sa = math.cos(ang), math.sin(ang)
+        # sample the band around the ring point
+        for dr in range(-radius, radius + 1):
+            px = int(round(cx + (radius_px + dr) * ca))
+            py = int(round(cy + (radius_px + dr) * sa))
+            if 0 <= px < w and 0 <= py < h:
+                coverage[py, px] = 1
 
 
 def _paint(coverage, a, b, radius: int) -> None:
@@ -1114,6 +1160,29 @@ def _finalize_units(walls: list[dict], rooms: list[dict], openings: list[dict], 
         else:
             opening["center"] = None
             opening["width_m"] = None
+
+    # Rooms are derived in pixel space (points + area_px); convert them to the
+    # same mm truth space as walls/openings so the contract layer can divide by
+    # 1000 uniformly. This closes the room-channel gap: without it the rooms
+    # carried no ``polygon`` and were silently dropped by the emitter.
+    for i, room in enumerate(rooms):
+        pts = room.get("points")
+        if mm_per_px is not None and pts is not None:
+            room["polygon"] = [[_mm(p[0], mm_per_px), _mm(height_px - p[1], mm_per_px)] for p in pts]
+            # area_m2 from the shoelace area on the mm polygon (py is flipped,
+            # but the absolute signed area is invariant).
+            area_mm2 = 0.0
+            n = len(room["polygon"])
+            for k in range(n):
+                x1, y1 = room["polygon"][k]
+                x2, y2 = room["polygon"][(k + 1) % n]
+                area_mm2 += x1 * y2 - x2 * y1
+            room["area_m2"] = abs(area_mm2) * 0.5 / 1_000_000.0
+        else:
+            room["polygon"] = None
+            room["area_m2"] = None
+        room["index"] = i
+        room["source_ref"] = f"raster:face#{i}"
 
 
 def _mm(px: float, mm_per_px: float) -> float:

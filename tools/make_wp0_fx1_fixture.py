@@ -175,9 +175,15 @@ def _render(source: dict[str, Any]) -> Image.Image:
             # Window = two offset glazing lines. For an arc host the analogue is
             # two CONCENTRIC arcs (inner offset), not a single polyline on the
             # wall centreline (which would be indistinguishable from the 3px wall).
+            # The inner glazing offset is authored in PIXELS (8 px, matching the
+            # worker's ``r - 8.0`` px scan in ``_arc_wall_opening``), NOT mm:
+            # 8 mm is only ~1.6 px and would vanish into the 3 px wall stroke,
+            # which is exactly the authored render/detect unit mismatch that made
+            # the arc-hosted window unreachable. 8 px == 40 mm on the 5 mm/px grid.
             cx, cy = host["center_mm"]
             r = host["radius_mm"]
-            for dr in (0.0, -8.0):
+            inner_offset_mm = 8.0 * MM_PER_PX
+            for dr in (0.0, -inner_offset_mm):
                 points = _arc_points([cx, cy], r + dr, opening["start_deg"], opening["end_deg"], 8)
                 draw.line([_float_px(point) for point in points], fill=0, width=2)
             continue

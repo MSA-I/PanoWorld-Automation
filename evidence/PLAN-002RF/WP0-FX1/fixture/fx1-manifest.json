@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "files": {
     "fx1-rights-provenance.json": "sha256:3dca6f55730d90cc42d92fbf0aa2fe5d9fb3b42f1f1a5ad454fe23ea86408c3c",
-    "fx1-scale-anchors.json": "sha256:ef63ce0944161d0c16a3f26b76bba1bd598fd77cedc641bf26b2e04f2cb0dd6c",
+    "fx1-scale-anchors.json": "sha256:09f21358e80b814b22ac4731b20855a0b6578029ba74f751be95c0c5037d3a00",
     "fx1-source-geometry.json": "sha256:1766e65d8fef0dc70c91ccccf3644359193d1a2efe428bb3b9fc67d75e881c22",
     "fx1-truth.json": "sha256:f4f9c1de5d781c85c66179c00d0c6178a800d4a2c918dd5e09c4e30a5f3dcb9a",
-    "fx1.png": "sha256:848d37b165e1a6cd95679d90a8dd8105e1fd1a856d40198889b9c32af005afdd"
+    "fx1.png": "sha256:0ae63fe85b6cd8f82cdcd2f5d89dd0da7ffee53a10758bdde71dee8cd0c3a8c8"
   },
-  "replay_hash": "sha256:4c3a3d3b28bfee301978f96a7f5b496e7ff163b6c99976127c3524ddcbb96fdd",
+  "replay_hash": "sha256:b92cc6560b81f0646af82b9bbaa7088e432b3877a0611853e4ab1ef7f231ddb6",
   "dependency_policy": "existing local environment only; pinned-environment proof pending; no install performed",
   "recognition_or_scoring_performed": false
 }

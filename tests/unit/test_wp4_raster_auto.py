@@ -415,3 +415,56 @@ def test_derive_rooms_recovers_three_fx1_rooms():
     # faces: R-HALL (west, with the diagonal), R-NE and R-SE (the rectangles).
     payload = extract_raster_auto(_FX1_PNG, derive_scale=True)
     assert len(payload["rooms"]) == 3, f"expected 3 rooms, got {len(payload['rooms'])}"
+
+
+def test_parse_emits_rooms_from_worker_points_not_bare_drop():
+    # The contract layer (parse_raster_auto) must surface the rooms the worker
+    # derives. The worker emits rooms as ``{id, area_px, points``(px)}``; the
+    # contract converter was written against a stale ``polygon``/``index`` shape
+    # and silently dropped every room (fail-open on the room channel). FX1 truth
+    # has 3 rooms (R-HALL/R-NE/R-SE): they must reach the emitted payload.
+    payload, findings, source_errors = R.parse_raster_auto(_FX1_PNG, derive_scale=True)
+    assert source_errors == [], f"FX1 must emit clean: {source_errors}"
+    assert len(payload["rooms"]) == 3, f"expected 3 emitted rooms, got {len(payload['rooms'])}"
+    # Each emitted room carries a metres polygon and a positive area.
+    for room in payload["rooms"]:
+        poly = room["polygon"]
+        assert len(poly) >= 3 and all(len(p) == 2 for p in poly)
+        assert room.get("area_m2", 0.0) > 0.0
+
+
+# --------------------------------------------------------------------------- #
+# G — per-plan scale anchors + arc-hosted opening recovery                    #
+# --------------------------------------------------------------------------- #
+
+_CORPUS = "evidence/PLAN-002RF/WP4/corpus"
+
+
+def _corpus_fixture(name: str) -> str:
+    import os
+    path = os.path.join(_CORPUS, name, "fxx.png")
+    assert os.path.isfile(path), f"corpus fixture missing: {path}"
+    return path
+
+
+def test_corpus_fixture_resolves_scale_from_its_own_manifest():
+    # A corpus fixture must resolve its authoritative scale anchors from ITS OWN
+    # sibling ``fxx-scale-anchors.json`` (hash-bound to the raster), never from
+    # the FX1 fixture's manifest. Before this fix every corpus fixture returned
+    # SCALE_ANCHORS_INSUFFICIENT (the worker only read the hardcoded FX1 path).
+    payload = extract_raster_auto(_corpus_fixture("f00"), derive_scale=True)
+    codes = {err["code"] for err in payload["errors"]}
+    assert "SCALE_ANCHORS_INSUFFICIENT" not in codes, f"scale unresolved: {codes}"
+    assert payload["frame"].get("scale_m_per_px") == pytest.approx(0.005)
+
+
+def test_corpus_arc_fixture_recovers_arc_hosted_window():
+    # An arc fixture's apse carries an arc-hosted window (two concentric glazing
+    # arcs, inner offset 8 px). The engine must attribute that ink to a window
+    # opening rather than leave it as unexplained ink (which currently fails
+    # every arc fixture with RASTER_UNEXPLAINED_INK).
+    payload = extract_raster_auto(_corpus_fixture("f03"), derive_scale=True)
+    codes = {err["code"] for err in payload["errors"]}
+    assert "RASTER_UNEXPLAINED_INK" not in codes, f"arc-window ink unattributed: {codes}"
+    kinds = [o["kind"] for o in payload["openings"]]
+    assert kinds.count("window") >= 2, f"expected >=2 windows (N + apse), got {kinds}"

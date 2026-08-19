@@ -2,7 +2,7 @@
   "document": "fxx-authoritative-scale-anchors",
   "version": "1.0.0",
   "source_sha256": "sha256:b6906a1930c1d126084bd9845e36953cdf4dc714fc2c8efe604024dbf2e57d3c",
-  "raster_sha256": "sha256:6d2adaf3b3215ee18908c5ba1cb83c587b3f82ed4a7e7ad6c4c0e935ccc00a51",
+  "raster_sha256": "sha256:ed322f00f28c04f537ff439e189e9898eec1eb718725263c9b48b1183a80fc92",
   "truth_sha256": "sha256:c45aa90ed96d2743a56415c0b9d04d1903ada7055896ca8e8130fe8cdc65ac55",
   "anchors": [
     {

@@ -2,7 +2,7 @@
   "document": "fx1-authoritative-scale-anchors",
   "version": "1.0.0",
   "source_sha256": "sha256:1766e65d8fef0dc70c91ccccf3644359193d1a2efe428bb3b9fc67d75e881c22",
-  "raster_sha256": "sha256:848d37b165e1a6cd95679d90a8dd8105e1fd1a856d40198889b9c32af005afdd",
+  "raster_sha256": "sha256:0ae63fe85b6cd8f82cdcd2f5d89dd0da7ffee53a10758bdde71dee8cd0c3a8c8",
   "truth_sha256": "sha256:f4f9c1de5d781c85c66179c00d0c6178a800d4a2c918dd5e09c4e30a5f3dcb9a",
   "anchors": [
     {
