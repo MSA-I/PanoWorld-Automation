@@ -217,10 +217,19 @@ def truth_record_from_wall(wall: dict) -> dict:
             "start_deg": _int_or_float(wall["arc"]["start_deg"]),
             "end_deg": _int_or_float(wall["arc"]["end_deg"]),
         }
+    a = [_int_mm(wall["start"][0]), _int_mm(wall["start"][1])]
+    b = [_int_mm(wall["end"][0]), _int_mm(wall["end"][1])]
+    # The FX1 truth authors every segment with its lexicographically-smaller
+    # endpoint as ``a_mm``, and the frozen evaluator matches a/b order-sensitively.
+    # The pixel detector names endpoints in scan order, so a correctly-recovered
+    # wall can arrive with a/b reversed. Normalize to the same canonical order
+    # (smaller endpoint first) so direction never turns a hit into a miss.
+    if tuple(a) > tuple(b):
+        a, b = b, a
     return {
         "kind": "segment",
-        "a_mm": [_int_mm(wall["start"][0]), _int_mm(wall["start"][1])],
-        "b_mm": [_int_mm(wall["end"][0]), _int_mm(wall["end"][1])],
+        "a_mm": a,
+        "b_mm": b,
     }
 
 

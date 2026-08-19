@@ -22,7 +22,9 @@ background), with the frozen truth at ``fx1-truth.json`` (scale_m_per_px 0.005).
 
 from __future__ import annotations
 
+import json
 import math
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -323,6 +325,50 @@ def test_raster_trutht_record_from_wall_segment_shape():
     assert record["kind"] == "segment"
     assert record["a_mm"] == [1000.0, 1500.0]
     assert record["b_mm"] == [9000.0, 1500.0]
+
+
+def test_raster_truth_record_normalizes_segment_direction():
+    # A recovered wall is the SAME wall regardless of which endpoint the pixel
+    # detector named "start". The frozen evaluator matches segments by exact
+    # a_mm/b_mm (order-sensitive), and the FX1 truth authors every segment with
+    # its lexicographically-smaller endpoint as a_mm. So the raster scorer must
+    # emit a/b in the same canonical order, not the detector's raw direction,
+    # or a correctly-recovered wall scores as a miss.
+    reversed_wall = {"kind": "segment", "start": [9.0, 1.5], "end": [1.0, 1.5]}
+    record = R.truth_record_from_wall(reversed_wall)
+    assert record["a_mm"] == [1000.0, 1500.0]
+    assert record["b_mm"] == [9000.0, 1500.0]
+
+
+def test_raster_fx1_segments_score_against_truth_direction_agnostic():
+    # The FX1 truth has 8 segments (all lexicographically sorted). After
+    # direction normalization, every recovered segment that lands on an exact
+    # truth endpoint must match regardless of the detector's raw endpoint order.
+    # (Segments whose endpoints stop short at an opening are a separate
+    # endpoint-precision concern, not a direction concern — see the wall-recovery
+    # rework notes.) This test guards the direction-normalization invariant on
+    # the axis-aligned walls that recover exactly (W-S/W-PV/W-PH).
+    truth = json.loads(Path(_FX1_TRUTH).read_text(encoding="utf-8"))
+    payload, findings, source_errors = R.parse_raster_auto(_FX1_PNG, derive_scale=True)
+    assert source_errors == []
+    seg_truth = [w for w in truth["walls"] if w["kind"] == "segment"]
+    seg_pred = [w for w in payload["walls"] if w["kind"] == "segment"]
+    assert len(seg_pred) == len(seg_truth) == 8
+    recs = [R.truth_record_from_wall(w) for w in seg_pred]
+    # Normalized records must carry each segment in canonical (sorted) a/b order.
+    for rec in recs:
+        assert tuple(rec["a_mm"]) <= tuple(rec["b_mm"])
+    # The scorer projects truth to mm-only geometry (a_px/b_px stripped), then
+    # matches exact-by-key — replicate that projection here.
+    truth_mm = [R._truth_mm_record(tw) for tw in seg_truth]
+    # The three axis-aligned long walls recover byte-exactly and must match.
+    exact_ids = {"W-S", "W-PV", "W-PH"}
+    matched_ids = {
+        tw["id"] for tw, tmm in zip(seg_truth, truth_mm)
+        if any(R.M.match_wall(tmm, pr) for pr in recs)
+    }
+    assert exact_ids <= matched_ids, \
+        f"expected exact walls {exact_ids} to match, matched {matched_ids}"
 
 
 # --------------------------------------------------------------------------- #
