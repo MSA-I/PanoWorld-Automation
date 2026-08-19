@@ -32,7 +32,8 @@ from PIL import Image
 
 from pwa.floorplan import raster_auto_geometry as G
 from pwa.floorplan import raster_auto as R
-from pwa.floorplan.raster_auto_worker import extract_raster_auto
+from pwa.floorplan.raster_auto_worker import extract_raster_auto, _norm_deg
+from pwa.floorplan.config import MAX_STRUCTURAL_INK_PIXELS
 from pwa.contracts import validate_artifact
 from tests.conftest import make_envelope
 
@@ -228,6 +229,22 @@ def test_extract_raster_auto_refuses_without_anchors_on_missing_scale():
     assert any(err["code"] in {"SCALE_ANCHORS_INSUFFICIENT", "PARSE_SCALE_UNKNOWN"} for err in payload["errors"])
 
 
+def test_worker_empties_geometry_on_late_blocking_finding():
+    # W-17/AT-18 must hold on the WORKER channel too, not only on parse_raster_auto.
+    # A late blocking finding (SCALE_ANCHORS_INSUFFICIENT when derive_scale=False)
+    # is appended AFTER decode/contrast/clutter, and the worker previously
+    # returned the recovered 9 walls + 6 openings ALONGSIDE that blocking finding,
+    # so any consumer of the worker CLI (main() json-dumps the dict verbatim)
+    # received geometry next to a blocking error. The worker itself must empty
+    # walls/rooms/openings whenever any blocking error is present.
+    payload = extract_raster_auto(_FX1_PNG, derive_scale=False)
+    assert any(err["code"] == "SCALE_ANCHORS_INSUFFICIENT" for err in payload["errors"])
+    assert payload["walls"] == []
+    assert payload["rooms"] == []
+    assert payload["openings"] == []
+
+
+
 def test_extract_raster_auto_recovers_wall_count_with_anchors():
     # With the fixture's three authoritative anchors supplied, the recognizer
     # must either recover the clean wall structure OR fail closed with a
@@ -305,6 +322,24 @@ def test_emit_raster_auto_parse_fails_closed_on_passage_span_exceeds():
     assert payload["walls"] == []
 
 
+def test_emit_raster_auto_parse_fails_closed_on_oversized_door_window():
+    # The over-width bound applies to EVERY opening kind, not only passage. A
+    # door/window whose emitted span exceeds MAX_OPENING_SPAN_MM (1500 mm = 1.5 m)
+    # must be a blocking finding that empties the payload — a 6 m "window" is
+    # unsupported and must never reach product geometry silently.
+    payload, findings = R.emit_raster_auto_parse(
+        walls=[{"index": 0, "source_ref": "raster:seg#0", "kind": "segment",
+                "start": [1.0, 1.5], "end": [9.0, 1.5], "thickness_m": 0.24, "confidence": 0.9}],
+        rooms=[],
+        openings=[{"index": 0, "source_ref": "raster:seg#0:opening#0", "kind": "window",
+                   "center": [5.0, 1.5], "width_m": 6.0, "wall_id": 0}],
+    )
+    assert "RECOGNITION_OPENING_SPAN_EXCEEDS_BOUND" in findings
+    assert payload["openings"] == []
+    assert payload["walls"] == []
+
+
+
 def test_emit_raster_auto_parse_is_schema_valid():
     payload, _ = R.emit_raster_auto_parse(
         walls=[
@@ -317,6 +352,34 @@ def test_emit_raster_auto_parse_is_schema_valid():
     )
     doc = make_envelope("floorplan_parse", payload, schema_version="1.2.0")
     assert validate_artifact(doc) == []
+
+
+def test_emit_openings_with_populated_wall_id_are_schema_valid():
+    # openings[].wall_id is REQUIRED and non-empty STRING in floorplan_parse
+    # 1.2.0 (schema line 224). The emitter must stringify the wall index into the
+    # same `w-%04d` id space the walls themselves use, and the referenced id must
+    # resolve to an emitted wall — a dangling integer wall_id makes every real
+    # emit (FX1 emits 6 openings) schema-invalid AND reference no wall.
+    payload, findings = R.emit_raster_auto_parse(
+        walls=[
+            {"index": 0, "source_ref": "raster:seg#0", "kind": "segment",
+             "start": [1.0, 2.0], "end": [1.0, 8.0], "thickness_m": 0.24, "confidence": 0.9},
+        ],
+        rooms=[],
+        openings=[
+            {"index": 0, "source_ref": "raster:seg#0:opening#0", "kind": "door",
+             "center": [1.0, 5.0], "width_m": 0.9, "wall_id": 0},
+        ],
+    )
+    assert findings == []
+    doc = make_envelope("floorplan_parse", payload, schema_version="1.2.0")
+    assert validate_artifact(doc) == []
+    # The emitted wall_id must be a string AND resolve to the emitted wall.
+    wall_ids = {w["id"] for w in payload["walls"]}
+    for o in payload["openings"]:
+        assert isinstance(o["wall_id"], str)
+        assert o["wall_id"] in wall_ids, f"dangling wall_id {o['wall_id']} not in {wall_ids}"
+
 
 
 def test_raster_trutht_record_from_wall_segment_shape():
@@ -414,6 +477,17 @@ def test_extract_raster_auto_refuses_unsupported_format(tmp_path):
 def test_extract_raster_auto_refuses_missing_file():
     payload = extract_raster_auto("does/not/exist.png", derive_scale=False)
     assert payload["errors"] != []
+
+
+def test_missing_file_finding_uses_basename_not_absolute_path():
+    # F-2 (path leak): every finding must use path.name, never the absolute
+    # path, so serialized evidence does not disclose the operator's directory
+    # layout through a repository with a public remote.
+    payload = extract_raster_auto("does/not/exist.png", derive_scale=False)
+    for err in payload["errors"]:
+        ref = err.get("source_ref") or ""
+        assert "/" not in ref and "\\" not in ref, f"absolute path leaked: {ref!r}"
+
 
 
 def test_extract_raster_auto_rejects_oversized_pixels(tmp_path):
@@ -514,3 +588,88 @@ def test_corpus_arc_fixture_recovers_arc_hosted_window():
     assert "RASTER_UNEXPLAINED_INK" not in codes, f"arc-window ink unattributed: {codes}"
     kinds = [o["kind"] for o in payload["openings"]]
     assert kinds.count("window") >= 2, f"expected >=2 windows (N + apse), got {kinds}"
+
+
+# --------------------------------------------------------------------------- #
+# H — 2026-08-19 Opus review remediation                                       #
+# --------------------------------------------------------------------------- #
+
+
+def test_norm_deg_maps_into_frozen_range():
+    # review #7: angles must land in (-180, 180], never (-360, 0].
+    assert _norm_deg(-270.0) == 90.0
+    assert _norm_deg(270.0) == -90.0
+    assert _norm_deg(-90.0) == -90.0
+    assert _norm_deg(90.0) == 90.0
+    assert _norm_deg(180.0) == 180.0
+    assert _norm_deg(-180.0) == 180.0
+    assert _norm_deg(0.0) == 0.0
+
+
+def test_fx1_arc_emits_frozen_angle_convention_and_derived_sweep():
+    # review #7 + #8: the FX1 apse must emit both angles in (-180, 180] and a
+    # sweep derived from traversal (not hardcoded 'ccw'), so the bulge/sweep
+    # invariant in reflection.arc_invariants compares two independently-derived
+    # values. Without this the arc emitted -270/-90 and a self-produced bulge.
+    from pwa.floorplan.raster_auto import parse_raster_auto
+    payload, findings, _serr = parse_raster_auto(_FX1_PNG, derive_scale=True)
+    assert findings == []
+    arc = next(w["arc"] for w in payload["walls"] if w["kind"] == "circular_arc")
+    assert -180.0 < arc["start_deg"] <= 180.0
+    assert -180.0 < arc["end_deg"] <= 180.0
+    assert arc["sweep"] in {"ccw", "cw"}
+    # bulge sign must agree with the emitted (derived) sweep.
+    if arc["sweep"] == "ccw":
+        assert arc["bulge"] > 0.0
+    else:
+        assert arc["bulge"] < 0.0
+
+
+def test_emit_scale_provenance_preserved():
+    # review #13: the validated scale_m_per_px must reach the payload, not be
+    # silently dropped to None (the worker resolves 0.005 and the emitter
+    # hardcoded None).
+    from pwa.floorplan.raster_auto import parse_raster_auto
+    payload, _findings, _serr = parse_raster_auto(_FX1_PNG, derive_scale=True)
+    assert payload.get("scale_m_per_px") == pytest.approx(0.005)
+
+
+def test_absolute_ink_pixel_cap_fires_resource_limit(monkeypatch):
+    # review #1: the ink-FRACTION band bounds relative ink only; an in-band
+    # large raster still drives unbounded per-ink-pixel Hough work. The absolute
+    # ink-pixel cap must fire PARSE_RESOURCE_LIMIT in the short-circuit block.
+    # FX1 carries ~25k structural ink pixels; lowering the cap below that forces
+    # the guard to fire on a real fixture without allocating a 100 MP canvas.
+    import pwa.floorplan.raster_auto_worker as W
+    monkeypatch.setattr(W, "MAX_STRUCTURAL_INK_PIXELS", 100)
+    payload = extract_raster_auto(_FX1_PNG, derive_scale=False)
+    codes = {err["code"] for err in payload["errors"]}
+    assert "PARSE_RESOURCE_LIMIT" in codes
+    assert payload["walls"] == []
+    assert payload["rooms"] == []
+    assert payload["openings"] == []
+
+
+def test_oversized_manifest_is_refused(tmp_path):
+    # review #3: the sibling *-scale-anchors.json was read with uncapped
+    # read_text() before any size check. An oversized manifest must yield no
+    # anchors (fail-closed) instead of being fully materialized.
+    import pwa.floorplan.raster_auto_worker as W
+    big = tmp_path / "fxx-scale-anchors.json"
+    big.write_text("x" * (W.MAX_SOURCE_RASTER_BYTES + 1), encoding="utf-8")
+    raster = tmp_path / "fxx.png"
+    raster.write_bytes(b"")  # only the manifest path matters for the size guard
+    assert W._load_authoritative_anchors(raster) == []
+
+
+def test_truth_side_canonicalization_is_symmetric():
+    # review #12: canonicalization was applied only to predictions, so a truth
+    # wall authored larger-endpoint-first was structurally unmatchable. The truth
+    # projection must canonicalize a/b identically to the prediction side.
+    # Both records are in mm truth space (this test exercises the ORDER invariant
+    # of the truth projection, decoupled from the metre->mm conversion).
+    truth_large_first = R._truth_mm_record({"kind": "segment", "a_mm": [5, 0], "b_mm": [1, 0]})
+    truth_small_first = R._truth_mm_record({"kind": "segment", "a_mm": [1, 0], "b_mm": [5, 0]})
+    assert truth_large_first == truth_small_first
+    assert truth_large_first["a_mm"] == [1, 0]
+    assert truth_large_first["b_mm"] == [5, 0]

@@ -29,7 +29,7 @@ import math
 from pathlib import Path
 
 from pwa.floorplan import raster_auto_geometry as G
-from pwa.floorplan.config import MAX_SOURCE_PIXELS, MAX_SOURCE_RASTER_BYTES
+from pwa.floorplan.config import MAX_SOURCE_PIXELS, MAX_SOURCE_RASTER_BYTES, MAX_STRUCTURAL_INK_PIXELS
 from pwa.floorplan.recognition import PASSAGE_SPAN_MAX_M
 
 
@@ -61,7 +61,7 @@ def _decode(path: Path) -> tuple[object, str, dict | None]:
     from PIL import Image
 
     if not path.is_file():
-        return None, "", [_finding("PARSE_SOURCE_UNSUPPORTED", "source file not found", source_ref=str(path))]
+        return None, "", [_finding("PARSE_SOURCE_UNSUPPORTED", "source file not found", source_ref=str(path.name))]
     if path.stat().st_size > MAX_SOURCE_RASTER_BYTES:
         return None, "", [_finding("PARSE_RESOURCE_LIMIT", "raster exceeds byte limit", source_ref=str(path.name))]
     try:
@@ -138,6 +138,11 @@ def extract_raster_auto(path: object, *, derive_scale: bool) -> dict:
     ink_fraction = ink_count / total
     if not (G.INK_FRACTION_BAND[0] <= ink_fraction <= G.INK_FRACTION_BAND[1]):
         errors.append(_finding("RASTER_CLUTTER_EXCEEDS_ENVELOPE", f"ink fraction {ink_fraction:.4f} out of band", source_ref=str(path.name)))
+    if ink_count > MAX_STRUCTURAL_INK_PIXELS:
+        # Absolute work cap (review 2026-08-19 #1): bound per-pixel Hough/RANSAC
+        # work regardless of the (relative) ink-fraction band, so an in-band
+        # large raster cannot drive unbounded pure-Python per-ink-pixel loops.
+        errors.append(_finding("PARSE_RESOURCE_LIMIT", f"structural ink {ink_count} exceeds absolute cap {MAX_STRUCTURAL_INK_PIXELS}", source_ref=str(path.name)))
 
     if errors:
         # CRITICAL resource guard: refuse a degenerate (low-contrast) or
@@ -228,6 +233,15 @@ def extract_raster_auto(path: object, *, derive_scale: bool) -> dict:
         "components": n_components,
     }
 
+    # Fail-closed (W-17 / AT-18) on the worker channel: a late blocking finding
+    # (SCALE_ANCHORS_INSUFFICIENT, PARSE_DIMENSION_INCONSISTENT, RASTER_OVERSEGMENTED,
+    # RASTER_UNEXPLAINED_INK) is appended during the pipeline AFTER geometry was
+    # recovered. Never return that geometry alongside a blocking error — the worker
+    # CLI (main()) json-dumps this dict verbatim, so the emptiness guarantee must
+    # not depend on which entry point a caller picks.
+    if errors:
+        return {"frame": frame, "walls": [], "rooms": [], "openings": [], "errors": errors}
+
     return {
         "frame": frame,
         "walls": walls,
@@ -257,7 +271,13 @@ def _load_authoritative_anchors(path: Path) -> list[dict]:
     manifest_path = path.with_name(path.stem + "-scale-anchors.json")
     if not manifest_path.is_file():
         return []
+    # Cap the manifest read (review 2026-08-19 #3): the raster gets
+    # MAX_SOURCE_RASTER_BYTES, the manifest previously got nothing, so an
+    # oversized sibling *-scale-anchors.json was materialized in full before any
+    # check. Bound the manifest bytes like every other source read.
     try:
+        if manifest_path.stat().st_size > MAX_SOURCE_RASTER_BYTES:
+            return []
         doc = json.loads(manifest_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return []
@@ -1103,6 +1123,18 @@ def _derive_rooms(walls: list[dict], mm_per_px: float | None) -> list[dict]:
     return rooms
 
 
+def _norm_deg(angle: float) -> float:
+    """Normalize an angle in degrees into the frozen (-180, 180] range.
+
+    Compares as a float so a semiminor quantization (e.g. 180.0000001) still
+    normalizes to -180 rather than escaping the convention.
+    """
+    a = float(angle) % 360.0
+    if a > 180.0:
+        a -= 360.0
+    return a
+
+
 def _finalize_units(walls: list[dict], rooms: list[dict], openings: list[dict], mm_per_px: float | None, height_px: int) -> None:
     """Convert pixel-space geometry to millimetres (FX1 truth space).
 
@@ -1126,15 +1158,27 @@ def _finalize_units(walls: list[dict], rooms: list[dict], openings: list[dict], 
                 radius_mm = _mm(arc_px["radius_px"], mm_per_px)
                 start_img = arc_px["start_deg"]
                 end_img = arc_px["end_deg"]
-                # Frozen convention: ccw, bulge > 0. Angle measured y-up from
-                # +x. Map image y-down angle to y-up by negating.
-                start_deg = -(start_img % 360.0)
-                end_deg = -(end_img % 360.0)
-                sweep = "ccw"
+                # Image-space angles (y down) -> frozen y-up convention, normalized
+                # into (-180, 180] (review 2026-08-19 #7): ``-(a % 360)`` left the
+                # value in (-360, 0], so a -90/+90 apse became -270/-90 and never
+                # satisfied the fx1-truth convention. Negating an image y-down
+                # angle yields the y-up angle, and the traversal direction flips
+                # (ccw in y-down == cw in y-up), which we now propagate into the
+                # sweep instead of hardcoding "ccw" (review 2026-08-19 #8).
+                start_deg = _norm_deg(-(start_img % 360.0))
+                end_deg = _norm_deg(-(end_img % 360.0))
+                # Traversal: the detector sorts inlier angles ascending and walks
+                # start_img -> end_img in +angle (ccw in image y-down). After the
+                # y-flip that traversal is cw in y-up, and the sweep direction is
+                # derived from it (never hardcoded), so the bulge/sweep invariant
+                # in reflection.arc_invariants compares two independently-derived
+                # values instead of two values produced by the same line.
+                sweep = "cw"
                 from pwa.floorplan import cad_exact_geometry as CG
 
                 try:
-                    bulge = CG.bulge_for_sweep("ccw", angle_rad=math.radians((end_img - start_img) % 360.0 or 360.0))
+                    theta = math.radians((end_img - start_img) % 360.0 or 360.0)
+                    bulge = CG.bulge_for_sweep(sweep, angle_rad=theta)
                 except ValueError:
                     bulge = 0.0
                 arc_mm = {

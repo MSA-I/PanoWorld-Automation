@@ -82,3 +82,42 @@ Recorded, not yet acted upon. Findings are concrete in-scope WP4 engineering def
 worker channel, schema wall_id, span guard, arc angle/sweep, scale provenance) plus a resource-cap
 hardening and several fixture-coupled tuning constants that contradict the AT-18/AT-21 anti-gaming
 claim. Remediation is WP-scope work under Moshe's 2026-08-18 continuation approval.
+
+## Remediation status (2026-08-19, worker)
+
+Addressed under TDD (RED->GREEN) and committed:
+
+- #2 path leak — `_decode` now uses `path.name` (was `str(path)`).
+- #3 manifest cap — `_load_authoritative_anchors` refuses a sibling manifest over
+  `MAX_SOURCE_RASTER_BYTES` before `read_text()`.
+- #1 absolute ink-pixel cap — new `config.MAX_STRUCTURAL_INK_PIXELS` (2M, ~48x the
+  largest corpus fixture) fires `PARSE_RESOURCE_LIMIT` in the short-circuit block
+  before connected-components/Hough/RANSAC.
+- #4 schema `wall_id` — `_wall_id_for` stringifies the worker integer into the emitted
+  `w-%04d` space; schema-valid with a non-empty openings list (test added).
+- #5 worker-channel fail-closed — `extract_raster_auto` empties geometry whenever any
+  blocking error is present (`main()` json-dumps the dict verbatim).
+- #6 span guard covers every opening kind — `recognition.check_opening_span` bounds
+  door/window at `MAX_OPENING_SPAN_MM` (was passage-only).
+- #7 arc angle convention — `_norm_deg` maps both angles into `(-180, 180]`.
+- #8 arc sweep derived from traversal — `sweep` is `cw` after the y-flip (never
+  hardcoded `ccw`); `bulge` sign now derives from the detected traversal, so
+  `arc_invariants` compares independently-derived values.
+- #12 symmetric a/b canonicalization — `_truth_mm_record` canonicalizes smaller-endpoint-first
+  like the prediction side.
+- #13 scale provenance — `parse_raster_auto` threads the resolved `m_per_px` into
+  `emit_raster_auto_parse(scale_m_per_px=...)`; the payload no longer hardcodes None.
+
+Still OPEN (architectural, not mechanically fixable without redesign + re-review):
+
+- #9 window detection coupled to fixture renderer (`_glazing_at` single (+4,+4) offset,
+  arc radius band / RANSAC spread / leaf run / glazing r-8 are fixture-coupled constants).
+- #10 two/three-anchor scale validation reads `span_px` from the manifest (author-declared),
+  so `fit_scale` residual/disagreement are 0 by construction; anchors must be measured from
+  the value-64 anchor ink (only `real_length_m` should come from the manifest).
+- #11 scorer matches against a recognizer-authored reduced truth projection; projection
+  belongs in the evaluator with both sides projected identically.
+
+Verdict of this remediation is subject to a fresh independent read-only review (see
+`independent-review-opus-20260819-postrework.md` when produced).
+

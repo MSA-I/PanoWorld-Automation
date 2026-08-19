@@ -16,6 +16,15 @@ MAX_POLYGON_VERTICES = 10_000
 MAX_COORDINATE_MAGNITUDE_M = 100_000
 MAX_SOURCE_RASTER_BYTES = 50 * 1024 * 1024
 MAX_SOURCE_PIXELS = 100_000_000
+# Absolute structural-ink-pixel cap (PLAN-002RF WP4 raster_auto, review
+# 2026-08-19 #1). The ink-FRACTION band (0.001..0.35) bounds relative ink but
+# never absolute work: a 100 MP ~5%-ink raster passes the band yet drives ~35M
+# pure-Python Hough iterations (720-wide per ink pixel) plus ~1.6 GB mgrid
+# allocations. This ABSOLUTE cap fires PARSE_RESOURCE_LIMIT in the same short-
+# circuit block as the clutter guard, before connected-components/Hough/RANSAC.
+# 2M is ~48x the largest supported corpus fixture (41k) and ~80x FX1 (25k), so
+# it cannot reject a valid clean plan while bounding the per-pixel work.
+MAX_STRUCTURAL_INK_PIXELS = 2_000_000
 MAX_OVERLAY_BYTES = 70 * 1024 * 1024
 MAX_WORKER_STDIO_BYTES = 1024 * 1024
 PARSER_TIMEOUT_S = 30

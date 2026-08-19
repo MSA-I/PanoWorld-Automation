@@ -33,6 +33,7 @@ _SEVERITIES = {
     "RECOGNITION_ARC_NO_SAGITTA_BOUND": "error",
     "RECOGNITION_ARC_BULGE_SWEEP_MISMATCH": "error",
     "RECOGNITION_PASSAGE_SPAN_EXCEEDS_BOUND": "error",
+    "RECOGNITION_OPENING_SPAN_EXCEEDS_BOUND": "error",
     "RECOGNITION_THICKNESS_MISSING": "error",
     "REVIEW_LINEAGE_CYCLE": "error",
     "REVIEW_CURRENT_HEAD_STALE": "error",
@@ -103,6 +104,20 @@ def check_passage_span(width_m: float) -> list[str]:
     """A `passage` opening must not exceed the frozen 3.0 m span bound."""
     if float(width_m) > PASSAGE_SPAN_MAX_M:
         return ["RECOGNITION_PASSAGE_SPAN_EXCEEDS_BOUND"]
+    return []
+
+
+def check_opening_span(width_m: float) -> list[str]:
+    """A non-passage opening (door/window) must not exceed the frozen span bound.
+
+    The frozen support taxonomy bounds every opening span at
+    ``MAX_OPENING_SPAN_MM`` (1500 mm = 1.5 m); a door or window drawn wider than
+    that is unsupported and must fail closed rather than emit silently.
+    """
+    from pwa.evaluator.metrics import MAX_OPENING_SPAN_MM
+
+    if float(width_m) * 1000.0 > MAX_OPENING_SPAN_MM:
+        return ["RECOGNITION_OPENING_SPAN_EXCEEDS_BOUND"]
     return []
 
 

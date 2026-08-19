@@ -34,11 +34,32 @@ def _int_mm(value_m: float) -> int | float:
     return int(mm) if mm == int(mm) else mm
 
 
-def emit_raster_auto_parse(walls: list[dict], rooms: list[dict], openings: list[dict]) -> tuple[dict, list[str]]:
+def _wall_id_for(wall_id: object) -> str:
+    """Stringify an opening's host-wall reference into the emitted wall id space.
+
+    Walls are emitted as ``w-{index:04d}``; the worker references a host wall by
+    its integer index. The 1.2.0 schema requires ``openings[].wall_id`` to be a
+    non-empty STRING, and the reference must resolve to an emitted wall id.
+    """
+    if wall_id is None:
+        return ""
+    if isinstance(wall_id, str) and wall_id.startswith("w-"):
+        return wall_id
+    try:
+        return f"w-{int(wall_id):04d}"
+    except (TypeError, ValueError):
+        return str(wall_id)
+
+
+def emit_raster_auto_parse(walls: list[dict], rooms: list[dict], openings: list[dict], *,
+                           scale_m_per_px: float | None = None) -> tuple[dict, list[str]]:
     """Emit a floorplan_parse 1.2.0 payload (source_class raster_auto).
 
     Inputs are in metres. Every wall must carry a sourced thickness (> 0) and
-    open ings must satisfy the passage span bound. Returns ``(payload, findings)``.
+    open ings must satisfy the passage span bound. ``scale_m_per_px``, when
+    supplied, is emitted as the validated source scale (review 2026-08-19 #13:
+    the resolved scale was previously dropped and the field hardcoded to None).
+    Returns ``(payload, findings)``.
     """
     recognition_findings: list[str] = []
     out_walls = []
@@ -93,11 +114,15 @@ def emit_raster_auto_parse(walls: list[dict], rooms: list[dict], openings: list[
     for opening in openings:
         if opening["kind"] == "passage":
             recognition_findings.extend(recognition.check_passage_span(opening["width_m"]))
+        else:
+            # door/window span is bounded by the frozen support taxonomy too (F-6):
+            # an over-wide door or window is unsupported and must fail closed.
+            recognition_findings.extend(recognition.check_opening_span(opening["width_m"]))
         out_openings.append(
             {
                 "id": f"o-{opening['index']:04d}",
                 "type": opening["kind"],
-                "wall_id": opening.get("wall_id"),
+                "wall_id": _wall_id_for(opening.get("wall_id")),
                 "center": [_quant_m(opening["center"][0]), _quant_m(opening["center"][1])],
                 "width_m": float(opening["width_m"]),
                 "confidence": float(opening.get("confidence", 1.0)),
@@ -112,7 +137,7 @@ def emit_raster_auto_parse(walls: list[dict], rooms: list[dict], openings: list[
     payload = {
         "units": "m",
         "source_class": "raster_auto",
-        "scale_m_per_px": None,
+        "scale_m_per_px": scale_m_per_px,
         "rooms": out_rooms,
         "walls": out_walls,
         "openings": out_openings,
@@ -142,10 +167,11 @@ def parse_raster_auto(path, *, derive_scale: bool) -> tuple[dict, list[str], lis
         empty = _empty_payload()
         return empty, [], source_errors
     mm_per_px = float(raw["frame"].get("scale_m_per_px") or 0.0) * 1000.0 if raw["frame"].get("scale_m_per_px") else None
+    m_per_px = raw["frame"].get("scale_m_per_px")
     walls_m = [_wall_to_metres(w, mm_per_px) for w in raw["walls"] if w.get("start_mm") is not None]
     rooms_m = [_room_to_metres(r, mm_per_px) for r in raw["rooms"] if r.get("polygon") is not None]
     openings_m = [_opening_to_metres(o, mm_per_px) for o in raw["openings"] if o.get("center") is not None]
-    payload, findings = emit_raster_auto_parse(walls_m, rooms_m, openings_m)
+    payload, findings = emit_raster_auto_parse(walls_m, rooms_m, openings_m, scale_m_per_px=m_per_px)
     return payload, findings, source_errors
 
 
@@ -247,10 +273,19 @@ def _truth_mm_record(truth_wall: dict) -> dict:
             "start_deg": truth_wall["start_deg"],
             "end_deg": truth_wall["end_deg"],
         }
+    a = truth_wall["a_mm"]
+    b = truth_wall["b_mm"]
+    # Symmetric canonicalization (review 2026-08-19 #12): apply the same
+    # lexicographically-smaller-endpoint-first order to the truth side as
+    # ``truth_record_from_wall`` applies to predictions, so both halves of the
+    # exact-by-key matcher canonicalize identically rather than assuming every
+    # truth record is authored in the smaller-endpoint-first order.
+    if tuple(a) > tuple(b):
+        a, b = b, a
     return {
         "kind": "segment",
-        "a_mm": truth_wall["a_mm"],
-        "b_mm": truth_wall["b_mm"],
+        "a_mm": a,
+        "b_mm": b,
     }
 
 
