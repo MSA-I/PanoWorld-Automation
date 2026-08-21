@@ -32,6 +32,7 @@ from PIL import Image
 
 from pwa.floorplan import raster_auto_geometry as G
 from pwa.floorplan import raster_auto as R
+from pwa.evaluator import projection as P
 from pwa.floorplan.raster_auto_worker import extract_raster_auto, _norm_deg
 from pwa.floorplan.config import MAX_STRUCTURAL_INK_PIXELS
 from pwa.contracts import validate_artifact
@@ -421,9 +422,9 @@ def test_raster_fx1_segments_score_against_truth_direction_agnostic():
     # Normalized records must carry each segment in canonical (sorted) a/b order.
     for rec in recs:
         assert tuple(rec["a_mm"]) <= tuple(rec["b_mm"])
-    # The scorer projects truth to mm-only geometry (a_px/b_px stripped), then
-    # matches exact-by-key — replicate that projection here.
-    truth_mm = [R._truth_mm_record(tw) for tw in seg_truth]
+    # The scorer projects BOTH sides with the evaluator-owned projector
+    # (review 2026-08-19 #11); replicate that projection here.
+    truth_mm = [P.project_truth_wall(tw) for tw in seg_truth]
     # The three axis-aligned long walls recover byte-exactly and must match.
     exact_ids = {"W-S", "W-PV", "W-PH"}
     matched_ids = {
@@ -664,12 +665,13 @@ def test_oversized_manifest_is_refused(tmp_path):
 
 def test_truth_side_canonicalization_is_symmetric():
     # review #12: canonicalization was applied only to predictions, so a truth
-    # wall authored larger-endpoint-first was structurally unmatchable. The truth
-    # projection must canonicalize a/b identically to the prediction side.
-    # Both records are in mm truth space (this test exercises the ORDER invariant
-    # of the truth projection, decoupled from the metre->mm conversion).
-    truth_large_first = R._truth_mm_record({"kind": "segment", "a_mm": [5, 0], "b_mm": [1, 0]})
-    truth_small_first = R._truth_mm_record({"kind": "segment", "a_mm": [1, 0], "b_mm": [5, 0]})
+    # wall authored larger-endpoint-first was structurally unmatchable. The
+    # evaluator-owned projector (review #11) canonicalizes a/b identically on
+    # BOTH sides, so authoring order can never make a truth wall unmatchable.
+    # (Both records are in mm truth space; this test exercises the ORDER
+    # invariant of the truth projection.)
+    truth_large_first = P.project_truth_wall({"kind": "segment", "a_mm": [5, 0], "b_mm": [1, 0]})
+    truth_small_first = P.project_truth_wall({"kind": "segment", "a_mm": [1, 0], "b_mm": [5, 0]})
     assert truth_large_first == truth_small_first
     assert truth_large_first["a_mm"] == [1, 0]
     assert truth_large_first["b_mm"] == [5, 0]

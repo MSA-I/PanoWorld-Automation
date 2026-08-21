@@ -16,6 +16,7 @@ from __future__ import annotations
 import math
 
 from pwa.evaluator import metrics as M
+from pwa.evaluator import projection as P
 from pwa.floorplan import recognition
 
 
@@ -233,66 +234,23 @@ def _opening_to_metres(opening: dict, mm_per_px: float | None) -> dict:
 # --- FX1 truth binding ------------------------------------------------------
 
 
-def truth_record_from_wall(wall: dict) -> dict:
-    """Map an emitted raster_auto wall (metres) to the FX1 truth mm record shape."""
-    if wall["kind"] == "circular_arc":
-        return {
-            "kind": "circular_arc",
-            "center_mm": [_int_mm(wall["arc"]["center"][0]), _int_mm(wall["arc"]["center"][1])],
-            "radius_mm": _int_mm(wall["arc"]["radius_m"]),
-            "start_deg": _int_or_float(wall["arc"]["start_deg"]),
-            "end_deg": _int_or_float(wall["arc"]["end_deg"]),
-        }
-    a = [_int_mm(wall["start"][0]), _int_mm(wall["start"][1])]
-    b = [_int_mm(wall["end"][0]), _int_mm(wall["end"][1])]
-    # The FX1 truth authors every segment with its lexicographically-smaller
-    # endpoint as ``a_mm``, and the frozen evaluator matches a/b order-sensitively.
-    # The pixel detector names endpoints in scan order, so a correctly-recovered
-    # wall can arrive with a/b reversed. Normalize to the same canonical order
-    # (smaller endpoint first) so direction never turns a hit into a miss.
-    if tuple(a) > tuple(b):
-        a, b = b, a
-    return {
-        "kind": "segment",
-        "a_mm": a,
-        "b_mm": b,
-    }
-
-
-def _int_or_float(value: float) -> int | float:
-    v = float(value)
-    return int(v) if v == int(v) else v
-
-
-def _truth_mm_record(truth_wall: dict) -> dict:
-    if truth_wall.get("kind") == "circular_arc":
-        return {
-            "kind": "circular_arc",
-            "center_mm": truth_wall["center_mm"],
-            "radius_mm": truth_wall["radius_mm"],
-            "start_deg": truth_wall["start_deg"],
-            "end_deg": truth_wall["end_deg"],
-        }
-    a = truth_wall["a_mm"]
-    b = truth_wall["b_mm"]
-    # Symmetric canonicalization (review 2026-08-19 #12): apply the same
-    # lexicographically-smaller-endpoint-first order to the truth side as
-    # ``truth_record_from_wall`` applies to predictions, so both halves of the
-    # exact-by-key matcher canonicalize identically rather than assuming every
-    # truth record is authored in the smaller-endpoint-first order.
-    if tuple(a) > tuple(b):
-        a, b = b, a
-    return {
-        "kind": "segment",
-        "a_mm": a,
-        "b_mm": b,
-    }
+# Evaluator-owned projection (review 2026-08-19 #11): the recognizer authors no
+# projection of its own. ``truth_record_from_wall`` IS
+# ``pwa.evaluator.projection.project_prediction_wall`` (kept under the
+# historical name for backwards-compatible imports); truth is projected by the
+# same evaluator-owned function at scoring time.
+truth_record_from_wall = P.project_prediction_wall
 
 
 def score_against_truth(walls: list[dict], truth: dict) -> dict:
-    """Score raster_auto walls against the FX1 frozen truth (exact-by-key)."""
-    truth_walls = [_truth_mm_record(w) for w in truth.get("walls", [])]
-    pred_walls = [truth_record_from_wall(w) for w in walls]
+    """Score raster_auto walls against the FX1 frozen truth (exact-by-key).
+
+    BOTH sides are projected by the evaluator-owned projector
+    (``pwa.evaluator.projection``) before the frozen matcher compares them —
+    the scorer never runs on a recognizer-authored reduction of truth.
+    """
+    truth_walls = [P.project_truth_wall(w) for w in truth.get("walls", [])]
+    pred_walls = [P.project_prediction_wall(w) for w in walls]
     supportable = sum(1 for w in truth_walls if M.support_taxon_supported(w))
     correct = 0
     matched: set[int] = set()

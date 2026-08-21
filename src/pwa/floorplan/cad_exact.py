@@ -14,6 +14,7 @@ import math
 from pathlib import Path
 
 from pwa.evaluator import metrics as M
+from pwa.evaluator import projection as P
 from pwa.floorplan import cad_exact_geometry as G
 from pwa.floorplan import recognition
 
@@ -247,76 +248,24 @@ def _resolve_opening_host(opening: dict, walls: list[dict], wall_id_by_index: di
 # --- FX1 truth binding ------------------------------------------------------
 
 
-def truth_record_from_wall(wall: dict) -> dict:
-    """Map an emitted cad_exact wall (metres) to the FX1 truth mm record shape.
-
-    The FX1 truth walls use ``_mm`` fields; the frozen evaluator matches on
-    ``kind`` + canonical geometry (``a_mm``/``b_mm`` for segments, ``center_mm``/
-    ``radius_mm``/``start_deg``/``end_deg`` for arcs).
-    """
-    if wall["kind"] == "circular_arc":
-        return {
-            "kind": "circular_arc",
-            "center_mm": [_int_mm(wall["arc"]["center"][0]), _int_mm(wall["arc"]["center"][1])],
-            "radius_mm": _int_mm(wall["arc"]["radius_m"]),
-            "start_deg": _int_or_float(wall["arc"]["start_deg"]),
-            "end_deg": _int_or_float(wall["arc"]["end_deg"]),
-        }
-    return {
-        "kind": "segment",
-        "a_mm": [_int_mm(wall["start"][0]), _int_mm(wall["start"][1])],
-        "b_mm": [_int_mm(wall["end"][0]), _int_mm(wall["end"][1])],
-    }
-
-
-def _int_or_float(value: float) -> int | float:
-    """Coerce an integral float to int so canonical JSON matches FX1 truth.
-
-    FX1 authors ``start_deg``/``end_deg`` as integer degrees (``-90`` not
-    ``-90.0``); the frozen evaluator's canonical key is exact-by-key, so the
-    product degrees must serialize identically to the truth to match.
-    """
-    v = float(value)
-    return int(v) if v == int(v) else v
-
-
-_SUPPORTABLE_TRUTH_KINDS = {"segment", "circular_arc"}
-
-
-def _truth_mm_record(truth_wall: dict) -> dict:
-    """Project a raw FX1 truth wall to the mm-only canonical shape.
-
-    The FX1 truth records carry pixel-space fields (``a_px``/``b_px``, and for
-    arcs ``tessellation_rule``/``vertices_mm``) because FX1 is authored for a
-    raster recognizer. Product A is a CAD (mm-native) recognizer, so the scoring
-    binds on the millimetre geometry only. This projection keeps the exact
-    mm-keyed fields the frozen evaluator's canonical key is defined over, and
-    discards the raster-only presentation fields.
-    """
-    if truth_wall.get("kind") == "circular_arc":
-        return {
-            "kind": "circular_arc",
-            "center_mm": truth_wall["center_mm"],
-            "radius_mm": truth_wall["radius_mm"],
-            "start_deg": truth_wall["start_deg"],
-            "end_deg": truth_wall["end_deg"],
-        }
-    return {
-        "kind": "segment",
-        "a_mm": truth_wall["a_mm"],
-        "b_mm": truth_wall["b_mm"],
-    }
+# Evaluator-owned projection (review 2026-08-19 #11): the recognizer authors no
+# projection of its own. ``truth_record_from_wall`` IS
+# ``pwa.evaluator.projection.project_prediction_wall`` (kept under the
+# historical name for backwards-compatible imports); truth is projected by the
+# same evaluator-owned function at scoring time.
+truth_record_from_wall = P.project_prediction_wall
 
 
 def score_against_truth(walls: list[dict], truth: dict) -> dict:
     """Score cad_exact walls against the FX1 frozen truth (exact-by-key).
 
-    Both truth and prediction are projected to mm-only geometry and matched at
-    most once by exact canonical-key equality via the frozen evaluator.
-    Unsupported truth taxa are counted into ``supportable`` (never dropped).
+    BOTH sides are projected by the evaluator-owned projector
+    (``pwa.evaluator.projection``) before being matched at most once by exact
+    canonical-key equality via the frozen evaluator. Unsupported truth taxa are
+    counted into ``supportable`` (never dropped).
     """
-    truth_walls = [_truth_mm_record(w) for w in truth.get("walls", [])]
-    pred_walls = [truth_record_from_wall(w) for w in walls]
+    truth_walls = [P.project_truth_wall(w) for w in truth.get("walls", [])]
+    pred_walls = [P.project_prediction_wall(w) for w in walls]
     supportable = sum(1 for w in truth_walls if M.support_taxon_supported(w))
     correct = 0
     matched: set[int] = set()
