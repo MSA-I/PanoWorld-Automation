@@ -71,6 +71,55 @@ OPENING_STROKE_PX = 2
 # 3.0 m arc gap and cannot be told apart by gap length alone — that requires the
 # U-4 "merge only across a recognised opening motif" check, still pending.)
 WALL_OPENING_GAP_PX = 350.0       # between max opening (300 px) and min arc chord (400 px)
+# review #9: opening-motif acceptance bounds are DECLARED vocabulary constants,
+# not authoring literals embedded in recognition logic. Provenance:
+# - JAMB_TICK_MAX_PX: the largest jamb tick the supported vocabulary draws
+#   (fx1/corpus renderers draw 10 px ticks). U-pending default, like
+#   ANCHOR_TICK_MAX_PX; the derived leaf bound inherits its status.
+# - DOOR_LEAF_MIN_RUN_PX: a perpendicular run is a LEAF (door) only when it
+#   exceeds twice the tick scale — geometry-derived (leaf >> tick), never the
+#   legacy 100 px fixture literal.
+# - GLAZING_OFFSET_BAND_PX: a window's second stroke sits at a CONSTANT
+#   perpendicular offset from the host centreline, on EITHER side, within this
+#   band ((OPENING_STROKE_PX, 4x OPENING_STROKE_PX) — beyond the wall's own
+#   stroke bleed, inside the motif vocabulary's offset scale).
+# - GLAZING_OFFSET_CONSTANCY_TOL_PX: the per-position offsets along one run
+#   must stay within one rasterization stroke of the run's median offset —
+#   this constancy is what separates a real glazing line from the host wall's
+#   own staircase scatter (which spans many offsets).
+# - WINDOW_MIN_RUN_PX: a glazing run shorter than this is not a window
+#   (declared floor; ~50 mm at the 5 mm/px reference grid).
+# - ARC_WINDOW_INNER_OFFSET_BAND_PX: an arc-hosted window's inner glazing arc
+#   is a concentric arc whose radial offset from the host radius lies in this
+#   band (fx1/corpus author 8 px; the band admits the vocabulary's scale while
+#   refusing arbitrary inner strokes).
+JAMB_TICK_MAX_PX = 10.0
+DOOR_LEAF_MIN_RUN_PX = 2 * JAMB_TICK_MAX_PX
+# A window's glazing line is authored as a copy of the opening axis shifted by
+# the SAME constant vector on both endpoints (the vocabulary draws (a+k, b+k)).
+# The perpendicular component of that shift is what the band scan admits; the
+# TANGENTIAL component (the drift along the host axis) is bounded separately so
+# the run measured on the offset stroke still maps onto the host centreline
+# without dragging the window's centre off-truth (review #9, O-W3 regression).
+# For an equal-components shift the tangential part equals the perpendicular
+# part, so its bound IS the band's upper edge — no independent constant.
+GLAZING_OFFSET_BAND_PX = (2.0, 12.0)
+GLAZING_OFFSET_TANGENTIAL_TOL_PX = GLAZING_OFFSET_BAND_PX[1]
+GLAZING_OFFSET_CONSTANCY_TOL_PX = 1.5
+# A glazing run must carry its median offset DOMINANTLY along its length; the
+# bounded exception is an interior crossing stroke (a partition wall's 3 px
+# band through the window), which must not reject an otherwise constant run.
+# 0.8 = the crossing may occupy at most a fifth of the run.
+GLAZING_OFFSET_CONSTANCY_MIN_FRACTION = 0.8
+WINDOW_MIN_RUN_PX = 10.0
+ARC_WINDOW_INNER_OFFSET_BAND_PX = (2.0, 16.0)
+# A door leaf is authored AT the opening's jamb: its near end sits within the
+# jamb's own stroke row (the leaf line is drawn from the jamb point itself), so
+# the perpendicular walk must be allowed to START inside that band before the
+# run counter engages — otherwise a real leaf reads as two short fragments
+# separated by the jamb bleed and never meets the derived leaf bound.
+DOOR_LEAF_START_BAND_PX = 1.5 * WALL_STROKE_PX
+
 # Minimum wall length (px) that is still a recognisable wall (rejects stray
 # fragments below the frozen DEGENERATE_WALL_M = 0.05 m -> 10 px).
 MIN_WALL_LENGTH_PX = 10.0

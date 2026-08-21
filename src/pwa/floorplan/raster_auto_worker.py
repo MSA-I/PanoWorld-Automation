@@ -419,7 +419,7 @@ def _recover_segment_walls(ink: np.ndarray, thickness_ink: np.ndarray | None = N
     return walls
 
 
-def _detect_arc_from_structural(structural: np.ndarray) -> dict | None:
+def _detect_arc_from_structural(structural: np.ndarray, scale_hint_px: float | None = None) -> dict | None:
     """Detect the circular-arc wall from the STRUCTURAL mask (pre-erosion).
 
     The 3x3 ``wall_centerlines`` erosion fragments the chord-polyline arc into
@@ -427,8 +427,36 @@ def _detect_arc_from_structural(structural: np.ndarray) -> dict | None:
     clean 3px ring, then removed before erosion. Deterministic RANSAC circle fit
     (fixed seed) + radius, sweep and contiguity guards. Returns
     ``{center_px, radius_px, start_deg, end_deg, rms_residual_px}`` or None.
+
+    Review #9 (geometry-driven, not fixture-coupled): every acceptance bound
+    derives from a declared SCALE REFERENCE ``S`` — the plan's own median
+    authoritative anchor span when available (``scale_hint_px``), else the
+    conservative anchor-envelope fallback ``9x ANCHOR_MIN_SPAN_PX`` (which
+    reproduces the legacy constants exactly: radius band (0.15, 0.45)xS,
+    RANSAC spread floor 0.05xS, inlier support floor 0.0025xS px). No absolute
+    pixel literal remains.
     """
     import numpy as np
+
+    # Scale reference S: the plan's own median authoritative anchor span when
+    # available, else the declared anchor-envelope fallback. The radius band
+    # reproduces the legacy acceptance window EXACTLY in both regimes:
+    # - hinted:   (0.15, 0.45) x S  (at the fx1 reference S=1000 -> 150..450)
+    # - fallback: (3, 9) x ANCHOR_MIN_SPAN_PX (the declared W-05 anchor minimum
+    #   -> 150..450), i.e. the conservative anchor-envelope window itself.
+    if scale_hint_px and scale_hint_px > 0:
+        s_ref = float(scale_hint_px)
+        r_lo, r_hi = 0.15 * s_ref, 0.45 * s_ref
+        spread_floor = 0.05 * s_ref
+    else:
+        r_lo = 3.0 * G.ANCHOR_MIN_SPAN_PX
+        r_hi = 9.0 * G.ANCHOR_MIN_SPAN_PX
+        spread_floor = 0.05 * r_hi
+    # Inlier support floor, geometry-derived: the smallest arc the sweep guard
+    # admits (45 deg) on the smallest radius the band admits (r_lo) carries
+    # axis ink of r_lo * pi/4 pixels. Anything below that cannot be a
+    # vocabulary arc wall; anything above it must survive.
+    support_floor = max(int(r_lo * math.pi / 4.0), 10)
 
     ys, xs = np.nonzero(structural)
     pts = np.column_stack([xs, ys]).astype(np.float64)
@@ -449,7 +477,7 @@ def _detect_arc_from_structural(structural: np.ndarray) -> dict | None:
             math.hypot(s[2, 0] - s[0, 0], s[2, 1] - s[0, 1]),
             math.hypot(s[2, 0] - s[1, 0], s[2, 1] - s[1, 1]),
         )
-        if spread < 60.0:
+        if spread < spread_floor:
             continue
         try:
             cx, cy, r = G.fit_circle(s)
@@ -457,17 +485,19 @@ def _detect_arc_from_structural(structural: np.ndarray) -> dict | None:
             continue
         if not (np.isfinite(cx) and np.isfinite(cy) and np.isfinite(r)):
             continue
-        if not (150.0 <= r <= 450.0):
+        if not (r_lo <= r <= r_hi):
             continue
         dists = np.hypot(pts_sub[:, 0] - cx, pts_sub[:, 1] - cy)
         cnt = int((np.abs(dists - r) <= 3.0).sum())  # structural arc is a 3px stroke
-        if cnt >= 75 and (best is None or cnt > best[0]):  # 300 / 4 (subsample)
+        if cnt >= support_floor / 4 and (best is None or cnt > best[0]):  # subsampled support floor
             best = (cnt, cx, cy, r)
     if best is None:
         return None
     _, cx, cy, r = best
     dists = np.hypot(pts[:, 0] - cx, pts[:, 1] - cy)
     inl = np.abs(dists - r) <= 3.0
+    if int(inl.sum()) < support_floor:
+        return None
     inl_pts = pts[inl]
     refined = G.fit_circle(inl_pts)
     residual = G.circle_fit_residual(inl_pts, refined)
@@ -758,7 +788,7 @@ def _segments_openings(ink: np.ndarray, wall: dict) -> list[dict]:
         for jamb_i in (gi0, gi1):
             jx = x0 + ux * jamb_i
             jy = y0 + uy * jamb_i
-            if _leaf_present(ink, jx, jy, nx, ny):
+            if _leaf_present(ink, jx, jy, nx, ny, ux, uy):
                 motif = "door"
                 break
         tc = (gi0 + gi1) / 2.0
@@ -785,54 +815,142 @@ def _segments_openings(ink: np.ndarray, wall: dict) -> list[dict]:
     return openings
 
 
-def _leaf_present(ink: np.ndarray, cx: float, cy: float, nx: float, ny: float) -> bool:
-    """True if a perpendicular leaf stroke (>= 100 px) starts near (cx, cy)."""
+def _leaf_present(ink: np.ndarray, cx: float, cy: float, nx: float, ny: float,
+                  ux: float = 0.0, uy: float = 0.0) -> bool:
+    """True if a perpendicular leaf stroke starts near (cx, cy).
+
+    Review #9: the leaf/leaf-vs-tick discrimination is DERIVED from the declared
+    vocabulary bounds — a perpendicular run counts as a leaf only when it meets
+    ``DOOR_LEAF_MIN_RUN_PX`` (2x the jamb-tick scale), so a jamb tick itself can
+    never read as a door and a short leaf on a narrow opening still does.
+
+    The walk START is scanned over ``DOOR_LEAF_START_BAND_PX`` along the host
+    axis: the leaf is authored AT the wall's endpoint row, while the caller's
+    jamb sits on the empty-run edge one stroke-row past it — without the start
+    band the walk samples a row the leaf never touches (vertical-host case).
+    """
     h, w = ink.shape
-    for direction in (1.0, -1.0):
-        run = 0
-        for k in range(1, 190):  # leaf is 180 px long
-            px = int(round(cx + nx * direction * k))
-            py = int(round(cy + ny * direction * k))
-            if 0 <= px < w and 0 <= py < h and ink[py, px]:
-                run += 1
-            else:
-                break
-        if run >= 100:
-            return True
+    band = int(G.DOOR_LEAF_START_BAND_PX)
+    for s in range(-band, band + 1):
+        sx = cx + ux * s
+        sy = cy + uy * s
+        for direction in (1.0, -1.0):
+            run = 0
+            for k in range(1, int(4 * G.DOOR_LEAF_MIN_RUN_PX)):  # bounded scan: 2x over the acceptance bound
+                px = int(round(sx + nx * direction * k))
+                py = int(round(sy + ny * direction * k))
+                if 0 <= px < w and 0 <= py < h and ink[py, px]:
+                    run += 1
+                else:
+                    break
+            if run >= G.DOOR_LEAF_MIN_RUN_PX:
+                return True
     return False
 
 
 def _glazing_runs(ink, x0, y0, ux, uy, N, h, w) -> list[tuple[int, int]]:
-    """Return [(i0, i1), ...] centreline index runs where the glazing offset stroke
-    (the second parallel line at a ~4 px diagonal offset) is present."""
-    runs = []
+    """Return [(i0, i1), ...] centreline index runs carrying a window's glazing.
+
+    Review #9 (geometry-driven, not authoring-offset-driven): at each centreline
+    position the perpendicular offsets in the DECLARED band
+    (``G.GLAZING_OFFSET_BAND_PX``, both sides) are scanned; a position hits when
+    a contiguous group of offset samples carries ink FARTHER from the centreline
+    than the wall's own stroke bleed. A maximal hit run is emitted as glazing
+    only when its per-position offsets are CONSTANT within
+    ``G.GLAZING_OFFSET_CONSTANCY_TOL_PX`` of the run median and on one side —
+    a real glazing line sits at one offset along the whole run, while the host
+    wall's own rasterization staircase scatters across many offsets and must
+    never manufacture a window. Deterministic.
+    """
+    import numpy as np
+
+    nx, ny = -uy, ux
+    lo, hi = G.GLAZING_OFFSET_BAND_PX
+    ks = [float(k) for k in np.arange(-hi, hi + 0.001, 1.0) if abs(k) >= lo]
+    tol = G.GLAZING_OFFSET_CONSTANCY_TOL_PX
+
+    def signature(i: int) -> float | None:
+        cx = x0 + ux * i
+        cy = y0 + uy * i
+        on: list[float] = []
+        for k in ks:
+            px = int(round(cx + nx * k))
+            py = int(round(cy + ny * k))
+            if 0 <= px < w and 0 <= py < h and ink[py, px]:
+                on.append(k)
+        if not on:
+            return None
+        # Group the hit offsets into contiguous groups; the representative is
+        # the group farthest from the centreline (a second stroke beyond the
+        # wall's own bleed), or none when only bleed-scale hits exist.
+        groups: list[list[float]] = [[on[0]]]
+        for k in on[1:]:
+            if abs(k - groups[-1][-1]) <= 1.5:
+                groups[-1].append(k)
+            else:
+                groups.append([k])
+        best = max(groups, key=lambda g: abs(sum(g) / len(g)))
+        med = sum(best) / len(best)
+        return med if abs(med) > lo else None
+
+    sig = [signature(i) for i in range(N)]
+    runs: list[tuple[int, int]] = []
+    out: list[tuple[int, int]] = []
     i = 0
     while i < N:
-        xi = int(round(x0 + ux * i))
-        yi = int(round(y0 + uy * i))
-        hit = _glazing_at(ink, xi, yi, h, w)
-        if hit:
+        if sig[i] is not None:
             j = i
-            while j < N and _glazing_at(ink, int(round(x0 + ux * j)), int(round(y0 + uy * j)), h, w):
+            while j < N and sig[j] is not None:
                 j += 1
-            if j - i >= 10:  # a window spans >= ~50 mm
-                runs.append((i, j))
+            runs.append((i, j))
             i = j
         else:
             i += 1
-    return runs
-
-
-def _glazing_at(ink, xi, yi, h, w) -> bool:
-    """True if there is ink at the glazing's fixed (+4,+4) render offset.
-
-    The window's second glazing line is authored at exactly (x+4, y+4); scanning
-    the other diagonal offsets also catches the diagonal-staircase wall's own
-    steps (which span ~all offsets), over-detecting the window across the whole
-    wall. The single fixed offset is provable and staircase-robust.
-    """
-    px, py = xi + 4, yi + 4
-    return 0 <= px < w and 0 <= py < h and ink[py, px]
+    for (i, j) in runs:
+        if (j - i) < max(G.WINDOW_MIN_RUN_PX, 10):
+            continue
+        vals = [sig[t] for t in range(i, j)]
+        med = sum(vals) / len(vals)
+        # Trim run ENDS whose offset disagrees with the run's median: the host
+        # wall's own diagonal staircase bleeds isolated out-of-band hits at the
+        # boundary (a 3 px stroke reaches ~2 px past the glazing stroke's row),
+        # which would otherwise stretch the run and drag the centre off-truth.
+        # A real glazing run's interior offsets are all constant (checked below),
+        # so trimming only ever removes bleed-scale edge noise.
+        a, b = i, j
+        while b - a > 1 and (sig[a] is None or abs(sig[a] - med) > tol or (sig[a] > 0) != (med > 0)):
+            a += 1
+        while b - a > 1 and (sig[b - 1] is None or abs(sig[b - 1] - med) > tol or (sig[b - 1] > 0) != (med > 0)):
+            b -= 1
+        vals = [sig[t] for t in range(a, b)]
+        med = sum(vals) / len(vals)
+        # Dominance, not absolute purity: an interior crossing stroke (e.g. a
+        # partition wall's own 3 px band through the window) may occupy a
+        # bounded minority of the run without rejecting it, while alternating
+        # scatter (no dominant offset) still fails the fraction gate below.
+        consistent = [v for v in vals if abs(v - med) <= tol and (v > 0) == (med > 0)]
+        if (b - a) >= max(G.WINDOW_MIN_RUN_PX, 10) and \
+           len(consistent) >= G.GLAZING_OFFSET_CONSTANCY_MIN_FRACTION * len(vals):
+            # The glazing stroke is authored as the opening axis shifted by one
+            # CONSTANT image-space vector (k, k) — the vocabulary's render rule.
+            # Its components along the host frame: k_perp = k*(nx+ny) (measured
+            # above) and k_para = k*(ux+uy), so the tangential drift of the run
+            # measured ON the stroke is DERIVED, not assumed equal to k_perp:
+            # k_para = k_perp * (ux+uy) / (nx+ny). Both run ends are re-anchored
+            # onto the host centreline by that amount (review #9: O-W3 centre
+            # regression). When the host axis makes (nx+ny) degenerate the
+            # shift is purely perpendicular and there is nothing to recover.
+            denom = nx + ny
+            if abs(denom) < 0.5:
+                dt = 0.0
+            else:
+                dt = med * (ux + uy) / denom
+                dt = math.copysign(min(abs(dt), G.GLAZING_OFFSET_TANGENTIAL_TOL_PX), dt) if dt else 0.0
+            # The run measured ON the offset stroke sits dt AHEAD of the true
+            # centreline span (the stroke itself is displaced by the shift), so
+            # the recovery SUBTRACTS the tangential component.
+            out.append((max(0, min(N, a - int(round(dt)))), max(0, min(N, b - int(round(dt))))))
+    return out
 
 
 def _empty_runs(occupied: np.ndarray, floor: float, ceil: float) -> list[tuple[int, int]]:
@@ -857,14 +975,20 @@ def _empty_runs(occupied: np.ndarray, floor: float, ceil: float) -> list[tuple[i
 def _arc_wall_opening(ink: np.ndarray, wall: dict) -> dict | None:
     """Detect an arc-hosted window (two concentric glazing arcs) — if present.
 
-    The arc window is authored as TWO concentric arcs at radius r and r-8 (the
-    glazing), spanning a sub-range of the host arc. Scan the host arc's angular
-    span for the inner glazing arc; the contiguous hit run is the window. Returns
-    None when no distinct inner arc is provable (never fabricate an arc opening).
+    The arc window is authored as TWO concentric arcs: the host radius ``r`` and
+    an inner glazing arc at ``r - offset`` spanning a sub-range of the host arc.
+    Review #9 (geometry-driven): the inner offset is SCANNED over the declared
+    band ``G.ARC_WINDOW_INNER_OFFSET_BAND_PX`` (both the fx1 8 px and any other
+    in-band vocabulary offset are admitted; an arbitrary inner stroke outside
+    the band is never promoted to a window). The contiguous angular hit run of
+    the best-supported in-band offset is the window. Returns None when no
+    distinct inner arc is provable (never fabricate an arc opening).
     """
     arc = wall.get("arc_px")
     if not arc:
         return None
+    import numpy as np
+
     cx, cy = arc["center"]
     r = arc["radius_px"]
     start = arc["start_deg"]
@@ -874,16 +998,21 @@ def _arc_wall_opening(ink: np.ndarray, wall: dict) -> dict | None:
         return None
     h, w = ink.shape
     N = max(int(sweep), 2)
-    hits: list[int] = []
-    for i in range(N + 1):
-        ang = math.radians(start + sweep * i / N)
-        # inner glazing arc at radius r-8 (the second concentric stroke)
-        px = int(round(cx + (r - 8.0) * math.cos(ang)))
-        py = int(round(cy + (r - 8.0) * math.sin(ang)))
-        if 0 <= px < w and 0 <= py < h and ink[py, px]:
-            hits.append(i)
-    if len(hits) < 5:
+    lo, hi = G.ARC_WINDOW_INNER_OFFSET_BAND_PX
+    best = None  # (hits_count, offset, hit_list)
+    for k in [float(x) for x in np.arange(lo, hi + 0.001, 1.0)]:
+        hits: list[int] = []
+        for i in range(N + 1):
+            ang = math.radians(start + sweep * i / N)
+            px = int(round(cx + (r - k) * math.cos(ang)))
+            py = int(round(cy + (r - k) * math.sin(ang)))
+            if 0 <= px < w and 0 <= py < h and ink[py, px]:
+                hits.append(i)
+        if len(hits) >= 5 and (best is None or len(hits) > best[0]):
+            best = (len(hits), k, hits)
+    if best is None:
         return None
+    _cnt, _k, hits = best
     i0, i1 = min(hits), max(hits)
     # A glazing arc spanning essentially the whole host arc is not a window.
     if (i1 - i0) >= N - 2:

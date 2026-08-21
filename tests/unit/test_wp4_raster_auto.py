@@ -795,3 +795,247 @@ def test_clean_fx1_measured_gates_pass_and_conversion_stays_manifest_bound():
     assert "PARSE_DIMENSION_INCONSISTENT" not in codes, f"clean fx1 refused: {codes}"
     assert payload["frame"]["scale_m_per_px"] == pytest.approx(0.005)
     assert len(payload["walls"]) == 9  # frozen: 8 segments + 1 arc
+
+
+# --------------------------------------------------------------------------- #
+# J — review #9: geometry-driven opening/wall detection                        #
+# --------------------------------------------------------------------------- #
+
+
+def _synth_wall(ink_arr, start_px, end_px):
+    """Wrap a drawn canvas into (ink, wall-dict) for _segments_openings."""
+    wall = {
+        "index": 0,
+        "source_ref": "t:segment#0",
+        "kind": "segment",
+        "start_px": [float(start_px[0]), float(start_px[1])],
+        "end_px": [float(end_px[0]), float(end_px[1])],
+        "thickness_px": 3.0,
+        "orientation_deg": math.degrees(math.atan2(end_px[1] - start_px[1], end_px[0] - start_px[0])) % 180.0,
+    }
+    return ink_arr, wall
+
+
+def _canvas(size=(700, 720)):
+    img = Image.new("L", size, 255)
+    return img, ImageDraw.Draw(img)
+
+
+from PIL import ImageDraw  # noqa: E402
+
+
+def test_j9_opening_motif_bounds_are_declared_vocabulary_constants():
+    # review #9: the motif acceptance bounds must be DECLARED envelope constants
+    # (versioned, documented provenance) that the detector derives its decisions
+    # from — not authoring literals embedded in recognition logic.
+    assert G.JAMB_TICK_MAX_PX == 10.0                      # vocabulary: jamb tick <= 10 px
+    assert G.DOOR_LEAF_MIN_RUN_PX == 2 * G.JAMB_TICK_MAX_PX  # leaf >> tick, geometry-derived
+    assert G.GLAZING_OFFSET_BAND_PX == (2.0, 12.0)         # perpendicular band, BOTH sides
+    assert G.GLAZING_OFFSET_CONSTANCY_TOL_PX == 1.5        # one stroke, constant offset
+    # A glazing run must be DOMINANTLY at one constant offset; interior
+    # crossings (a partition wall's 3 px stroke through the window) are the
+    # bounded exception, not a rejection reason (f03 W-N regression).
+    assert G.GLAZING_OFFSET_CONSTANCY_MIN_FRACTION == 0.8
+    assert G.WINDOW_MIN_RUN_PX == 10.0                     # declared run floor
+    assert G.ARC_WINDOW_INNER_OFFSET_BAND_PX == (2.0, 16.0)
+
+
+def test_j9_glazing_detected_by_band_scan_on_both_sides_of_centreline():
+    # review #9: a window is a SECOND stroke parallel to the host at a CONSTANT
+    # perpendicular offset inside the declared band — on EITHER side. Probing a
+    # single authored (+4,+4) pixel makes opposite-side windows undetectable.
+    import pwa.floorplan.raster_auto_worker as W
+
+    for offset in (4, -4, 8):
+        img, d = _canvas()
+        d.line([(200, 100), (500, 100)], fill=0, width=3)                     # host wall
+        d.line([(320 + offset, 100 + offset), (380 + offset, 100 + offset)], fill=0, width=2)
+        ink, wall = _synth_wall(G.binarize_structural(np.asarray(img)), (200, 100), (500, 100))
+        ops = W._segments_openings(ink, wall)
+        wins = [o for o in ops if o["kind"] == "window"]
+        assert len(wins) == 1, f"offset {offset}: expected 1 window, got {ops}"
+        # centre measured ON the host centreline (not dragged by the offset)
+        assert wins[0]["center_px"][0] == pytest.approx(350.0, abs=2.0)
+        assert wins[0]["width_px"] == pytest.approx(60.0, abs=8.0)
+
+
+def test_j9_staircase_scatter_never_manufactures_a_window():
+    # The reason a naive multi-offset scan is unsafe: a wall's own rasterization
+    # staircase scatters ink across MANY offsets. A real glazing line sits at
+    # ONE constant perpendicular offset along the whole run; the scan must
+    # verify constancy, so alternating scatter alone never yields a window.
+    import pwa.floorplan.raster_auto_worker as W
+
+    img, d = _canvas()
+    d.line([(200, 100), (320, 100)], fill=0, width=3)   # host wall left
+    d.line([(380, 100), (500, 100)], fill=0, width=3)   # host wall right
+    for i in range(0, 60, 6):                            # alternating scatter at k=-5/+5
+        y = 95 if (i // 6) % 2 == 0 else 105
+        d.line([(320 + i, y), (326 + i, y)], fill=0, width=2)
+    ink, wall = _synth_wall(G.binarize_structural(np.asarray(img)), (200, 100), (500, 100))
+    ops = W._segments_openings(ink, wall)
+    kinds = [o["kind"] for o in ops]
+    assert "window" not in kinds, f"scatter manufactured a window: {ops}"
+
+
+def test_j9_diagonal_host_window_centre_on_centreline_and_true_width():
+    # THE O-W3 regression (review #6 example: 0.365 m vs 1.2 m authored): the
+    # legacy single-offset walk fragmented the diagonal window (73 px wide) and
+    # dragged its centre ~83 px off-truth along the axis. The band-scan must
+    # recover the full authored span with the centre ON the host centreline.
+    import pwa.floorplan.raster_auto_worker as W
+
+    # fx1 geometry, image space (y down): W-DIAG (200,660)->(680,300);
+    # O-W3 a=(344,552) b=(536,408); glazing authored at +(4,+4).
+    img, d = _canvas((760, 760))
+    d.line([(200, 660), (680, 300)], fill=0, width=3)
+    d.line([(348, 556), (540, 412)], fill=0, width=2)
+    ink, wall = _synth_wall(G.binarize_structural(np.asarray(img)), (200, 660), (680, 300))
+    ops = W._segments_openings(ink, wall)
+    wins = [o for o in ops if o["kind"] == "window"]
+    assert len(wins) == 1, f"expected 1 diagonal-host window, got {ops}"
+    # authored window midpoint on the centreline: t=(180+420)/2 -> (440.2, 479.8)
+    assert wins[0]["center_px"][0] == pytest.approx(440.0, abs=4.0)
+    assert wins[0]["center_px"][1] == pytest.approx(480.0, abs=4.0)
+    assert wins[0]["width_px"] == pytest.approx(240.0, abs=12.0)
+
+
+def test_j9_door_leaf_threshold_derived_from_tick_bound_not_100px_literal():
+    # review #9: a door is a PERPENDICULAR stroke at the jamb exceeding the
+    # declared tick scale (2x JAMB_TICK_MAX_PX = 20 px) — independent of the
+    # legacy 100 px literal. A 30 px leaf IS a door; a 10 px jamb tick never is.
+    import pwa.floorplan.raster_auto_worker as W
+
+    def vertical_case(leaf_len):
+        img, d = _canvas((600, 520))
+        d.line([(300, 200), (300, 280)], fill=0, width=3)   # host wall above gap
+        d.line([(300, 360), (300, 420)], fill=0, width=3)   # host wall below gap
+        if leaf_len:
+            d.line([(300, 280), (300 + leaf_len, 280)], fill=0, width=2)  # leaf
+        ink, wall = _synth_wall(G.binarize_structural(np.asarray(img)), (300, 200), (300, 420))
+        return ink, wall
+
+    ink, wall = vertical_case(None)
+    assert [o["kind"] for o in W._segments_openings(ink, wall)] == ["passage"]
+
+    ink, wall = vertical_case(int(G.JAMB_TICK_MAX_PX))    # 10 px: tick-scale
+    assert [o["kind"] for o in W._segments_openings(ink, wall)] == ["passage"], \
+        "tick-scale perpendicular run must not be a door"
+
+    ink, wall = vertical_case(30)                          # > 2x tick bound
+    assert [o["kind"] for o in W._segments_openings(ink, wall)] == ["door"], \
+        "a 30 px perpendicular leaf must be recognized as a door"
+
+
+def test_j9_arc_radius_band_derives_from_scale_hint_and_falls_back_conservatively():
+    # review #9: the arc radius acceptance band must derive from the plan's OWN
+    # declared scale reference (the median authoritative anchor span), not the
+    # hardcoded 150..450 px window. Band fractions (0.15, 0.45) x S reproduce
+    # the legacy window exactly at the reference S=1000 and scale beyond it.
+    import pwa.floorplan.raster_auto_worker as W
+
+    def ring(radius):
+        # A 90-degree arc (the vocabulary's arc-wall shape): a FULL circle is
+        # deliberately rejected by the sweep guard (sweep >= 355 deg) — a wall
+        # is never a closed ring.
+        img, d = _canvas((1600, 1600))
+        pts = [(800 + radius * math.cos(math.radians(-135 + 90 * i / 180)),
+                800 + radius * math.sin(math.radians(-135 + 90 * i / 180))) for i in range(181)]
+        d.line(pts, fill=0, width=3)
+        return G.binarize_structural(np.asarray(img))
+
+    det = W._detect_arc_from_structural(ring(600), scale_hint_px=1500.0)
+    assert det is not None, "600 px arc must be detectable under a 1500 px scale hint"
+    assert det["radius_px"] == pytest.approx(600.0, abs=4.0)
+
+    # Anchorless fallback stays CONSERVATIVE: the declared anchor-envelope
+    # reference (9x ANCHOR_MIN_SPAN_PX = 450) keeps today's acceptance window.
+    assert W._detect_arc_from_structural(ring(600)) is None
+
+
+def test_j9_arc_ransac_guards_derive_from_the_same_scale_reference():
+    # The RANSAC spread floor and inlier support must also derive from the
+    # declared scale reference (fractions of S), not absolute px literals —
+    # a valid arc on a smaller-reference plan is not disqualified by size.
+    import pwa.floorplan.raster_auto_worker as W
+
+    img, d = _canvas((900, 900))
+    # A 90-degree arc (the vocabulary's arc-wall shape), not a full ring.
+    pts = [(450 + 200 * math.cos(math.radians(-135 + 90 * i / 180)),
+            450 + 200 * math.sin(math.radians(-135 + 90 * i / 180))) for i in range(181)]
+    d.line(pts, fill=0, width=3)
+    ink_small = G.binarize_structural(np.asarray(img))
+    det = W._detect_arc_from_structural(ink_small, scale_hint_px=1000.0)
+    assert det is not None, "small-plan arc must survive the derived support gate"
+    assert det["radius_px"] == pytest.approx(200.0, abs=4.0)
+
+
+def test_j9_arc_window_inner_glazing_scanned_over_declared_band():
+    # review #9: the arc-hosted window's inner glazing offset must be scanned
+    # over the declared band (not the authored r-8 literal). An inner arc at
+    # r-12 is equally a window; one at r-20 (outside the band) is not one.
+    import pwa.floorplan.raster_auto_worker as W
+
+    def arc_case(inner_k):
+        size = (900, 900)
+        cx, cy, r = 450.0, 450.0, 300.0
+        img, d = _canvas(size)
+        # host arc: sweep -135..-45 deg (90 deg), 3 px
+        pts = [(cx + r * math.cos(math.radians(-135 + 90 * i / 180)),
+                cy + r * math.sin(math.radians(-135 + 90 * i / 180))) for i in range(181)]
+        d.line(pts, fill=0, width=3)
+        # inner glazing arc at r-inner_k across a 40 deg sub-span, 2 px
+        pts = [(cx + (r - inner_k) * math.cos(math.radians(-115 + 40 * i / 80)),
+                cy + (r - inner_k) * math.sin(math.radians(-115 + 40 * i / 80))) for i in range(81)]
+        d.line(pts, fill=0, width=2)
+        ink = G.binarize_structural(np.asarray(img))
+        wall = {
+            "index": 0,
+            "source_ref": "t:arc#0",
+            "kind": "circular_arc",
+            "start_px": [cx + r * math.cos(math.radians(-135)), cy + r * math.sin(math.radians(-135))],
+            "end_px": [cx + r * math.cos(math.radians(-45)), cy + r * math.sin(math.radians(-45))],
+            "thickness_px": 3.0,
+            "arc_px": {"center": [cx, cy], "radius_px": r, "start_deg": -135.0, "end_deg": -45.0},
+        }
+        return ink, wall
+
+    ink, wall = arc_case(12)
+    op = W._arc_wall_opening(ink, wall)
+    assert op is not None, "inner glazing at r-12 (inside band) must be a window"
+    assert op["kind"] == "window"
+    lo, hi = op["arc_span_deg"]
+    assert lo == pytest.approx(-115.0, abs=3.0) and hi == pytest.approx(-75.0, abs=3.0)
+
+    ink, wall = arc_case(20)
+    assert W._arc_wall_opening(ink, wall) is None, \
+        "inner stroke at r-20 is outside the declared band: no window may be manufactured"
+
+
+def test_j9_fx1_and_corpus_classification_preserved_under_geometry_driven_detection():
+    # Regression net for the #9 rework: FX1 and the arc corpus fixture must
+    # classify EXACTLY as before (frozen expectations) — the derived bands may
+    # not loosen or shift recognition — AND the diagonal-host window recovers
+    # its true width/centre (the O-W3 precision fix).
+    payload = extract_raster_auto(Path(_FX1_PNG), derive_scale=True)
+    assert payload["errors"] == []
+    kinds = [o["kind"] for o in payload["openings"]]
+    assert kinds.count("door") == 2 and kinds.count("passage") == 1
+    assert kinds.count("window") == 3
+    assert len(payload["walls"]) == 9 and len(payload["rooms"]) == 3
+    # O-W3 (diagonal host): truth centre (2200, 7600) mm, width 1200 mm.
+    ow3 = next(o for o in payload["openings"]
+               if o["kind"] == "window" and o["center"][1] < 8000 and o["center"][0] < 4000)
+    assert ow3["center"][0] == pytest.approx(2200.0, abs=40.0)
+    assert ow3["center"][1] == pytest.approx(7600.0, abs=40.0)
+    assert ow3["width_m"] == pytest.approx(1.2, abs=0.06)
+    # O-W1 (top wall): truth centre (6000, 8500) mm — unchanged by the rework.
+    ow1 = next(o for o in payload["openings"] if o["kind"] == "window" and o["center"][1] > 8000)
+    assert ow1["center"][0] == pytest.approx(6000.0, abs=10.0)
+    assert ow1["width_m"] == pytest.approx(1.2, abs=0.05)
+
+    payload_f03 = extract_raster_auto(_corpus_fixture("f03"), derive_scale=True)
+    codes_f03 = {err["code"] for err in payload_f03["errors"]}
+    assert "RASTER_UNEXPLAINED_INK" not in codes_f03, f"f03 regressed: {codes_f03}"
+    kinds_f03 = [o["kind"] for o in payload_f03["openings"]]
+    assert kinds_f03.count("window") >= 2, f"f03 windows lost: {kinds_f03}"
