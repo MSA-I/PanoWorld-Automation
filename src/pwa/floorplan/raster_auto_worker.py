@@ -164,15 +164,33 @@ def extract_raster_auto(path: object, *, derive_scale: bool) -> dict:
 
     scale_fit = G.fit_scale(anchors)
     m_per_px = scale_fit["m_per_px"]
+    # Review #10: the AT-15 gates run over the INK-MEASURED anchor spans so
+    # they are genuinely reachable — a raster whose drawn anchors disagree with
+    # their manifest declarations is refused even when the manifest is
+    # hash-bound to it. The CONVERSION scale above stays manifest-bound (the
+    # frozen contract); using measured spans for conversion would shift FX1's
+    # frozen scale (~ -1.8%) and de-facto re-freeze truth (forbidden).
+    gate_anchors = [
+        {"span_px": a["measured_span_px"], "real_length_m": a["real_length_m"]}
+        for a in anchors
+        if a.get("measured_span_px") is not None
+    ]
+    measured_fit = G.fit_scale(gate_anchors)
+    _band = G.anchor_span_band_px()
+    _measured_inconsistent = len(gate_anchors) != len(anchors) or any(
+        abs(float(a["measured_span_px"]) - float(a["span_px"])) > _band for a in anchors
+    )
     if m_per_px is None:
         if not any(err["code"] == "SCALE_ANCHORS_INSUFFICIENT" for err in errors):
             errors.append(_finding("SCALE_ANCHORS_INSUFFICIENT", "scale could not be resolved", source_ref=str(path.name)))
     elif derive_scale:
         if G.min_anchor_span_px(anchors) < G.ANCHOR_MIN_SPAN_PX:
             errors.append(_finding("PARSE_DIMENSION_INCONSISTENT", "scale anchor below minimum pixel span", source_ref=str(path.name)))
-        if scale_fit["median_residual"] > G.SCALE_MEDIAN_RESIDUAL_MAX:
+        if _measured_inconsistent:
+            errors.append(_finding("PARSE_DIMENSION_INCONSISTENT", "measured anchor ink deviates from declared span beyond geometry band", source_ref=str(path.name)))
+        if measured_fit["count"] >= G.MIN_SCALE_ANCHORS and measured_fit["median_residual"] > G.SCALE_MEDIAN_RESIDUAL_MAX:
             errors.append(_finding("PARSE_DIMENSION_INCONSISTENT", "scale anchor median residual exceeds 1%", source_ref=str(path.name)))
-        if scale_fit["disagreement"] > G.SCALE_DISAGREEMENT_MAX:
+        if measured_fit["count"] >= G.MIN_SCALE_ANCHORS and measured_fit["disagreement"] > G.SCALE_DISAGREEMENT_MAX:
             errors.append(_finding("PARSE_DIMENSION_INCONSISTENT", "scale anchor disagreement exceeds 2%", source_ref=str(path.name)))
 
     mm_per_px = m_per_px * 1000.0 if m_per_px is not None else None
@@ -258,12 +276,19 @@ def _load_authoritative_anchors(path: Path) -> list[dict]:
     ``-scale-anchors.json`` suffix (``fx1-scale-anchors.json`` for the FX1
     fixture, ``fxx-scale-anchors.json`` for a corpus fixture). This is the
     no-OCR envelope (C-1/W-05): scale is read from the hash-bound manifest, never
-    from digits in the image. Returns a list of ``{span_px, real_length_m}``
-    records. The manifest binds each anchor's real length to its expected pixel
-    span and is hash-bound to the raster. A raster whose SHA-256 does not match
-    the manifest's ``raster_sha256`` yields no anchors (fail-closed: scale never
-    resolves for an unbound raster), and any other raster has no manifest -> no
-    anchors.
+    from digits in the image. Returns a list of ``{span_px, real_length_m,
+    measured_span_px, ...}`` records. The manifest binds each anchor's real
+    length to its expected pixel span and is hash-bound to the raster. A raster
+    whose SHA-256 does not match the manifest's ``raster_sha256`` yields no
+    anchors (fail-closed: scale never resolves for an unbound raster), and any
+    other raster has no manifest -> no anchors.
+
+    Review #10: each record ALSO carries ``measured_span_px`` — the span
+    MEASURED from this raster's value-64 anchor ink (excluded from the
+    structural mask), matched to the manifest anchor by nearest centroid to the
+    declared midpoint. ``None`` means no matching ink component was found. The
+    declared ``span_px`` stays the conversion input (frozen contract); the
+    measured span drives the AT-15 gates so they are genuinely reachable.
     """
     import hashlib
     import json
@@ -293,8 +318,60 @@ def _load_authoritative_anchors(path: Path) -> list[dict]:
         span_px = float(a.get("span_px", 0.0))
         real_length_m = float(a.get("real_length_m", 0.0))
         if span_px > 0 and real_length_m > 0:
-            anchors.append({"span_px": span_px, "real_length_m": real_length_m, "id": a.get("id")})
+            anchors.append({
+                "span_px": span_px,
+                "real_length_m": real_length_m,
+                "id": a.get("id"),
+                "a_px": a.get("a_px"),
+                "b_px": a.get("b_px"),
+            })
+    _measure_anchor_spans(path, anchors)
     return anchors
+
+
+def _measure_anchor_spans(path: Path, anchors: list[dict]) -> None:
+    """Attach ``measured_span_px`` to each anchor from THIS raster's ink (#10).
+
+    The value-64 layer (excluded from the structural mask) is labelled into
+    components; each manifest anchor takes the span of the unused component
+    whose centroid is nearest the anchor's declared midpoint (greedy nearest
+    match). An anchor with no matching component gets ``None`` — fail-closed:
+    the caller's consistency gate treats it as an inconsistency.
+    """
+    import numpy as np
+    from PIL import Image
+
+    for a in anchors:
+        a["measured_span_px"] = None
+    if not anchors:
+        return
+    try:
+        if path.stat().st_size > MAX_SOURCE_RASTER_BYTES:
+            return
+        arr = np.asarray(Image.open(path).convert("L"))
+    except Exception:
+        return
+    labels, n = G.connected_components(arr == 64)
+    components: list[tuple[float, float, np.ndarray]] = []
+    for c in range(1, n + 1):
+        m = labels == c
+        ys, xs = np.nonzero(m)
+        components.append((float(xs.mean()), float(ys.mean()), m))
+    for a in anchors:
+        a_px, b_px = a.get("a_px"), a.get("b_px")
+        if not a_px or not b_px:
+            continue
+        mx = (float(a_px[0]) + float(b_px[0])) / 2.0
+        my = (float(a_px[1]) + float(b_px[1])) / 2.0
+        best_i, best_d = None, float("inf")
+        for i, (cx, cy, _m) in enumerate(components):
+            d = math.hypot(cx - mx, cy - my)
+            if d < best_d:
+                best_d, best_i = d, i
+        if best_i is None:
+            continue
+        _cx, _cy, m = components.pop(best_i)
+        a["measured_span_px"] = G.measure_anchor_span_px(arr, m)
 
 
 def _recover_segment_walls(ink: np.ndarray, thickness_ink: np.ndarray | None = None) -> list[dict]:

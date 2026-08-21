@@ -32,6 +32,24 @@ MAX_UNEXPLAINED_INK_FRACTION = 0.10
 SCALE_MEDIAN_RESIDUAL_MAX = 0.01  # AT-15: median anchor residual <= 1%
 SCALE_DISAGREEMENT_MAX = 0.02     # AT-15: anchor disagreement <= 2%
 MIN_SCALE_ANCHORS = 3             # U-2: <3 anchors cannot detect a wrong anchor (n=2 collapse)
+# review #10: maximum along-axis extent of a scale-anchor end tick. The renderer
+# decorates each anchor endpoint with a short diagonal tick; the ink-measured
+# span legitimately overshoots the declared span by up to two ticks + stroke.
+# Documented default pending U-freeze; the measured-vs-declared consistency band
+# is DERIVED from this geometry bound, never tuned to a fixture.
+ANCHOR_TICK_MAX_PX = 12
+
+
+def anchor_span_band_px() -> float:
+    """Absolute |measured - declared| tolerance for an anchor's ink span.
+
+    Geometry-derived: at most one tick of length ANCHOR_TICK_MAX_PX beyond each
+    endpoint plus one WALL_STROKE_PX half-width on each side, with 1 px slack
+    for rasterization.
+    """
+    return float(2 * (WALL_STROKE_PX + ANCHOR_TICK_MAX_PX) + 1)
+
+
 HOUGH_THETA_STEP_DEG = 0.25
 ARC_RMS_RESIDUAL_MAX_PX = 1.0    # U-3 (draft): arc fit acceptance bound
 
@@ -313,6 +331,33 @@ def min_anchor_span_px(anchors: list[dict]) -> float:
     if not anchors:
         return 0.0
     return float(min(a["span_px"] for a in anchors))
+
+
+def measure_anchor_span_px(arr: np.ndarray, component_mask: np.ndarray) -> float:
+    """Measure an anchor's pixel span from its own INK (review #10).
+
+    Projects the component's pixels onto the principal axis (PCA via
+    ``np.linalg.eigh`` on the coordinate covariance — scipy-free) and returns
+    the along-axis extent (max - min + 1). This is an independent geometric
+    measurement of what the raster actually draws: it never reads the
+    author-declared manifest ``span_px``, so the AT-15 scale gates can be
+    genuinely reachable (a tampered raster cannot hide behind its manifest).
+
+    For an FX1-style anchor (declared span + two +-ANCHOR_TICK_MAX_PX/2
+    diagonal end ticks centred on the endpoints) the measured extent
+    legitimately overshoots the declared span by a bounded amount; callers
+    compare against the declared span through ``anchor_span_band_px``.
+    """
+    ys, xs = np.nonzero(np.asarray(component_mask, dtype=bool))
+    pts = np.column_stack([xs, ys]).astype(np.float64)
+    if len(pts) < 2:
+        return float(len(pts))
+    q = pts - pts.mean(axis=0)
+    cov = (q.T @ q) / len(q)
+    _evals, evecs = np.linalg.eigh(cov)
+    d = evecs[:, -1]  # principal axis (largest eigenvalue)
+    t = q @ d
+    return float(t.max() - t.min() + 1.0)
 
 
 def fit_scale(anchors: list[dict]) -> dict:

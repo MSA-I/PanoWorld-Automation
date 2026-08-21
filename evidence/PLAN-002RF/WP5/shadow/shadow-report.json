@@ -1,0 +1,867 @@
+{
+  "document": "wp5-shadow-comparison",
+  "version": "1.0.0",
+  "corpus_replay_hashes_intact": true,
+  "corpus_problems": [],
+  "corpus_fixtures": 60,
+  "structural_wall_convergence_count": 60,
+  "structural_room_convergence_count": 41,
+  "structural_opening_convergence_count": 36,
+  "note": "Structural count convergence only — this is NOT a spatial-tolerance or yield claim. Wall-count convergence (60/60) is the WP4 structural signal; room/openings counts additionally diverge on many fixtures, which is honest and expected (spatial precision is not met). AT-14/§5 and AT-07/AT-08 remain NOT_EVALUABLE (blocked sibling matcher + unavailable R1/R2 corpus).",
+  "fx1": {
+    "fixture": "FX1",
+    "truth": {
+      "walls": 9,
+      "rooms": 3,
+      "openings": 6
+    },
+    "recovered": {
+      "walls": 9,
+      "rooms": 3,
+      "openings": 6
+    },
+    "errors": []
+  },
+  "rows": [
+    {
+      "fixture": "f00",
+      "truth": {
+        "walls": 7,
+        "rooms": 6,
+        "openings": 5
+      },
+      "recovered": {
+        "walls": 7,
+        "rooms": 3,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f01",
+      "truth": {
+        "walls": 6,
+        "rooms": 4,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 6,
+        "rooms": 2,
+        "openings": 4
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f02",
+      "truth": {
+        "walls": 8,
+        "rooms": 8,
+        "openings": 6
+      },
+      "recovered": {
+        "walls": 8,
+        "rooms": 4,
+        "openings": 6
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f03",
+      "truth": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f04",
+      "truth": {
+        "walls": 6,
+        "rooms": 2,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 6,
+        "rooms": 2,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f05",
+      "truth": {
+        "walls": 7,
+        "rooms": 4,
+        "openings": 5
+      },
+      "recovered": {
+        "walls": 7,
+        "rooms": 4,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f06",
+      "truth": {
+        "walls": 7,
+        "rooms": 4,
+        "openings": 5
+      },
+      "recovered": {
+        "walls": 7,
+        "rooms": 4,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f07",
+      "truth": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f08",
+      "truth": {
+        "walls": 8,
+        "rooms": 8,
+        "openings": 6
+      },
+      "recovered": {
+        "walls": 8,
+        "rooms": 4,
+        "openings": 6
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f09",
+      "truth": {
+        "walls": 6,
+        "rooms": 2,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 6,
+        "rooms": 2,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f10",
+      "truth": {
+        "walls": 6,
+        "rooms": 4,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 6,
+        "rooms": 2,
+        "openings": 4
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f11",
+      "truth": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f12",
+      "truth": {
+        "walls": 7,
+        "rooms": 6,
+        "openings": 5
+      },
+      "recovered": {
+        "walls": 7,
+        "rooms": 3,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f13",
+      "truth": {
+        "walls": 7,
+        "rooms": 6,
+        "openings": 5
+      },
+      "recovered": {
+        "walls": 7,
+        "rooms": 3,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f14",
+      "truth": {
+        "walls": 6,
+        "rooms": 2,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 6,
+        "rooms": 2,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f15",
+      "truth": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f16",
+      "truth": {
+        "walls": 6,
+        "rooms": 4,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 6,
+        "rooms": 2,
+        "openings": 4
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f17",
+      "truth": {
+        "walls": 6,
+        "rooms": 4,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 6,
+        "rooms": 2,
+        "openings": 4
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f18",
+      "truth": {
+        "walls": 5,
+        "rooms": 2,
+        "openings": 3
+      },
+      "recovered": {
+        "walls": 5,
+        "rooms": 2,
+        "openings": 3
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f19",
+      "truth": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f20",
+      "truth": {
+        "walls": 6,
+        "rooms": 3,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 6,
+        "rooms": 3,
+        "openings": 4
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f21",
+      "truth": {
+        "walls": 6,
+        "rooms": 4,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 6,
+        "rooms": 2,
+        "openings": 4
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f22",
+      "truth": {
+        "walls": 7,
+        "rooms": 4,
+        "openings": 5
+      },
+      "recovered": {
+        "walls": 7,
+        "rooms": 4,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f23",
+      "truth": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f24",
+      "truth": {
+        "walls": 6,
+        "rooms": 2,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 6,
+        "rooms": 2,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f25",
+      "truth": {
+        "walls": 7,
+        "rooms": 4,
+        "openings": 5
+      },
+      "recovered": {
+        "walls": 7,
+        "rooms": 4,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f26",
+      "truth": {
+        "walls": 6,
+        "rooms": 4,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 6,
+        "rooms": 2,
+        "openings": 4
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f27",
+      "truth": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f28",
+      "truth": {
+        "walls": 7,
+        "rooms": 4,
+        "openings": 5
+      },
+      "recovered": {
+        "walls": 7,
+        "rooms": 4,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f29",
+      "truth": {
+        "walls": 6,
+        "rooms": 2,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 6,
+        "rooms": 2,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f30",
+      "truth": {
+        "walls": 8,
+        "rooms": 8,
+        "openings": 6
+      },
+      "recovered": {
+        "walls": 8,
+        "rooms": 4,
+        "openings": 6
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f31",
+      "truth": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f32",
+      "truth": {
+        "walls": 7,
+        "rooms": 6,
+        "openings": 5
+      },
+      "recovered": {
+        "walls": 7,
+        "rooms": 3,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f33",
+      "truth": {
+        "walls": 6,
+        "rooms": 4,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 6,
+        "rooms": 1,
+        "openings": 4
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f34",
+      "truth": {
+        "walls": 6,
+        "rooms": 2,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 6,
+        "rooms": 2,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f35",
+      "truth": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f36",
+      "truth": {
+        "walls": 6,
+        "rooms": 3,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 6,
+        "rooms": 3,
+        "openings": 4
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f37",
+      "truth": {
+        "walls": 6,
+        "rooms": 3,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 6,
+        "rooms": 3,
+        "openings": 4
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f38",
+      "truth": {
+        "walls": 7,
+        "rooms": 6,
+        "openings": 5
+      },
+      "recovered": {
+        "walls": 7,
+        "rooms": 3,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f39",
+      "truth": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f40",
+      "truth": {
+        "walls": 8,
+        "rooms": 8,
+        "openings": 6
+      },
+      "recovered": {
+        "walls": 8,
+        "rooms": 4,
+        "openings": 6
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f41",
+      "truth": {
+        "walls": 6,
+        "rooms": 3,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 6,
+        "rooms": 3,
+        "openings": 4
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f42",
+      "truth": {
+        "walls": 5,
+        "rooms": 2,
+        "openings": 3
+      },
+      "recovered": {
+        "walls": 5,
+        "rooms": 2,
+        "openings": 3
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f43",
+      "truth": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f44",
+      "truth": {
+        "walls": 6,
+        "rooms": 2,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 6,
+        "rooms": 2,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f45",
+      "truth": {
+        "walls": 7,
+        "rooms": 4,
+        "openings": 5
+      },
+      "recovered": {
+        "walls": 7,
+        "rooms": 4,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f46",
+      "truth": {
+        "walls": 6,
+        "rooms": 3,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 6,
+        "rooms": 3,
+        "openings": 4
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f47",
+      "truth": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f48",
+      "truth": {
+        "walls": 5,
+        "rooms": 2,
+        "openings": 3
+      },
+      "recovered": {
+        "walls": 5,
+        "rooms": 2,
+        "openings": 3
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f49",
+      "truth": {
+        "walls": 6,
+        "rooms": 2,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 6,
+        "rooms": 2,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f50",
+      "truth": {
+        "walls": 6,
+        "rooms": 3,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 6,
+        "rooms": 3,
+        "openings": 4
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f51",
+      "truth": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f52",
+      "truth": {
+        "walls": 8,
+        "rooms": 8,
+        "openings": 6
+      },
+      "recovered": {
+        "walls": 8,
+        "rooms": 4,
+        "openings": 6
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f53",
+      "truth": {
+        "walls": 5,
+        "rooms": 2,
+        "openings": 3
+      },
+      "recovered": {
+        "walls": 5,
+        "rooms": 2,
+        "openings": 3
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f54",
+      "truth": {
+        "walls": 6,
+        "rooms": 2,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 6,
+        "rooms": 2,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f55",
+      "truth": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f56",
+      "truth": {
+        "walls": 8,
+        "rooms": 8,
+        "openings": 6
+      },
+      "recovered": {
+        "walls": 8,
+        "rooms": 4,
+        "openings": 6
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f57",
+      "truth": {
+        "walls": 8,
+        "rooms": 8,
+        "openings": 6
+      },
+      "recovered": {
+        "walls": 8,
+        "rooms": 4,
+        "openings": 6
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f58",
+      "truth": {
+        "walls": 7,
+        "rooms": 4,
+        "openings": 5
+      },
+      "recovered": {
+        "walls": 7,
+        "rooms": 4,
+        "openings": 5
+      },
+      "errors": []
+    },
+    {
+      "fixture": "f59",
+      "truth": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 4
+      },
+      "recovered": {
+        "walls": 7,
+        "rooms": 2,
+        "openings": 5
+      },
+      "errors": []
+    }
+  ]
+}

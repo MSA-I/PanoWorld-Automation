@@ -78,6 +78,7 @@ Consumers match on codes, never on message text.
 | `RECOGNITION_UNSUPPORTED_TAXON` | error | A recognised motif falls outside the predeclared support taxonomy and must route to refusal. |
 | `RECOGNITION_ARC_NO_SAGITTA_BOUND` | error | A circular-arc wall lacks a stated `max_sagitta_px` bound. |
 | `RECOGNITION_ARC_BULGE_SWEEP_MISMATCH` | error | An arc's bulge sign contradicts its declared sweep direction. |
+| `RECOGNITION_OPENING_SPAN_EXCEEDS_BOUND` | error | A non-passage opening (`door`/`window`) span exceeds the frozen 1.5 m bound. |
 | `RECOGNITION_PASSAGE_SPAN_EXCEEDS_BOUND` | error | A `passage` opening span exceeds the frozen 3.0 m bound. |
 | `RECOGNITION_THICKNESS_MISSING` | error | A product wall lacks sourced thickness (required for `cad_exact`/`raster_auto`). |
 | `REVIEW_LINEAGE_CYCLE` | error | A review-chain append would form a cycle or reuse an existing review id. |

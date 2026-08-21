@@ -675,3 +675,123 @@ def test_truth_side_canonicalization_is_symmetric():
     assert truth_large_first == truth_small_first
     assert truth_large_first["a_mm"] == [1, 0]
     assert truth_large_first["b_mm"] == [5, 0]
+
+
+# --------------------------------------------------------------------------- #
+# I — review #10: ink-measured anchor spans (AT-15 reachability)               #
+# --------------------------------------------------------------------------- #
+
+
+def _fx1_anchor_components():
+    arr = np.asarray(Image.open(_FX1_PNG).convert("L"))
+    labels, n = G.connected_components(arr == 64)
+    return arr, labels, n
+
+
+def test_measure_anchor_span_px_principal_axis_extent_on_fx1():
+    # review #10: the anchor span must be MEASURED from the value-64 anchor ink
+    # (excluded from the structural mask), not copied from the author-declared
+    # manifest. The renderer draws +-10 px diagonal end ticks centred on each
+    # endpoint, so the ink-measured principal-axis extents overshoot the
+    # declared spans by a bounded, geometry-explained amount:
+    #   A-D (3-4-5 diagonal, declared 400): ~406.4 (= 2*2 tick-along-axis + stroke)
+    #   A-S (axis-aligned,  declared 1000): ~1022  (= 2*10 tick + 2 stroke)
+    #   A-W (axis-aligned,  declared 1200): ~1222
+    arr, labels, n = _fx1_anchor_components()
+    assert n == 3, f"expected 3 anchor ink components, got {n}"
+    spans = sorted(G.measure_anchor_span_px(arr, labels == c) for c in range(1, n + 1))
+    assert spans[0] == pytest.approx(406.4, abs=1.5)
+    assert spans[1] == pytest.approx(1022.0, abs=1.5)
+    assert spans[2] == pytest.approx(1222.0, abs=1.5)
+
+
+def test_anchor_span_band_is_stroke_tick_geometry_bound():
+    # The measured-vs-declared tolerance is DERIVED from the drawing geometry,
+    # not tuned to the fixture: an anchor's ink extent can exceed its declared
+    # span by at most the two end ticks (each <= ANCHOR_TICK_MAX_PX along the
+    # axis) plus one stroke width on each side.
+    bound = G.anchor_span_band_px()
+    assert bound == 2 * (G.WALL_STROKE_PX + G.ANCHOR_TICK_MAX_PX) + 1
+    assert G.ANCHOR_TICK_MAX_PX == 12  # documented U-pending default
+
+
+def test_load_authoritative_anchors_carries_declared_and_measured_spans():
+    # review #10: each authoritative anchor record carries BOTH the declared
+    # manifest span_px AND the ink-measured span_px of the matching value-64
+    # component in THIS raster. The manifest parse itself stays unchanged;
+    # measurement happens in the worker against the actual pixels.
+    import pwa.floorplan.raster_auto_worker as W
+
+    anchors = W._load_authoritative_anchors(Path(_FX1_PNG))
+    assert len(anchors) == 3
+    declared_sorted = sorted(a["span_px"] for a in anchors)
+    measured_sorted = sorted(a["measured_span_px"] for a in anchors)
+    assert declared_sorted == [400.0, 1000.0, 1200.0]
+    assert measured_sorted[0] == pytest.approx(406.4, abs=1.5)
+    assert measured_sorted[1] == pytest.approx(1022.0, abs=1.5)
+    assert measured_sorted[2] == pytest.approx(1222.0, abs=1.5)
+    # every anchor keeps its real length (conversion input) and id
+    assert all(a["real_length_m"] > 0 for a in anchors)
+    assert {a["id"] for a in anchors} == {"A-S", "A-W", "A-D"}
+
+
+def _write_rebound_manifest(tmp_path, raster_path):
+    """Copy the FX1 manifest, rebinding ONLY raster_sha256 to ``raster_path``."""
+    import hashlib
+    import json
+
+    src = Path(_FX1_PNG).with_name("fx1-scale-anchors.json")
+    doc = json.loads(src.read_text(encoding="utf-8"))
+    doc["raster_sha256"] = "sha256:" + hashlib.sha256(raster_path.read_bytes()).hexdigest()
+    out = tmp_path / "fx1-scale-anchors.json"
+    out.write_text(json.dumps(doc), encoding="utf-8")
+    return out
+
+
+def _tamper_stretch_anchor_s(tmp_path):
+    """Stretch the south anchor's ink +100 px, erase the other value-64 ink.
+
+    The declared manifest spans stay EXACTLY as frozen; only the drawn ink
+    changes (and the manifest is hash-rebound to the tampered raster, exactly
+    as a lying author would). Old code: fit_scale over declared spans -> residual
+    0 by construction -> AT-15 vacuously green. New code: the ink-measured span
+    (~1102 px vs declared 1000) must trip the gates.
+    """
+    import json
+
+    arr = np.asarray(Image.open(_FX1_PNG).convert("L")).copy()
+    arr[arr == 64] = 255            # erase ALL anchor ink
+    arr[1849:1852, 300:1402] = 64   # redraw A-S stretched: 1102 px (declared 1000)
+    raster = tmp_path / "fx1.png"
+    Image.fromarray(arr).save(raster, format="PNG")
+    _write_rebound_manifest(tmp_path, raster)
+    return raster
+
+
+def test_tampered_anchor_ink_fires_dimension_inconsistent_despite_matching_manifest(tmp_path):
+    # review #10 / AT-15 reachability proof: a raster whose anchor ink is
+    # stretched beyond the geometry band must be refused EVEN THOUGH the
+    # manifest is hash-bound to it and its declared spans are unmodified.
+    # Before this fix the scale gates compared real_length_m against the
+    # AUTHOR-DECLARED span_px, so the residual was 0 by construction and this
+    # tamper passed silently.
+    raster = _tamper_stretch_anchor_s(tmp_path)
+    payload = extract_raster_auto(raster, derive_scale=True)
+    codes = {err["code"] for err in payload["errors"]}
+    assert "PARSE_DIMENSION_INCONSISTENT" in codes, f"tampered anchor ink accepted: {codes}"
+    assert payload["walls"] == []  # fail-closed: no geometry beside a blocking finding
+    # conversion scale stays MANIFEST-bound (frozen contract): the declared
+    # spans still resolve 0.005 — the measurement drives the GATES, not the
+    # conversion (using measured spans for conversion would de-facto re-freeze).
+    assert payload["frame"]["scale_m_per_px"] == pytest.approx(0.005)
+
+
+def test_clean_fx1_measured_gates_pass_and_conversion_stays_manifest_bound():
+    # The positive half of #10: on the untouched fixture the ink-measured spans
+    # sit inside the geometry band, so the measured-span gates pass and the
+    # plan still emits clean geometry with the frozen conversion scale.
+    payload = extract_raster_auto(Path(_FX1_PNG), derive_scale=True)
+    codes = {err["code"] for err in payload["errors"]}
+    assert "PARSE_DIMENSION_INCONSISTENT" not in codes, f"clean fx1 refused: {codes}"
+    assert payload["frame"]["scale_m_per_px"] == pytest.approx(0.005)
+    assert len(payload["walls"]) == 9  # frozen: 8 segments + 1 arc
